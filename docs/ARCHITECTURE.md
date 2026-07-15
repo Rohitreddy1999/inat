@@ -1,0 +1,538 @@
+# INAT — Architecture Document
+Version 1.0 | Written before first line of code
+This document is locked. Nothing gets built that
+isn't in here. Nothing gets added without updating
+this document first.
+
+---
+
+## APP IDENTITY
+Name: INAT (I Never Accept Theoretical limits)
+Platform: React Native + Expo
+Inspired by: Novak Djokovic
+Philosophy: A 21-day structured path that gives
+users the foundation to explore any field
+independently. By day 22, they feel confident
+enough to go further on their own. INAT gave
+them the base. What they do with it is theirs.
+Five paths: Move · Rhythm · Express · Calm · Mindful
+
+---
+
+## TECH STACK
+- Framework: React Native + Expo SDK 51+
+- Router: Expo Router (file-based)
+- Styling: NativeWind + theme/index.ts tokens
+- Animation: React Native Reanimated 3
+- State: Zustand (session) + Supabase (persisted)
+- Backend: Supabase (auth + DB + RLS)
+- Language: TypeScript strict mode, no any
+- Testing: React Native Testing Library
+- Build/Submit: Expo EAS
+
+---
+
+## FOLDER STRUCTURE
+
+```
+inat/
+├── app/
+│   ├── (auth)/
+│   │   ├── index.tsx        # Splash
+│   │   ├── welcome.tsx      # Welcome
+│   │   ├── login.tsx        # Login
+│   │   └── signup.tsx       # Signup
+│   ├── (onboarding)/
+│   │   ├── life-stage.tsx   # Q1 — life stage
+│   │   ├── bridge.tsx       # How to find track
+│   │   ├── q2.tsx           # Aspiration
+│   │   ├── q3.tsx           # Energy state
+│   │   ├── q4.tsx           # Real barrier
+│   │   ├── q5.tsx           # Identity belief
+│   │   ├── q6.tsx           # Free text
+│   │   ├── match.tsx        # Track recommendation
+│   │   └── focus.tsx        # Subtrack selection
+│   ├── (tabs)/
+│   │   ├── index.tsx        # Home
+│   │   ├── ascent.tsx       # Progress
+│   │   ├── community.tsx    # Community (placeholder)
+│   │   └── profile.tsx      # Profile + Settings
+│   ├── day.tsx              # Day screen (pushed)
+│   └── graduation.tsx       # Graduation (pushed)
+├── components/
+│   ├── core/                # Text, Button, Card, Badge, Input, SkeletonCard
+│   ├── forms/               # OptionCard, StepDots
+│   ├── tasks/               # HoldButton, StepCard
+│   ├── navigation/          # BottomNav, BackButton
+│   └── shared/              # ReentryCard, Silhouette, DayCard, TrackCard...
+├── services/
+│   ├── auth.service.ts
+│   ├── journey.service.ts
+│   ├── curriculum.service.ts
+│   ├── completion.service.ts
+│   └── profile.service.ts
+├── stores/
+│   ├── journey.store.ts
+│   └── onboarding.store.ts
+├── theme/
+│   └── index.ts             # ALL tokens — never hardcode values
+├── types/
+│   └── index.ts             # ALL TypeScript types
+├── utils/
+│   ├── scoring.ts           # Onboarding score algorithm
+│   └── dayUnlock.ts         # Day unlock + re-entry state logic
+└── docs/
+    ├── ARCHITECTURE.md      # This file
+    ├── DATA.md
+    └── COMPONENTS.md
+```
+
+---
+
+## NAVIGATION ARCHITECTURE
+
+### Auth check (Splash only)
+```
+No session          → Welcome
+Session, no journey → Onboarding: life-stage
+Session, journey    → Home (tabs)
+Session, day 21 complete, graduation not seen → Graduation
+Session, day 21 complete, graduation seen     → Home
+```
+
+### Onboarding flow
+```
+life-stage → bridge
+               ↓ answer questions        ↓ I know what I want
+              q2 → q3 → q4 → q5 → q6   match (no recommendation)
+                              ↓               ↓
+                            match ————→ focus (SAME screen)
+                                            ↓
+                                          Home
+```
+Both paths end at the same focus.tsx and the same Home.
+No exceptions. No separate components for each path.
+
+### Main app tabs
+```
+Tab 1: Home     → Day screen (pushed on tap)
+Tab 2: Ascent   → Progress screen
+Tab 3: Community → Placeholder
+Tab 4: Profile  → Profile + Settings
+```
+
+### Pushed screens (no tab bar)
+```
+Day screen    — pushed from Home
+Graduation    — pushed after Day 21 hold-complete
+```
+
+---
+
+## SCREEN INVENTORY
+
+### (auth) group
+
+**Splash**
+Checks Supabase auth session on mount.
+Shows INAT wordmark animation (2-3 seconds).
+Routes based on session + journey state.
+No back navigation. Internet required.
+Shows offline state if no connection.
+
+**Welcome**
+INAT wordmark + "21 days. One decision."
+CTA 1: "Begin your journey →" → Signup
+CTA 2: "I already have an account" → Login
+No back navigation.
+
+**Login**
+Email + password fields.
+"Sign in" primary CTA.
+"Forgot password" link.
+"Don't have an account? Sign up" link.
+Error states for wrong credentials.
+
+**Signup**
+Full name + email + password fields.
+"Create account" primary CTA.
+"Already have an account? Sign in" link.
+On success: trigger auto-creates profile row.
+Routes to onboarding life-stage.
+
+---
+
+### (onboarding) group
+
+**Life Stage — Q1** (single select)
+Progress: StepDots step 1 of 6.
+Question: "Before we begin — where are you in life right now?"
+Subtitle: "Just so we speak your language."
+Options (icon cards): Still studying / Building my career /
+Juggling family life / Reinventing myself
+CTA: "Continue" (enabled after selection).
+Writes life_stage to Supabase profiles on continue.
+
+**Bridge**
+"How would you like to find your track?"
+Option 1 (RECOMMENDED badge): "Answer a few questions"
+Option 2: "I know what I want"
+Note below: "You can always retake questions later"
+No progress indicator — this is a routing decision not a question.
+Routes to q2 or match.
+
+**Q2 — Aspiration** (multi, pick up to 2)
+GhostNumber: 01
+"There's a version of you that doesn't exist yet.
+What does that person do that you don't?"
+Hint: "Pick up to 2."
+4 options, text only, no icons.
+Shake animation if user tries to select 3rd.
+
+**Q3 — Energy State** (single select)
+GhostNumber: 02
+"Honestly — where are you running on right now?"
+Hint: "Pick one. The honest one."
+5 options.
+
+**Q4 — Real Barrier** (multi, pick up to 2)
+GhostNumber: 03
+"What actually stops you — be honest."
+5 options.
+
+**Q5 — Identity** (multi, pick up to 2)
+GhostNumber: 04
+"Which of these feels most like something
+you secretly believe about yourself?"
+5 options.
+
+**Q6 — Free Text**
+GhostNumber: 05
+"What's the one thing you keep saying you'll start —
+when life calms down, when you're ready, when the time is right?"
+Large open textarea.
+Hint below: "Nobody else sees this. Just be honest."
+CTA: "Show my match →"
+Writes open_answer to Supabase profiles.
+
+**Match / Recommendation**
+Label: "YOUR MATCH"
+Headline: "Here's what we think — but you know yourself best."
+All 5 tracks shown as TrackCard components.
+Highest scoring track: Surge glow + RECOMMENDED badge.
+User can select any track regardless of recommendation.
+Track one-liners shown on each card.
+CTA: "Start this track →"
+If came from direct path: no recommendation, all tracks equal.
+
+**Focus — Subtrack Selection**
+Track name pill header (Surge bg, track icon).
+"Pick your focus"
+"Choose what you want to work on for the next 21 days."
+Live subtracks: real SubtrackCard, selectable.
+Future subtracks: "Coming Soon" card, not selectable.
+Coming Soon cards appear automatically when subtrack exists
+in DB with is_live = false. No code change needed to add them.
+CTA: "Begin my 21 days →" (disabled until selection made).
+Creates user_journeys row in Supabase on confirm.
+Clears onboarding.store after journey created.
+
+---
+
+### (tabs) group
+
+**Home**
+Re-entry card (top, only for returning users):
+
+  State A — New day available:
+    Phase label + "DAY {N} IS LIVE"
+    Phase-based message (see re-entry logic)
+    CTA: "Let's go" → pushes Day screen
+
+  State B — Today already done:
+    Phase label + "DAY {N} COMPLETE"
+    "That's the one that counts."
+    "Day {N+1} opens tonight at midnight."
+    No CTA — acknowledgment only.
+
+  State C — Gap return:
+    "WELCOME BACK"
+    "Day {N} is still here."
+    "The circuit doesn't judge. It waits."
+    CTA: "Pick up where you left off" → pushes Day screen
+
+  State D — First ever open (Day 1, no completions):
+    No re-entry card. Goes straight to DayCard.
+
+Below re-entry state: DayCard component.
+BottomNav fixed at bottom.
+
+**Day Screen** (pushed, no BottomNav)
+Fixed header: phase label + day counter.
+Radial accent bloom top-right (decorative).
+Scrollable content area (fixed height container):
+  "WHAT TO DO" section label
+  StepCards (checkable)
+  "WHY THIS MATTERS" section label
+  Card with why_text
+  Quote if present
+  Video reference if present
+Fixed bottom (NEVER scrolls):
+  Protection gradient (linear, abyss to transparent)
+  HoldButton OR completed Button state
+  BottomNav NOT shown on this screen.
+
+**Ascent — Progress**
+Silhouette system:
+  Human silhouette SVG in background.
+  Lights bottom-to-top as days complete.
+  Color = current phase color.
+  Slow float animation.
+Day grid: all 21 days shown.
+  Completed: phase color fill.
+  Current: pulsing phase border.
+  Future: faint empty.
+Three truths section (from daily_completions data).
+Stats: streak, phase name, days remaining.
+BottomNav fixed.
+
+**Community** (MVP placeholder)
+Styled placeholder screen.
+"Community coming soon."
+BottomNav fixed.
+
+**Profile**
+Avatar (initials fallback if no image).
+Full name, life stage.
+Active journey summary card.
+Completed journeys list.
+Settings section:
+  Notifications toggle
+  Change email
+  Change password
+  Delete account (confirmation required)
+  Sign out
+BottomNav fixed.
+
+---
+
+### Special screens (pushed)
+
+**Graduation** (full screen, no nav, 3 beats)
+
+Beat 1 — The Close (3-4 seconds, no text):
+  Silhouette fully lit.
+  Single surge — all phase colors radiate outward.
+  Super saint aura effect.
+  Settles into steady glow.
+  Tap anywhere to advance.
+
+Beat 2 — The Mirror:
+  "21 days ago you wrote:"
+  [user's Q6 open_answer from profiles]
+  "You showed up anyway."
+  Tap to advance.
+
+Beat 3 — The Choice:
+  "Start a new circuit" → Focus screen (new journey)
+  "Go deeper" → Coming soon / subscription paywall
+  "I'm good for now" → Home
+  Back navigation disabled on this screen.
+
+---
+
+## ROUTING RULES (non-negotiable)
+
+1. Auth check happens ONLY in Splash. No other screen checks auth.
+
+2. Journey check happens ONLY in Splash. Result stored in
+   journeyStore. All screens read from store, never re-fetch on mount.
+
+3. Onboarding is ONE-WAY. Once a journey exists in Supabase,
+   Splash never routes to onboarding again.
+   Retaking questions is done from Profile, not by re-entering
+   the onboarding flow.
+
+4. Direct path and quiz path BOTH end at the same focus.tsx.
+   No separate components.
+
+5. Day screen is always pushed from Home. Never navigated to directly.
+   Deep links route to Home, not Day.
+
+6. Graduation is pushed after hold-complete fires on Day 21.
+   After Beat 3 choice, user lands on Home or Focus.
+   Back navigation is disabled on Graduation.
+
+7. BottomNav is NEVER shown on Day screen or Graduation screen.
+
+---
+
+## DAY UNLOCK LOGIC (in utils/dayUnlock.ts)
+
+- Day N+1 unlocks at midnight after Day N is completed.
+  Uses calendar DATE comparison, not 24-hour timer.
+  A completion on July 14 unlocks the next day on July 15
+  regardless of what time the completion happened.
+
+- Early access: subtle "ahead of schedule?" option on Home
+  when current day is done and next day exists.
+  Not prominent — the 21-day rhythm is the product.
+
+- Missed days: the next day still waits. No penalty. No reset.
+  Sequential — cannot do Day 10 without completing Day 9.
+
+- Day 21 completion: triggers Graduation screen push.
+
+- Timezone: stored in profiles.timezone. All date comparisons
+  use the user's local timezone, not UTC.
+
+---
+
+## RE-ENTRY STATE LOGIC (in utils/dayUnlock.ts)
+
+On app open after auth confirmed, always fetch fresh from Supabase:
+
+```
+today = current calendar date in user's timezone
+last_completion_date = MAX(completed_date) from daily_completions
+                       WHERE journey_id = active_journey.id
+
+if no active journey:
+  → route to onboarding
+
+if no completions exist:
+  → State D (first time, show Day 1 card, no re-entry card)
+
+if last_completion_date === today:
+  → State B (already done today)
+
+if last_completion_date === yesterday:
+  → State A (new day available)
+
+if last_completion_date < yesterday:
+  → State C (gap return, calculate daysSince)
+
+if current_day > 21 AND is_completed = true:
+  → graduation_seen ? Home special state : Graduation screen
+```
+
+Phase-based messages for State A:
+  Days 1-7:  "You're building the base. Show up."
+  Days 8-14: "Day {N}. This is where most people stop."
+  Days 15-21: "Day {N}. This is who you're becoming."
+
+---
+
+## FORBIDDEN — NEVER DO THESE
+
+- Call Supabase directly from a component — use services/ only
+- Hardcode any color, font size, or spacing value — use theme/index.ts
+- Use React Native's Animated API — use Reanimated 3 only
+- Use 'any' in TypeScript — fix the type properly
+- Put HoldButton inside a ScrollView
+- Show BottomNav on Day screen or Graduation
+- Create a second Supabase client — one client only
+- Add a new color to the palette — palette is closed
+- Build a screen not listed in this document without updating it first
+- Use glassmorphism on dark backgrounds — use border-glow instead
+- Write pure #FFFFFF text — use colors.textHi or colors.arcLight
+
+---
+
+## PHASE VERIFICATION CHECKLISTS
+
+### Phase 1 — Shell and navigation
+- [ ] App opens on real iOS device without error
+- [ ] App opens on real Android device without error
+- [ ] Unauthenticated → Splash → Welcome
+- [ ] Authenticated, no journey → Onboarding life-stage
+- [ ] Authenticated, with journey → Home
+- [ ] All 4 tabs navigate correctly
+- [ ] Day screen pushes from Home, back returns to Home
+- [ ] Back navigation works on all onboarding screens
+- [ ] TypeScript compiles with zero errors
+- [ ] No console errors on any screen
+- [ ] BottomNav not visible on Day screen
+
+### Phase 2 — Onboarding
+- [ ] All 6 question screens display correctly
+- [ ] Single select enforced on Q1 and Q3
+- [ ] Multi select max 2 enforced on Q2, Q4, Q5
+- [ ] Shake animation fires on attempted 3rd selection
+- [ ] StepDots advance correctly through questions
+- [ ] Scoring algorithm tested against scoring.test.ts
+- [ ] life_stage written to Supabase profiles
+- [ ] open_answer written to Supabase profiles
+- [ ] discovery_answer scores written to Supabase profiles
+- [ ] Correct track highlighted on match screen
+- [ ] Direct path shows no recommendation
+- [ ] user_journeys row created on focus confirm
+- [ ] onboarding.store cleared after journey created
+- [ ] Both paths land on same Home screen
+
+### Phase 3 — Core experience
+- [ ] Home shows correct day number and phase
+- [ ] Re-entry card shows correct state for each scenario
+- [ ] Day screen content loads from Supabase
+- [ ] StepCards checkable and state persists in session
+- [ ] HoldButton fixed to bottom, never scrolls
+- [ ] Hold completes after 1 second on real device
+- [ ] Haptic feedback fires on completion (Expo Haptics)
+- [ ] Completion writes to daily_completions in Supabase
+- [ ] current_day advances in user_journeys
+- [ ] Day 21 completion triggers Graduation push
+
+### Phase 4 — Re-entry card
+- [ ] State A correct: new day available
+- [ ] State B correct: today already done
+- [ ] State C correct: gap return with days count
+- [ ] State D correct: no card shown for Day 1
+- [ ] Midnight unlock works (test with manual date)
+- [ ] Gap of 7+ days shows correct message
+- [ ] Phase-based messages correct for each phase
+
+### Phase 5 — Progress and Graduation
+- [ ] Silhouette lights correctly per completed days
+- [ ] Silhouette color matches current phase
+- [ ] Float animation runs smoothly
+- [ ] Day grid shows correct completion states
+- [ ] Three truths populated from real data
+- [ ] Beat 1 graduation animation runs completely
+- [ ] Beat 2 shows real open_answer from profiles
+- [ ] Beat 3 choices route to correct screens
+- [ ] Back navigation disabled on graduation
+
+### Phase 6 — Profile and settings
+- [ ] Profile data loads correctly from Supabase
+- [ ] Avatar upload works and displays
+- [ ] Sign out works and routes to Welcome
+- [ ] Delete account removes all data (CASCADE test)
+- [ ] All settings items function correctly
+
+---
+
+## SESSION RULES FOR EVERY CLAUDE CODE SESSION
+
+1. Read CLAUDE.md first. Confirm current phase.
+   Do not write any code until confirmed.
+
+2. One concern per session:
+   UI sessions → component files only
+   Logic sessions → service/util files only
+   Schema sessions → Supabase only via MCP
+   Never mix layers in one session.
+
+3. Show result after each component before moving to next.
+   Never build multiple components without review.
+
+4. Run the relevant phase checklist items after building.
+
+5. End of every session — no exceptions:
+   Update CLAUDE.md → show diff → commit → push
+   Commit format: [phase/component] what changed
+
+6. Never touch files outside the session scope.
+
+7. Never install a new package without explicit approval.
+
+8. If anything is unclear — ask, do not assume.
