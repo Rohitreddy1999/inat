@@ -10,6 +10,8 @@ import { Badge } from '@/components/core/Badge'
 import { SkeletonCard } from '@/components/core/SkeletonCard'
 import { OptionCard } from '@/components/forms/OptionCard'
 import { StepDots } from '@/components/forms/StepDots'
+import { StepCard } from '@/components/tasks/StepCard'
+import { HoldButton } from '@/components/tasks/HoldButton'
 
 export default function Home() {
   const [name, setName] = useState('')
@@ -18,6 +20,10 @@ export default function Home() {
   const [optionA, setOptionA] = useState(false)
   const [optionB, setOptionB] = useState(true)
   const [step, setStep] = useState(3)
+  const [step1Done, setStep1Done] = useState(false)
+  const [step2Done, setStep2Done] = useState(true)
+  const [step3Done, setStep3Done] = useState(false)
+  const [holdCount, setHoldCount] = useState(0)
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bgPage }}>
@@ -202,7 +208,63 @@ export default function Home() {
             </Button>
           </View>
         </View>
+
+        {/* StepCard */}
+        <Text variant="heading" color={colors.surge}>StepCard Component</Text>
+        <Text variant="caption" color={colors.textMid}>
+          Tap step 1 or 3 to toggle done state. Step 2 starts done.
+        </Text>
+        <View>
+          <StepCard
+            index={1}
+            text="Find a quiet space and set a timer for 5 minutes"
+            done={step1Done}
+            phaseColor={colors.phase.build}
+            onToggle={() => setStep1Done(v => !v)}
+          />
+          <StepCard
+            index={2}
+            text="Close your eyes and take three deep breaths to centre yourself"
+            done={step2Done}
+            phaseColor={colors.phase.build}
+            onToggle={() => setStep2Done(v => !v)}
+          />
+          <StepCard
+            index={3}
+            text="Begin moving at whatever pace feels right — no wrong answer"
+            done={step3Done}
+            phaseColor={colors.phase.build}
+            onToggle={() => setStep3Done(v => !v)}
+            isLast
+          />
+        </View>
+
+        {/* HoldButton — scroll padding so it clears the fixed button */}
+        <Text variant="heading" color={colors.surge}>HoldButton Component</Text>
+        <Text variant="caption" color={colors.textMid}>
+          Completed: {holdCount} {holdCount === 1 ? 'time' : 'times'}
+        </Text>
+        <View style={{ height: 80 }} />
       </ScrollView>
+
+      {/* HoldButton fixed at bottom — NEVER inside ScrollView */}
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          paddingHorizontal: spacing.pagePad,
+          paddingBottom: spacing[5],
+          paddingTop: spacing[3],
+          backgroundColor: colors.abyss,
+        }}
+      >
+        <HoldButton
+          phaseColor={colors.phase.build}
+          onComplete={() => setHoldCount(c => c + 1)}
+        />
+      </View>
     </SafeAreaView>
   )
 }

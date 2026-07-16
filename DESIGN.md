@@ -122,6 +122,7 @@ spacing:
   page-bottom: "100dp"
   nav-height: "72dp"
   touch-min: "44dp"
+  step-row: "14dp"
 components:
   button-primary:
     backgroundColor: "{colors.cta-bg}"
@@ -198,6 +199,20 @@ components:
     animation: "opacity 0.3→0.6, 600ms easeInOut, repeat infinite reverse"
     cycle: "1.2s full cycle (600ms each direction)"
     accessibility: "role none, label Loading"
+  step-card-undone:
+    textColor: "{colors.text-mid}"
+    height: "44dp"
+    padding: "{spacing.step-row} 0"
+  step-card-done:
+    textColor: "{colors.text-mid}"
+    height: "44dp"
+    padding: "{spacing.step-row} 0"
+  hold-button:
+    backgroundColor: "{colors.bg-fathom}"
+    textColor: "{colors.text-hi}"
+    rounded: "{rounded.pill}"
+    height: "64dp"
+    width: "100%"
 ---
 
 # Design System: INAT
@@ -297,6 +312,16 @@ Character: certain and weighted — primary is a Surge-fill pill radiating CTA g
 - **Primary** (height 56dp, Surge `#3DF5A6` fill, Abyss `#07090D` text, 700 weight, 16sp): `glowCta` when enabled. Press: scale 0.97, spring return (stiffness 400, damping 20). Disabled: 20% opacity, no press scale, no glow.
 - **Secondary** (height 52dp, transparent bg, `border-strong` border, `text-mid` text, 400 15sp): Disabled: 35% opacity.
 - **Completed** (height 58dp, no fill, phase-color border at 40% opacity, phase-color text, leading checkmark icon): Not pressable — acknowledgment only.
+
+### StepCard (Task Step)
+
+One step in the "WHAT TO DO" list. The layout is a three-slot row that morphs on completion — the right-side empty circle "moves" to the left and fills.
+
+- **Undone state:** Left slot shows step number in phase color (500 weight, 14.5sp). Right slot shows an empty circle (32×32dp, `radius.full`, 1.5dp border at phase-color 40%). Text is `text-mid`, 500 weight, 14.5sp.
+- **Done state:** Left slot shows a filled phase-color circle (32×32dp) with a white checkmark that springs in (stiffness 400, damping 20). Right slot disappears (opacity → 0, 150ms). Text strikes through and fades to 50% opacity (200ms ease).
+- **Layout:** Row height 14dp vertical padding (`spacing.step-row`), `gap: 12dp`, `minHeight: 44dp`. Bottom border `border-soft` hairline on all items except the last (`isLast` prop).
+- **Accessibility:** `accessibilityRole="checkbox"`, `accessibilityState={{ checked: done }}`, `accessibilityLabel="Step N: [text]"`.
+- **Reduced motion:** `ReduceMotion.System` on all animations — instant state change when enabled.
 
 ### HoldButton (Signature Component)
 

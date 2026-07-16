@@ -92,6 +92,7 @@ export const spacing = {
   pageBottom: 100,
   navHeight:  72,
   touchMin:   44,
+  stepRow:    14,
 } as const
 
 export const radius = {
