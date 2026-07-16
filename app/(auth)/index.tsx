@@ -1,12 +1,5 @@
-import { SafeAreaView, View, Text } from 'react-native'
-import { colors } from '@/theme'
+import { Redirect } from 'expo-router'
 
 export default function Splash() {
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.bgPage }}>
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{ color: colors.textHi, fontSize: 18 }}>Splash</Text>
-      </View>
-    </SafeAreaView>
-  )
+  return <Redirect href="/(tabs)" />
 }

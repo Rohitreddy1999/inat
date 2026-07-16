@@ -44,12 +44,14 @@ export const colors = {
 export const typography = {
   font: 'HankenGrotesk',
   size: {
+    badge:   9,
     label:   10,
     micro:   11,
     caption: 12,
     body:    13.5,
     step:    14.5,
     base:    15,
+    button:  16,
     quote:   20,
     heading: 26,
     title:   34,
@@ -70,8 +72,17 @@ export const typography = {
   leading: {
     tight:   1.12,
     heading: 1.25,
+    step:    1.50,
     body:    1.55,
   },
+} as const
+
+export const fontFamilies = {
+  regular:  'HankenGrotesk-Regular',
+  medium:   'HankenGrotesk-Medium',
+  semibold: 'HankenGrotesk-SemiBold',
+  bold:     'HankenGrotesk-Bold',
+  black:    'HankenGrotesk-Black',
 } as const
 
 export const spacing = {
