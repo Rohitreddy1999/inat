@@ -8,11 +8,16 @@ import { Card } from '@/components/core/Card'
 import { Input } from '@/components/core/Input'
 import { Badge } from '@/components/core/Badge'
 import { SkeletonCard } from '@/components/core/SkeletonCard'
+import { OptionCard } from '@/components/forms/OptionCard'
+import { StepDots } from '@/components/forms/StepDots'
 
 export default function Home() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [notes, setNotes] = useState('')
+  const [optionA, setOptionA] = useState(false)
+  const [optionB, setOptionB] = useState(true)
+  const [step, setStep] = useState(3)
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bgPage }}>
@@ -141,6 +146,61 @@ export default function Home() {
           <SkeletonCard />
           <SkeletonCard height={48} />
           <SkeletonCard height={120} />
+        </View>
+
+        {/* OptionCard */}
+        <Text variant="heading" color={colors.surge}>OptionCard Component</Text>
+        <View style={{ gap: 9 }}>
+          <Text variant="caption" color={colors.textMid}>1. Default unselected</Text>
+          <OptionCard
+            label="I want to move my body and build energy"
+            selected={optionA}
+            onPress={() => setOptionA(v => !v)}
+          />
+          <Text variant="caption" color={colors.textMid}>2. Selected (tap to deselect)</Text>
+          <OptionCard
+            label="I want to find my creative voice"
+            selected={optionB}
+            onPress={() => setOptionB(v => !v)}
+          />
+          <Text variant="caption" color={colors.textMid}>3. Disabled (max reached — tap to see shake)</Text>
+          <OptionCard
+            label="I want to build a daily rhythm"
+            selected={false}
+            onPress={() => {}}
+            disabled
+          />
+          <Text variant="caption" color={colors.textMid}>4. Selected + tap disabled card above to trigger shake</Text>
+          <OptionCard
+            label="I want to quiet the noise and focus"
+            selected
+            onPress={() => {}}
+          />
+        </View>
+
+        {/* StepDots */}
+        <Text variant="heading" color={colors.surge}>StepDots Component</Text>
+        <View style={{ gap: 20, alignItems: 'center' }}>
+          <StepDots total={6} current={step} />
+          <Text variant="caption" color={colors.textMid}>
+            Step {step} of 6
+          </Text>
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            <Button
+              variant="secondary"
+              onPress={() => setStep(s => Math.max(1, s - 1))}
+              fullWidth={false}
+            >
+              ← Back
+            </Button>
+            <Button
+              variant="secondary"
+              onPress={() => setStep(s => Math.min(6, s + 1))}
+              fullWidth={false}
+            >
+              Forward →
+            </Button>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
