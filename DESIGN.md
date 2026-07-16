@@ -156,12 +156,12 @@ components:
   option-card-default:
     backgroundColor: "{colors.bg-fathom}"
     textColor: "{colors.text-mid}"
-    rounded: "{rounded.card}"
+    rounded: "{rounded.md}"
     padding: "16dp 20dp"
   option-card-selected:
     backgroundColor: "{colors.selected-bg}"
     textColor: "{colors.text-hi}"
-    rounded: "{rounded.card}"
+    rounded: "{rounded.md}"
     padding: "16dp 20dp"
   input-default:
     backgroundColor: "{colors.bg-input}"
@@ -329,10 +329,11 @@ Character: dark, quiet — present without competing.
 
 ### OptionCard (Form Selection)
 
-- **Default:** Fathom bg, `border-card`, `text-mid` label, checkmark invisible (scale 0).
-- **Selected:** `selected-bg` fill (Surge 6%), `border-surge` (Surge 40%), `text-hi` label, Surge checkmark springs in (scale 0→1, SELECTION_SPRING). Radial Surge 6% overlay from left.
-- **Disabled-unselected (max reached):** 35% opacity, no press response.
-- **Max-exceeded shake:** Fires on the tapped card (translateX, 300ms). No state change.
+- **Default:** Fathom bg, `border-card`, `text-mid` label, checkmark invisible (scale 0). `accessibilityRole="checkbox"`.
+- **Selected:** `selected-bg` fill (Surge 6%), `border-surge` (Surge 40%), `text-hi` label, Surge checkmark springs in (scale 0→1, stiffness 400/damping 20). Border + bg interpolate over 180ms ease. Radial Surge 6% overlay from left.
+- **Disabled-unselected (max reached):** 35% opacity. Still pressable — triggers shake. `accessibilityState={{ disabled: true }}` + `accessibilityHint="Maximum selections reached"`.
+- **Max-exceeded shake:** Fires on the tapped card (translateX 0→6→−6→4→−4→0, 300ms). No state change.
+- **Deselect spring:** stiffness 500/damping 22 (slightly faster than select). `selected+disabled` is not a valid state.
 
 ### Navigation (BottomNav)
 
@@ -365,10 +366,11 @@ Five read-only label variants — none are pressable.
 
 Onboarding progress through Q1–Q6.
 
-- **Past:** 5×5dp, Arc-Light, 3dp radius.
-- **Current:** 16×5dp pill (width springs 5→16dp on advance, 300ms). Arc-Light.
-- **Future:** 5×5dp, rgba(255,255,255,0.15).
-- **Reduced motion:** Instant width change, no spring.
+- **Past:** 5×5dp, Arc-Light (`#EAFFF5`), 3dp radius.
+- **Current:** 16×5dp pill (width springs 5→16dp on advance, 300ms spring; color withTiming 300ms). Arc-Light.
+- **Future:** 5×5dp, `text-faint` (`#FFFFFF2E`, ~18% opacity), 3dp radius.
+- **Accessibility:** Row carries `accessibilityLabel="Step X of Y"`, `accessibilityRole="none"`. Individual dots hidden from screen reader traversal via `importantForAccessibility="no-hide-descendants"`.
+- **Reduced motion:** `ReduceMotion.System` on all — instant width/color change when user has reduced motion enabled.
 
 ## 6. Do's and Don'ts
 
