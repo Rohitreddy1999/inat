@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-15T12:00:00.000Z",
+  "title": "Design System: INAT",
+  "extensions": {
+    "colorMeta": {
+      "bg-abyss": {
+        "role": "neutral",
+        "displayName": "Abyss",
+        "canonical": "#07090D",
+        "tonalRamp": ["#07090D", "#0c0f15", "#11161c", "#171e25", "#1d252e", "#242d37", "#2b3540", "#333e4a"]
+      },
+      "bg-fathom": {
+        "role": "neutral",
+        "displayName": "Fathom",
+        "canonical": "#0F141A",
+        "tonalRamp": ["#07090D", "#0F141A", "#131920", "#171e26", "#1c242d", "#212a34", "#27303c", "#2d3745"]
+      },
+      "bg-raise": {
+        "role": "neutral",
+        "displayName": "Raise",
+        "canonical": "#10161D",
+        "tonalRamp": ["#08090e", "#10161D", "#141b23", "#19212a", "#1f2832", "#242f3a", "#2a3642", "#303d4b"]
+      },
+      "accent-surge": {
+        "role": "primary",
+        "displayName": "Surge — Electric Mint",
+        "canonical": "#3DF5A6",
+        "tonalRamp": ["#07291a", "#0a4028", "#0d5836", "#117047", "#178c5a", "#1fad72", "#2cce8c", "#3DF5A6"]
+      },
+      "accent-glacial": {
+        "role": "secondary",
+        "displayName": "Glacial — Ice Blue",
+        "canonical": "#82D4FF",
+        "tonalRamp": ["#071520", "#0d2a3f", "#14415f", "#1c5a83", "#2774a8", "#3990cc", "#5aaeed", "#82D4FF"]
+      },
+      "accent-plasma": {
+        "role": "tertiary",
+        "displayName": "Plasma — Hot Magenta",
+        "canonical": "#FF4FD8",
+        "tonalRamp": ["#1f0418", "#3d0730", "#5c0b47", "#7b0f60", "#9c1479", "#c01a96", "#de2ab8", "#FF4FD8"]
+      },
+      "arc-light": {
+        "role": "primary",
+        "displayName": "Arc-Light — Near-White Mint",
+        "canonical": "#EAFFF5",
+        "tonalRamp": ["#07291a", "#22593e", "#3d8463", "#58af89", "#72d4ae", "#8df0cc", "#c4f7e1", "#EAFFF5"]
+      },
+      "error": {
+        "role": "neutral",
+        "displayName": "Error Red",
+        "canonical": "#E24B4A",
+        "tonalRamp": ["#1a0505", "#3d0d0c", "#621514", "#861d1c", "#aa2524", "#ce302e", "#e24b4a", "#f08080"]
+      }
+    },
+    "typographyMeta": {
+      "display":  { "displayName": "Display",  "purpose": "Day numbers, wordmarks, graduation headlines. One per screen — the number or word that matters most." },
+      "title":    { "displayName": "Title",    "purpose": "Screen title, day title on DayCard. One per screen." },
+      "heading":  { "displayName": "Heading",  "purpose": "Question headings in onboarding, WHY THIS MATTERS header." },
+      "quote":    { "displayName": "Quote",    "purpose": "Inspirational quotes in day content. Present without dominating." },
+      "base":     { "displayName": "Base",     "purpose": "Button labels, short UI paragraphs, navigation metadata." },
+      "body":     { "displayName": "Body",     "purpose": "Long-form content: why_text, onboarding hints, profile info." },
+      "step":     { "displayName": "Step",     "purpose": "StepCard instruction text in WHAT TO DO sections." },
+      "caption":  { "displayName": "Caption",  "purpose": "Timestamps, subtrack name, duration on DayCard metadata row." },
+      "micro":    { "displayName": "Micro",    "purpose": "Secondary labels, GhostNumber-adjacent text." },
+      "label":    { "displayName": "Label",    "purpose": "SectionLabels, badge text. Always uppercase. Never lowercase." }
+    },
+    "shadows": [
+      {
+        "name": "glowCta",
+        "value": "shadowColor: #3DF5A6 | shadowOpacity: 0.25 | shadowRadius: 20 | elevation: 8",
+        "purpose": "Primary Button and HoldButton in active/holding state. The action available right now."
+      },
+      {
+        "name": "glowSurge",
+        "value": "shadowColor: #3DF5A6 | shadowOpacity: 0.18 | shadowRadius: 16 | elevation: 6",
+        "purpose": "Recommended TrackCard, selected OptionCard halo. 'This is the one.'"
+      },
+      {
+        "name": "glowGlacial",
+        "value": "shadowColor: #82D4FF | shadowOpacity: 0.18 | shadowRadius: 16 | elevation: 6",
+        "purpose": "Phase-specific glow during FOUNDATION days (1–7)."
+      },
+      {
+        "name": "glowPlasma",
+        "value": "shadowColor: #FF4FD8 | shadowOpacity: 0.18 | shadowRadius: 16 | elevation: 6",
+        "purpose": "Phase-specific glow during COMMIT days (15–21)."
+      }
+    ],
+    "motion": [
+      {
+        "name": "entrance",
+        "value": "duration: 400ms | from: { opacity: 0, translateY: 20 } | to: { opacity: 1, translateY: 0 } | easing: Easing.out(Easing.cubic)",
+        "purpose": "Standard screen and card entrance. Every screen and card list."
+      },
+      {
+        "name": "staggerDelay",
+        "value": "80ms per item",
+        "purpose": "Delay between staggered list items (OptionCards, StepCards, TrackCards)."
+      },
+      {
+        "name": "selectionSpring",
+        "value": "type: spring | stiffness: 400 | damping: 20",
+        "purpose": "Checkmark spring-in/out, tab icon scale, button press return."
+      },
+      {
+        "name": "pressScale",
+        "value": "0.97",
+        "purpose": "Scale on button press. Returns via selectionSpring."
+      },
+      {
+        "name": "heartbeatPulse",
+        "value": "scale: 1→1.012→1→1.008→1 | duration: 2600ms | repeat: infinite",
+        "purpose": "HoldButton idle state. Signals the button is alive and waiting. Suppressed on prefers-reduced-motion."
+      },
+      {
+        "name": "dotStretch",
+        "value": "width: 5→16dp | duration: 300ms | spring",
+        "purpose": "StepDots current indicator stretching from dot to pill."
+      },
+      {
+        "name": "silhouetteFloat",
+        "value": "translateY: 0→-8→0 | duration: 4000ms | easing: easeInOut | repeat: infinite",
+        "purpose": "Silhouette component float on Ascent and Graduation screens."
+      },
+      {
+        "name": "shakeError",
+        "value": "translateX: 0→6→-6→4→-4→0 | duration: 300ms",
+        "purpose": "OptionCard when 3rd selection attempted. Input fields on failed form submission."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one action on a given screen. Surge fill, CTA glow, holds the system weight.",
+      "html": "<button class=\"ds-btn-primary\">BEGIN DAY 1 →</button>",
+      "css": ".ds-btn-primary { display: flex; align-items: center; justify-content: center; background: #3DF5A6; color: #07090D; height: 56px; padding: 0 24px; border-radius: 28px; border: none; font-family: 'HankenGrotesk', system-ui, sans-serif; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; cursor: pointer; transition: transform 0.12s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease; box-shadow: 0 0 20px rgba(61,245,166,0.25); } .ds-btn-primary:hover { transform: scale(0.98); box-shadow: 0 0 28px rgba(61,245,166,0.35); } .ds-btn-primary:active { transform: scale(0.97); } .ds-btn-primary:disabled, .ds-btn-primary[aria-disabled='true'] { opacity: 0.2; cursor: default; box-shadow: none; transform: none; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Ghost button — steps back and lets primary lead. Borders in dim white.",
+      "html": "<button class=\"ds-btn-secondary\">I already have an account</button>",
+      "css": ".ds-btn-secondary { display: flex; align-items: center; justify-content: center; background: transparent; color: rgba(255,255,255,0.60); height: 52px; padding: 0 24px; border-radius: 28px; border: 1px solid rgba(255,255,255,0.12); font-family: 'HankenGrotesk', system-ui, sans-serif; font-size: 15px; font-weight: 400; cursor: pointer; transition: border-color 0.15s ease, color 0.15s ease, transform 0.12s cubic-bezier(0.34,1.56,0.64,1); } .ds-btn-secondary:hover { border-color: rgba(255,255,255,0.22); color: rgba(255,255,255,0.80); } .ds-btn-secondary:active { transform: scale(0.97); } .ds-btn-secondary:disabled { opacity: 0.35; cursor: default; }"
+    },
+    {
+      "name": "Option Card",
+      "kind": "card",
+      "refersTo": "option-card-selected",
+      "description": "Selectable answer in onboarding. Default is dark and quiet; selected electrifies with Surge.",
+      "html": "<div class=\"ds-option-card ds-option-card--selected\" role=\"option\" aria-selected=\"true\"><span class=\"ds-option-label\">Move my body more consistently</span><span class=\"ds-option-check\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\"><circle cx=\"8\" cy=\"8\" r=\"8\" fill=\"#3DF5A6\"/><path d=\"M4.5 8l2.5 2.5 4.5-5\" stroke=\"#07090D\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></span></div>",
+      "css": ".ds-option-card { display: flex; align-items: center; justify-content: space-between; background: #0F141A; border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; padding: 16px 20px; cursor: pointer; transition: background 0.18s ease, border-color 0.18s ease; } .ds-option-card:hover { background: #13191f; } .ds-option-card--selected { background: rgba(61,245,166,0.06); border-color: rgba(61,245,166,0.40); } .ds-option-card--selected .ds-option-label { color: rgba(255,255,255,0.95); } .ds-option-card--disabled { opacity: 0.35; cursor: default; pointer-events: none; } .ds-option-label { font-family: 'HankenGrotesk', system-ui, sans-serif; font-size: 15px; font-weight: 400; color: rgba(255,255,255,0.60); } .ds-option-check { opacity: 0; transform: scale(0); transition: opacity 0.15s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1); flex-shrink: 0; } .ds-option-card--selected .ds-option-check { opacity: 1; transform: scale(1); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card-default",
+      "description": "Standard content card. Fathom fill, hairline border. No blur, no glassmorphism.",
+      "html": "<div class=\"ds-card\"><p class=\"ds-card-body\">Rest is not a reward. It's part of the protocol.</p></div>",
+      "css": ".ds-card { background: #0F141A; border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; padding: 20px; } .ds-card-body { font-family: 'HankenGrotesk', system-ui, sans-serif; font-size: 13.5px; font-weight: 400; line-height: 1.55; color: rgba(255,255,255,0.95); margin: 0; }"
+    },
+    {
+      "name": "Card — Accent",
+      "kind": "card",
+      "refersTo": "card-accent",
+      "description": "Phase-accented card. 3dp left border in phase color + radial glow inset. Used in WHY THIS MATTERS sections.",
+      "html": "<div class=\"ds-card-accent\" style=\"--phase: #3DF5A6\"><p class=\"ds-card-body\">This is where the habit forms. Not in the first day — in the seventh.</p></div>",
+      "css": ".ds-card-accent { background: #0F141A; border: 1px solid rgba(255,255,255,0.07); border-left: 3px solid var(--phase, #3DF5A6); border-radius: 20px; padding: 20px; position: relative; overflow: hidden; } .ds-card-accent::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at left center, rgba(61,245,166,0.06) 0%, transparent 60%); pointer-events: none; } .ds-card-accent .ds-card-body { font-family: 'HankenGrotesk', system-ui, sans-serif; font-size: 13.5px; font-weight: 400; line-height: 1.55; color: rgba(255,255,255,0.95); margin: 0; position: relative; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Text input — near-invisible fill, hairline border, Surge glow on focus.",
+      "html": "<div class=\"ds-input-wrap\"><input class=\"ds-input\" type=\"text\" placeholder=\"Your email address\"/></div>",
+      "css": ".ds-input-wrap { position: relative; } .ds-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 14px 16px; font-family: 'HankenGrotesk', system-ui, sans-serif; font-size: 15px; font-weight: 400; color: rgba(255,255,255,0.95); outline: none; transition: border-color 0.15s ease, box-shadow 0.15s ease; box-sizing: border-box; } .ds-input::placeholder { color: rgba(255,255,255,0.35); } .ds-input:focus { border-color: rgba(255,255,255,0.22); box-shadow: 0 0 0 3px rgba(61,245,166,0.10); } .ds-input--error { border-color: #E24B4A; } .ds-input--error:focus { box-shadow: 0 0 0 3px rgba(226,75,74,0.15); }"
+    },
+    {
+      "name": "Bottom Nav",
+      "kind": "nav",
+      "refersTo": "button-primary",
+      "description": "Fixed tab bar. bgNav fill with BlurView behind on iOS. Active tab takes the current phase color. Never shown on Day or Graduation screens.",
+      "html": "<nav class=\"ds-bottom-nav\" role=\"tablist\"><button class=\"ds-nav-item ds-nav-item--active\" role=\"tab\" aria-selected=\"true\"><svg class=\"ds-nav-icon\" width=\"20\" height=\"20\" viewBox=\"0 0 20 20\" fill=\"none\"><path d=\"M3 8.5L10 2l7 6.5V17a1 1 0 01-1 1H4a1 1 0 01-1-1V8.5z\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/><path d=\"M7 18v-6h6v6\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/></svg><span class=\"ds-nav-label\">Home</span></button><button class=\"ds-nav-item\" role=\"tab\" aria-selected=\"false\"><svg class=\"ds-nav-icon\" width=\"20\" height=\"20\" viewBox=\"0 0 20 20\" fill=\"none\"><path d=\"M4 14l4-4 3 3 5-7\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg><span class=\"ds-nav-label\">Ascent</span></button><button class=\"ds-nav-item\" role=\"tab\" aria-selected=\"false\"><svg class=\"ds-nav-icon\" width=\"20\" height=\"20\" viewBox=\"0 0 20 20\" fill=\"none\"><circle cx=\"10\" cy=\"7\" r=\"3\" stroke=\"currentColor\" stroke-width=\"1.5\"/><circle cx=\"4\" cy=\"8\" r=\"2\" stroke=\"currentColor\" stroke-width=\"1.5\"/><circle cx=\"16\" cy=\"8\" r=\"2\" stroke=\"currentColor\" stroke-width=\"1.5\"/><path d=\"M10 12c-3 0-5 1.5-5 3h10c0-1.5-2-3-5-3z\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/></svg><span class=\"ds-nav-label\">Community</span></button><button class=\"ds-nav-item\" role=\"tab\" aria-selected=\"false\"><svg class=\"ds-nav-icon\" width=\"20\" height=\"20\" viewBox=\"0 0 20 20\" fill=\"none\"><circle cx=\"10\" cy=\"7\" r=\"3\" stroke=\"currentColor\" stroke-width=\"1.5\"/><path d=\"M4 17c0-3 2.5-5 6-5s6 2 6 5\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\"/></svg><span class=\"ds-nav-label\">Profile</span></button></nav>",
+      "css": ".ds-bottom-nav { display: flex; align-items: center; justify-content: space-around; background: rgba(7,9,13,0.96); border-top: 1px solid rgba(255,255,255,0.08); height: 72px; padding: 0 4px; width: 100%; box-sizing: border-box; } .ds-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px 12px; background: none; border: none; cursor: pointer; min-width: 44px; min-height: 44px; color: rgba(255,255,255,0.35); transition: color 0.15s ease, transform 0.12s cubic-bezier(0.34,1.56,0.64,1); } .ds-nav-item--active { color: #3DF5A6; } .ds-nav-item:active { transform: scale(0.9); } .ds-nav-icon { flex-shrink: 0; } .ds-nav-label { font-family: 'HankenGrotesk', system-ui, sans-serif; font-size: 10px; font-weight: 500; letter-spacing: 0.10em; text-transform: uppercase; white-space: nowrap; }"
+    },
+    {
+      "name": "Step Dots",
+      "kind": "custom",
+      "refersTo": "button-primary",
+      "description": "Onboarding progress indicator. Current step stretches to a pill; past steps are Arc-Light dots; future steps are dim.",
+      "html": "<div class=\"ds-step-dots\" role=\"progressbar\" aria-valuenow=\"2\" aria-valuemin=\"1\" aria-valuemax=\"6\"><div class=\"ds-dot ds-dot--past\"></div><div class=\"ds-dot ds-dot--current\"></div><div class=\"ds-dot ds-dot--future\"></div><div class=\"ds-dot ds-dot--future\"></div><div class=\"ds-dot ds-dot--future\"></div><div class=\"ds-dot ds-dot--future\"></div></div>",
+      "css": ".ds-step-dots { display: flex; align-items: center; gap: 6px; } .ds-dot { height: 5px; border-radius: 3px; transition: width 0.3s cubic-bezier(0.34,1.56,0.64,1), background-color 0.3s ease; } .ds-dot--past { width: 5px; background: #EAFFF5; } .ds-dot--current { width: 16px; background: #EAFFF5; } .ds-dot--future { width: 5px; background: rgba(255,255,255,0.15); } @media (prefers-reduced-motion: reduce) { .ds-dot { transition: none; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Proving Ground",
+    "overview": "INAT is where commitment becomes physical. The interface does not welcome or comfort — it witnesses. Every screen is built for a specific moment: the 5am moment when the alarm goes off, when inspiration has left the building, and what remains is the system. Hanken Grotesk rendered black-weight on near-total-dark communicates one thing: this is not decorative. The three phase colors — Glacial, Surge, Plasma — are not branding choices. They are a progress arc. When the user reaches Plasma, they earned it by living through Glacial and Surge first.\n\nThe design carries the INAT philosophy structurally. The HoldButton cannot be tapped — it must be held. The graduation moment requires three beats before the user can leave. Day unlocks are calendar-gated, not timer-gated. These are not UX patterns; they are the design asserting that things worth doing require more than a tap.\n\nThe palette is closed. No new colors are added. The accents are in limited supply — Surge appears on a CTA, a selected state, a phase indicator. Its rarity is its weight. A screen where Surge is everywhere has lost the argument. A screen where Surge appears once, on the one thing that matters, wins.",
+    "keyCharacteristics": [
+      "Near-total dark surface — Abyss (#07090D) everywhere except elevated cards (Fathom, #0F141A).",
+      "Three phase accents a user earns sequentially, not decoratively.",
+      "Single typeface (Hanken Grotesk), enormous weight range — Black (900) for display, Regular (400) for body. Contrast through weight, not typeface variety.",
+      "Glow, not shadow — elevation via phase-colored glow on selected/active states only. Static cards are silent.",
+      "Motion is ritual, not decoration — holds, springs, staggered lists, silhouette lighting — each animation has one reason.",
+      "Minimum 44pt touch targets (iOS) / 48dp (Android). HoldButton centered for ambidextrous access."
+    ],
+    "rules": [
+      { "name": "The Closed Palette Rule", "body": "The palette is locked. The three phase accents (Surge, Glacial, Plasma) map one-to-one with the three phases of the 21-day journey. Adding a fourth accent dissolves that architecture. No new colors — ever.", "section": "colors" },
+      { "name": "The Accent Economy Rule", "body": "Any given screen contains one phase accent, appearing in ≤3 places. A screen where Surge appears on five elements has failed the design. Its rarity is the argument.", "section": "colors" },
+      { "name": "The No Pure White Rule", "body": "Pure #FFFFFF is prohibited. Body text uses text-hi (rgba(255,255,255,0.95), hex #FFFFFFF2). Near-white moments use arc-light (#EAFFF5).", "section": "colors" },
+      { "name": "The One Font Rule", "body": "Hanken Grotesk is the only typeface. Never add a second family. Weight, size, and letter-spacing provide all necessary variation.", "section": "typography" },
+      { "name": "The Weight-First Rule", "body": "Hierarchy is established by weight before size. Never reach for a larger size when a heavier weight conveys hierarchy more efficiently.", "section": "typography" },
+      { "name": "The Glow-Not-Shadow Rule", "body": "Drop shadows are prohibited. Glow — a colored radial emanation — earns its place because it carries phase meaning. The color tells you where in the journey you are.", "section": "elevation" },
+      { "name": "The Static Silence Rule", "body": "Glow appears only on interactive states (selected, holding, recommended). Inert cards carry only a hairline border-card. Nothing glows without a reason.", "section": "elevation" },
+      { "name": "The No-Tap Rule for HoldButton", "body": "The primary day-completion action requires a 1-second hold, not a tap. Never replace HoldButton with a standard tap Button for day completion. The friction is the design.", "section": "components" },
+      { "name": "The No Glassmorphism Rule", "body": "Blur on card surfaces is prohibited. BlurView appears only behind BottomNav on iOS because it is a floating OS element. Cards never blur.", "section": "components" }
+    ],
+    "dos": [
+      "Do use text-hi (rgba(255,255,255,0.95) / #FFFFFFF2) or arc-light (#EAFFF5) for all primary text. Pure #FFFFFF is prohibited.",
+      "Do apply only the current phase accent on any given screen — Glacial for days 1–7, Surge for 8–14, Plasma for 15–21.",
+      "Do anchor HoldButton in a fixed-position View at screen bottom, outside any ScrollView, always.",
+      "Do convey elevation through background lightness (Abyss → Fathom → Raise) and phase-colored glow for interactive states only.",
+      "Do use Reanimated 3 for all animations. React Native's Animated API is prohibited.",
+      "Do keep the current phase accent to ≤3 appearances per screen.",
+      "Do respect safe-area insets on iOS (Dynamic Island, notch, home indicator) and Android (status bar, nav bar, display cutout, IME).",
+      "Do maintain 44pt minimum touch targets on iOS, 48dp on Android.",
+      "Do call Supabase exclusively from services/ — never from a component."
+    ],
+    "donts": [
+      "Don't build a wellness or meditation aesthetic. No Headspace beige, no soft pastels, no breathing-room whitespace as a substitute for meaning.",
+      "Don't build a corporate productivity tool. No Notion neutrals, no Linear precision-grid, no checkbox energy.",
+      "Don't use motivational poster copy or imagery. No mountains, no 'you got this,' no abstract uplift.",
+      "Don't use glassmorphism on card surfaces. Blur is permitted only behind BottomNav on iOS.",
+      "Don't use drop shadows. Phase-colored glow or nothing.",
+      "Don't add a second typeface.",
+      "Don't render pure #FFFFFF anywhere.",
+      "Don't show BottomNav on the Day screen or Graduation screen.",
+      "Don't put HoldButton inside a ScrollView.",
+      "Don't add a new color to the palette.",
+      "Don't use any in TypeScript. Fix the type.",
+      "Don't put a border-left stripe wider than 3dp on a card decoratively. The Card accent variant's left strip is a phase signal — never used without phase meaning."
+    ]
+  }
+}
