@@ -25,12 +25,30 @@ feels confident enough to explore the field independently.
 ---
 
 ## WHAT IS BUILT AND WORKING
-- Nothing yet. Project not initialized.
+- Core dependencies installed: expo-router, react-native-safe-area-context,
+  react-native-screens, expo-linking, expo-constants, expo-status-bar,
+  react-native-reanimated, nativewind (v4), tailwindcss (v3.4), zustand, @supabase/supabase-js
+- NativeWind v4 configured: tailwind.config.js, babel.config.js, global.css, metro.config.js
+- Expo Router configured: scheme "inat", main "expo-router/entry"
+- theme/index.ts — all design tokens (colors, typography, spacing, radius, effects,
+  getPhaseColor, getPhaseName)
+- types/index.ts — all TypeScript interfaces (Profile, Journey, DayCompletion, Track,
+  Subtrack, CurriculumDay, ReentryState)
+- lib/supabase.ts — single Supabase client
+- Folder structure matches ARCHITECTURE.md exactly
+- All 18 placeholder screens created and navigable
+- Root layout (app/_layout.tsx) with Stack navigator
+- Tab layout (app/(tabs)/_layout.tsx) with 4 tabs
+- TypeScript compiles with zero errors
 
 ---
 
 ## WHAT IS INCOMPLETE OR BROKEN
-- Everything. Starting from scratch.
+- No real screen content — all screens are placeholders showing screen name only
+- No fonts loaded (Hanken Grotesk — Phase 2)
+- No Supabase project connected — .env.local has placeholder values
+- No auth logic — Splash routes nowhere yet
+- No components built — components/ folders exist but are empty
 
 ---
 
@@ -96,3 +114,28 @@ See docs/ARCHITECTURE.md for phase checklists.
 4. Run relevant phase checklist items after building.
 5. End every session: update this file → show diff →
    commit → push. Format: [phase] what changed
+
+---
+
+## DESIGN CONTEXT
+Full product strategy lives in PRODUCT.md (project root).
+
+Register: product — design serves the experience, not marketing.
+Platform: adaptive (iOS + Android via React Native + Expo).
+
+Brand in three words: earned, electric, certain.
+Inspired by Djokovic's INAT — relentless refusal to accept
+theoretical limits. Not a wellness app. Not a task manager.
+The energy of a coach who already knows you can do it.
+
+Anti-references:
+- Wellness / meditation apps (no Headspace beige, no pastels)
+- Corporate productivity tools (no Notion/Linear aesthetic)
+- Motivational poster copy (no "you got this", no mountains)
+
+Five design principles (from PRODUCT.md):
+1. Show up, not feel inspired
+2. Earned, not granted
+3. The circuit doesn't judge — it waits
+4. Flow through system
+5. Day 22 is the real product
