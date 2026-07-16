@@ -1,5 +1,5 @@
 # INAT — Claude Code Context
-Last updated: July 2026 | Last session: Level 2 form components — OptionCard + StepDots
+Last updated: July 2026 | Last session: Level 3 task components — StepCard + HoldButton
 
 ---
 
@@ -61,13 +61,17 @@ feels confident enough to explore the field independently.
 - No Supabase project connected — .env.local has placeholder values
 - No auth logic — Splash (app/(auth)/index.tsx) temporarily redirects to Home tab
 - Level 2 form components complete: OptionCard, StepDots
-- Level 3–5 components not built
+- Level 3 task components complete: StepCard, HoldButton
+  - HoldButton layout constraint documented in component file header (must never be inside a ScrollView)
+  - HoldButton uses RAF-based progress fill, Reanimated heartbeat, expo-haptics on complete
+  - StepCard uses two-slot layout (number left + empty circle right when undone; filled circle+check left when done)
+- Level 4–5 components not built
 - Android: primary button glow is elevation-only (no green color) — platform limitation
 
 ---
 
 ## WHAT TO BUILD THIS SESSION
-Level 3 task components: StepCard, HoldButton (components/tasks/)
+Level 4 navigation components: BackButton, BottomNav (components/navigation/)
 
 ---
 
@@ -107,8 +111,8 @@ All tokens live in theme/index.ts — never hardcode values.
 
 ## CURRENT PHASE
 Phase 2 — Components
-Level 1 primitives complete. Level 2 form components complete.
-Next: Level 3 task components (StepCard, HoldButton).
+Level 1 primitives complete. Level 2 form components complete. Level 3 task components complete.
+Next: Level 4 navigation components (BackButton, BottomNav).
 See docs/ARCHITECTURE.md for phase checklists.
 
 ## SESSION DECISIONS (Level 2)
