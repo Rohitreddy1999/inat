@@ -87,6 +87,13 @@ All tokens live in theme/index.ts — never hardcode values.
 
 ---
 
+## SLASH COMMANDS
+/phase-check — runs current phase verification checklist
+/token-check — finds hardcoded values in components/
+/commit — typecheck + token check + guided commit
+
+---
+
 ## CURRENT PHASE
 Phase 1 — Shell and navigation
 See docs/ARCHITECTURE.md for phase checklists.

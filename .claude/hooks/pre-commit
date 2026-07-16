@@ -1,0 +1,16 @@
+#!/bin/sh
+# INAT pre-commit hook
+# Blocks commits if TypeScript has errors
+
+echo "Running TypeScript check..."
+npx tsc --noEmit
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "COMMIT BLOCKED: TypeScript errors found."
+  echo "Fix all errors before committing."
+  exit 1
+fi
+
+echo "TypeScript check passed."
+exit 0
