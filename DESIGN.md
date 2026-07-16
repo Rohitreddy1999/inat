@@ -86,6 +86,21 @@ typography:
     fontSize: "10sp"
     fontWeight: 500
     letterSpacing: "0.10em"
+  badge:
+    fontFamily: "HankenGrotesk, system-ui, sans-serif"
+    fontSize: "9sp"
+    fontWeight: 700
+    lineHeight: "11dp"
+  button:
+    fontFamily: "HankenGrotesk, system-ui, sans-serif"
+    fontSize: "16sp"
+    fontWeight: 700
+font-families:
+  regular:  "HankenGrotesk-Regular"
+  medium:   "HankenGrotesk-Medium"
+  semibold: "HankenGrotesk-SemiBold"
+  bold:     "HankenGrotesk-Bold"
+  black:    "HankenGrotesk-Black"
 rounded:
   sm: "10dp"
   md: "14dp"
@@ -153,6 +168,36 @@ components:
     textColor: "{colors.text-hi}"
     rounded: "{rounded.md}"
     padding: "14dp 16dp"
+  badge-streak:
+    container: "32×32dp"
+    diamond: "22×22dp, borderRadius 5dp, rotate 45deg, phase-color fill"
+    innerRotate: "-45deg"
+    text: "font-families.bold, 9sp, text-hi"
+  badge-phase:
+    shape: "pill, borderWidth 1, phase-color border, transparent bg"
+    text: "font-families.medium, 10sp, uppercase, phase-color"
+    padding: "3dp 8dp"
+  badge-recommended:
+    shape: "pill, surge fill, surge border"
+    text: "font-families.bold, 10sp, uppercase, abyss"
+    padding: "3dp 8dp"
+  badge-coming-soon:
+    shape: "pill, border-soft border, transparent bg"
+    text: "font-families.medium, 10sp, uppercase, text-low"
+    padding: "3dp 8dp"
+  badge-pro:
+    shape: "pill (smaller padding), plasma fill, plasma border"
+    text: "font-families.bold, 10sp, uppercase, abyss"
+    padding: "2dp 6dp"
+  skeleton-card:
+    backgroundColor: "{colors.bg-fathom}"
+    borderColor: "{colors.border-card}"
+    borderWidth: "1dp"
+    defaultHeight: "72dp"
+    defaultRadius: "{rounded.card}"
+    animation: "opacity 0.3→0.6, 600ms easeInOut, repeat infinite reverse"
+    cycle: "1.2s full cycle (600ms each direction)"
+    accessibility: "role none, label Loading"
 ---
 
 # Design System: INAT
@@ -221,7 +266,8 @@ A closed four-role system: two near-black surfaces carry depth, three phase acce
 - **Step** (500, 14.5sp, leading 1.5): StepCard instruction text in "WHAT TO DO" sections.
 - **Caption** (400, 12sp): Timestamps, subtrack name, duration on DayCard metadata row.
 - **Micro** (500, 11sp, tracking 0.10em): Secondary labels, GhostNumber-adjacent text.
-- **Label** (500, 10sp, tracking 0.10em, uppercase enforced): SectionLabels ("WHAT TO DO", "WHY THIS MATTERS"), badge text. Always uppercase at the variant level — never lowercase.
+- **Label** (500, 10sp, tracking 0.10em, uppercase enforced): SectionLabels ("WHAT TO DO", "WHY THIS MATTERS"), badge pill text. Always uppercase at the variant level — never lowercase.
+- **Badge** (700, 9sp, lineHeight 11dp): Streak badge number only — diamond badge center text. Never used elsewhere; the smallest rendered text in the system.
 
 **The One Font Rule.** Hanken Grotesk is the only typeface in this system. Never add a second family. Weight, size, and letter-spacing provide all necessary variation.
 
@@ -295,6 +341,25 @@ Character: dark, quiet — present without competing.
 - **Active tab:** Icon + label in current phase color. Spring scale 0.85→1 on switch.
 - **Inactive:** rgba(255,255,255,0.35).
 - **Visibility:** Mounted only on the four tab screens. Unmounted on Day and Graduation — not hidden, unmounted.
+
+### Badges
+
+Five read-only label variants — none are pressable.
+
+- **Streak** (32dp outer container, 22×22dp diamond rotated 45°, phase-color fill, inner counter-rotated −45°, bold 9sp `text-hi` number): Day-streak counter. The rotation produces a diamond; the counter-rotation keeps the number upright. Never resized.
+- **Phase** (pill, 1dp border in phase color, transparent bg, `label` 10sp uppercase, phase-color text): Phase labels on TrackCards and day metadata.
+- **Recommended** (pill, Surge fill + Surge border, bold `label` 10sp uppercase, Abyss text): The single recommended track or subtrack. Appears at most once per screen.
+- **Coming Soon** (pill, `border-soft` border, `text-low` uppercase `label` text): Locked future options. Communicates inaccessibility without harsh visual treatment.
+- **Pro** (smaller pill, Plasma fill + Plasma border, bold `label` 10sp uppercase, Abyss text): Feature gate marker. Plasma signals the furthest-earned phase — contextually appropriate for gated premium features.
+
+**Badge Economy Rule.** One badge per list item, two badges maximum per card. Stacking three variants on a single card breaks hierarchy.
+
+### SkeletonCard (Loading State)
+
+- **Shape:** Fathom fill, `border-card` border, default 72dp height, `rounded.card` radius — matches Card dimensions exactly.
+- **Animation:** Opacity pulses 0.3 → 0.6, 600ms easeInOut each direction (1.2s full cycle), `withRepeat(−1, reverse: true)`. `ReduceMotion.System` honored — on reduced-motion devices opacity stays at 0.3 with no animation.
+- **Accessibility:** `accessible`, `accessibilityRole="none"`, `accessibilityLabel="Loading"` — screen readers announce loading state without announcing an interactive element.
+- **Sizing:** `height` and `radius` are props (defaults: 72dp, card radius). Always match the real card it stands in for — use the same height the loaded card will occupy.
 
 ### StepDots (Progress Indicator)
 
