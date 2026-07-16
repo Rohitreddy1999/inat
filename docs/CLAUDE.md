@@ -1,5 +1,5 @@
 # INAT — Claude Code Context
-Last updated: July 2026 | Last session: Level 1 primitives + Hanken Grotesk font
+Last updated: July 2026 | Last session: Level 2 form components — OptionCard + StepDots
 
 ---
 
@@ -60,18 +60,14 @@ feels confident enough to explore the field independently.
   (except app/(tabs)/index.tsx which is temporarily a component test screen)
 - No Supabase project connected — .env.local has placeholder values
 - No auth logic — Splash (app/(auth)/index.tsx) temporarily redirects to Home tab
-- Level 2 form components not built (components/forms/): OptionCard, StepDots
+- Level 2 form components complete: OptionCard, StepDots
 - Level 3–5 components not built
 - Android: primary button glow is elevation-only (no green color) — platform limitation
 
 ---
 
 ## WHAT TO BUILD THIS SESSION
-Level 2 form components: OptionCard, StepDots (components/forms/)
-
-## DEFINITION OF DONE
-Both form components exist, render correctly, use only @/theme tokens,
-TypeScript compiles with zero errors, Impeccable audit passes.
+Level 3 task components: StepCard, HoldButton (components/tasks/)
 
 ---
 
@@ -111,8 +107,19 @@ All tokens live in theme/index.ts — never hardcode values.
 
 ## CURRENT PHASE
 Phase 2 — Components
-Level 1 primitives complete. Next: Level 2 form components (OptionCard, StepDots).
+Level 1 primitives complete. Level 2 form components complete.
+Next: Level 3 task components (StepCard, HoldButton).
 See docs/ARCHITECTURE.md for phase checklists.
+
+## SESSION DECISIONS (Level 2)
+- future-dot color: used colors.textFaint (0.18) — spec says 15% but no theme token
+  exists for that exact value; delta is imperceptible at 5dp dot size
+- StepDots: importantForAccessibility="no-hide-descendants" hides individual dots
+  from VoiceOver/TalkBack; row carries the label "Step X of Y"
+- OptionCard disabled state: still pressable (triggers shake feedback); VoiceOver
+  sees accessibilityState.disabled=true + hint "Maximum selections reached"
+- Android touch target (44 vs 48dp): theme-level decision, not changed in component;
+  flagged for future theme update (spacing.touchMin → 48)
 
 ---
 
