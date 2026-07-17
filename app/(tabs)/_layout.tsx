@@ -1,63 +1,36 @@
-import { Tabs } from 'expo-router'
-import { Text } from 'react-native'
+import { Tabs, usePathname } from 'expo-router'
+import { View } from 'react-native'
+import { BottomNav } from '@/components/navigation/BottomNav'
 import { colors } from '@/theme'
 
-function TabIcon({ label, focused }: { label: string; focused: boolean }) {
-  return (
-    <Text
-      style={{
-        color: focused ? colors.surge : colors.textLow,
-        fontSize: 10,
-        fontWeight: focused ? '600' : '400',
-      }}
-    >
-      {label}
-    </Text>
-  )
+type ActiveTab = 'home' | 'ascent' | 'community' | 'profile'
+
+function getActiveTab(pathname: string): ActiveTab {
+  if (pathname.includes('/ascent'))    return 'ascent'
+  if (pathname.includes('/community')) return 'community'
+  if (pathname.includes('/profile'))   return 'profile'
+  return 'home'
 }
 
 export default function TabsLayout() {
+  const pathname = usePathname()
+  const active   = getActiveTab(pathname)
+
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarStyle: {
-          backgroundColor: colors.bgNav,
-          borderTopColor: colors.border,
-          height: 72,
-        },
-        tabBarActiveTintColor: colors.surge,
-        tabBarInactiveTintColor: colors.textLow,
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ focused }) => <TabIcon label="Home" focused={focused} />,
+    <View style={{ flex: 1, backgroundColor: colors.bgPage }}>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle: { display: 'none' },
         }}
-      />
-      <Tabs.Screen
-        name="ascent"
-        options={{
-          title: 'Ascent',
-          tabBarIcon: ({ focused }) => <TabIcon label="Ascent" focused={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="community"
-        options={{
-          title: 'Community',
-          tabBarIcon: ({ focused }) => <TabIcon label="Community" focused={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ focused }) => <TabIcon label="Profile" focused={focused} />,
-        }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen name="index"     options={{ title: 'Home' }} />
+        <Tabs.Screen name="ascent"    options={{ title: 'Ascent' }} />
+        <Tabs.Screen name="community" options={{ title: 'Community' }} />
+        <Tabs.Screen name="profile"   options={{ title: 'Profile' }} />
+      </Tabs>
+
+      <BottomNav active={active} />
+    </View>
   )
 }

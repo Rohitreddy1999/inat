@@ -12,6 +12,7 @@ import { OptionCard } from '@/components/forms/OptionCard'
 import { StepDots } from '@/components/forms/StepDots'
 import { StepCard } from '@/components/tasks/StepCard'
 import { HoldButton } from '@/components/tasks/HoldButton'
+import { BackButton } from '@/components/navigation/BackButton'
 
 export default function Home() {
   const [name, setName] = useState('')
@@ -33,6 +34,13 @@ export default function Home() {
           gap: 32,
         }}
       >
+        {/* BackButton — Level 4 navigation test */}
+        <Text variant="heading" color={colors.surge}>BackButton Component</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <BackButton onPress={() => {}} />
+          <Text variant="caption" color={colors.textMid}>44×44 touch target, chevron-back icon</Text>
+        </View>
+
         {/* Text variants */}
         <Text variant="heading" color={colors.surge}>Text Component</Text>
         <View style={{ gap: 12 }}>
