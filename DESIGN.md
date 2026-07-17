@@ -213,6 +213,26 @@ components:
     rounded: "{rounded.pill}"
     height: "64dp"
     width: "100%"
+  track-card-default:
+    backgroundColor: "{colors.bg-fathom}"
+    textColor: "{colors.text-hi}"
+    rounded: "{rounded.card}"
+    padding: "20dp"
+  track-card-selected:
+    backgroundColor: "{colors.selected-bg}"
+    textColor: "{colors.text-hi}"
+    rounded: "{rounded.card}"
+    padding: "20dp"
+  subtrack-card-default:
+    backgroundColor: "{colors.bg-fathom}"
+    textColor: "{colors.text-hi}"
+    rounded: "{rounded.card}"
+    padding: "20dp"
+  subtrack-card-selected:
+    backgroundColor: "{colors.selected-bg}"
+    textColor: "{colors.text-hi}"
+    rounded: "{rounded.card}"
+    padding: "20dp"
 ---
 
 # Design System: INAT
@@ -360,6 +380,30 @@ Character: dark, quiet — present without competing.
 - **Max-exceeded shake:** Fires on the tapped card (translateX 0→6→−6→4→−4→0, 300ms). No state change.
 - **Deselect spring:** stiffness 500/damping 22 (slightly faster than select). `selected+disabled` is not a valid state.
 
+### TrackCard (Track Selection)
+
+The primary selection card on the Match screen. Three-column row: icon container → name/tagline → optional badge.
+
+- **Icon container:** 48×48dp, `radius.md` (14dp), `bg-raise` fill when default → `surge-tint` fill when selected. Icon 28sp: `text-mid` default → `surge` selected.
+- **Default:** Fathom bg, `border-card` border (1dp), `radius.card`.
+- **Selected:** `selected-bg` (Surge 6%) fill, `border-surge` (Surge 40%) border.
+- **Recommended:** `glowSurge` effect applied to the card container — the only unsolicited glow in the system. A single recommended badge appears top-right.
+- **Press:** Spring scale 0.985 (stiffness 400, damping 20). `ReduceMotion.System`.
+- **Typography:** Track name in `base`/700 (`text-hi`). Tagline in `caption` (`text-mid`).
+- **Accessibility:** `accessibilityRole="button"`, `accessibilityState={{ selected }}`, `accessibilityLabel="[name], [tagline]"`.
+- **Constraint:** Only one card per list may carry `isRecommended=true`. The recommendation badge and glow are mutually exclusive with coming-soon or locked states.
+
+### SubtrackCard (Subtrack Selection)
+
+Selection card for the Focus screen. Simpler than TrackCard — name left, status indicators right. Three states: selectable, locked (live but paywalled), not-live.
+
+- **Selectable:** Same Fathom/selected-bg/border-card/border-surge transitions as TrackCard. Spring scale 0.985 on press.
+- **Locked (live + not free):** Lock icon (16sp, `text-low`) + Pro badge on the right. Pressable (Pro upsell flow). Full opacity.
+- **Not live:** 40% opacity, no press handler. `accessibilityState={{ disabled: true }}`. Coming Soon badge on the right.
+- **Typography:** Name in `base`/400. Color: `text-hi` for selectable/locked, `text-low` for not-live.
+- **Layout:** Row, `align: space-between`, `padding: 20dp`, `radius.card`.
+- **Rule:** Locked and not-live are mutually exclusive states. A card is never both at once.
+
 ### Navigation (BottomNav)
 
 - **Background:** `bg-nav` (rgba(7,9,13,0.96)) with BlurView behind on iOS. Solid on Android.
@@ -367,6 +411,16 @@ Character: dark, quiet — present without competing.
 - **Active tab:** Icon + label in current phase color. Spring scale 0.85→1 on switch.
 - **Inactive:** rgba(255,255,255,0.35).
 - **Visibility:** Mounted only on the four tab screens. Unmounted on Day and Graduation — not hidden, unmounted.
+
+### BackButton
+
+Utility navigation component. A minimal pressable chevron — carries no state, no animation, no variant API.
+
+- **Icon:** `chevron-back` Ionicon, 26sp, `text-mid` color.
+- **Touch target:** 44×44dp (`spacing.touchMin`), `hitSlop` 10dp on all four sides.
+- **Placement:** Always top-left of the screen, outside the content scroll area, aligned with StepDots in a three-slot top row (BackButton | StepDots | width-matched spacer).
+- **No animation:** BackButton is a pure Pressable. Do not add spring or scale — the minimal treatment is intentional. Navigation feedback comes from the screen transition, not the button.
+- **Accessibility:** `accessibilityRole="button"`, `accessibilityLabel="Go back"`.
 
 ### Badges
 
@@ -396,6 +450,17 @@ Onboarding progress through Q1–Q6.
 - **Future:** 5×5dp, `text-faint` (`#FFFFFF2E`, ~18% opacity), 3dp radius.
 - **Accessibility:** Row carries `accessibilityLabel="Step X of Y"`, `accessibilityRole="none"`. Individual dots hidden from screen reader traversal via `importantForAccessibility="no-hide-descendants"`.
 - **Reduced motion:** `ReduceMotion.System` on all — instant width/color change when user has reduced motion enabled.
+
+### GhostNumber (Question Backdrop)
+
+A decorative, absolutely-positioned large numeral that sits behind the question heading on onboarding question screens (Q2–Q6). It carries no interactive meaning — it is pure spatial rhythm.
+
+- **Typography:** 120sp, `HankenGrotesk-Black` (900), white at 4% opacity.
+- **Position:** `position: absolute, zIndex: 0`, fills the heading container (`StyleSheet.absoluteFillObject` or equivalent). The heading text sits above it at `zIndex: 1`.
+- **Content:** Zero-padded two-digit string (`01`, `02`, `03`, `04`, `05`) matching the question index, not the StepDots step.
+- **Entrance animation:** Opacity fades from 0 → 0.04 over 600ms (`withTiming`). translateY slides from 8dp → 0 over 800ms. Both use `ReduceMotion.System` — on reduced-motion devices they snap to final values instantly.
+- **Non-interactive:** `pointerEvents="none"`, `accessibilityElementsHidden`, hidden from all screen reader traversal.
+- **The One Per Screen Rule.** One GhostNumber per question screen — never stacked, never on non-question screens.
 
 ## 6. Do's and Don'ts
 
