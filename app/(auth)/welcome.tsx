@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { View, TouchableOpacity, StyleSheet } from 'react-native'
 import { router } from 'expo-router'
 import Animated, {
@@ -34,6 +34,9 @@ function useSlot(delay: number) {
 }
 
 export default function Welcome() {
+  const [tapCount, setTapCount] = useState(0)
+  const tapTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   const wordmark = useSlot(0)
   const tagline  = useSlot(150)
   const rings    = useSlot(300)
@@ -52,9 +55,26 @@ export default function Welcome() {
     <ScreenWrapper padded>
       <View style={styles.top}>
         <Animated.View style={wordmark.animStyle}>
-          <Text variant="display" color={colors.surge} align="center">
-            INAT
-          </Text>
+          <TouchableOpacity
+            activeOpacity={1}
+            accessibilityLabel="INAT"
+            onPress={() => {
+              setTapCount((prev) => {
+                const next = prev + 1
+                if (tapTimer.current) clearTimeout(tapTimer.current)
+                if (next >= 5 && __DEV__) {
+                  router.push('/dev-menu')
+                  return 0
+                }
+                tapTimer.current = setTimeout(() => setTapCount(0), 2000)
+                return next
+              })
+            }}
+          >
+            <Text variant="display" color={colors.surge} align="center">
+              INAT
+            </Text>
+          </TouchableOpacity>
         </Animated.View>
 
         <Animated.View style={[styles.taglineWrap, tagline.animStyle]}>

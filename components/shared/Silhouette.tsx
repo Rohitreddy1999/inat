@@ -20,7 +20,7 @@ import Animated, {
   ReduceMotion,
 } from 'react-native-reanimated'
 import { Text } from '@/components/core/Text'
-import { colors } from '@/theme'
+import { colors, spacing } from '@/theme'
 
 type Props = {
   completedDays: number
@@ -95,7 +95,7 @@ export function Silhouette({
         <Text
           variant="caption"
           color={colors.textMid}
-          style={{ marginTop: 8, textAlign: 'center' }}
+          style={{ marginTop: spacing[2], textAlign: 'center' }}
         >
           {completedDays}/{totalDays}
         </Text>

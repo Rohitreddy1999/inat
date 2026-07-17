@@ -126,6 +126,38 @@ All tokens live in theme/index.ts — never hardcode values.
 
 ---
 
+## DEV TEST HARNESS
+
+### Access
+5-tap the INAT wordmark on the Welcome screen → opens dev menu.
+Only functional when `__DEV__ === true` (development builds only).
+Never ships: all code is wrapped in `__DEV__` checks.
+
+### Files
+- `utils/devTestData.ts` — DEV_SCENARIOS export, throws in production
+- `app/dev-menu.tsx` — full dev menu screen (quick login, quick nav, sign-out reset)
+- `app/(auth)/welcome.tsx` — 5-tap handler on wordmark (2-second reset window)
+- `app/_layout.tsx` — `dev-menu` Stack.Screen gated by `__DEV__`
+
+### Test Accounts (Supabase — FlowState project)
+All passwords: `testpass123`
+
+| email | scenario | day | completions | re-entry |
+|---|---|---|---|---|
+| test+new@inat.dev | New user | — | 0 | — |
+| test+day1@inat.dev | Day 1 first open | 1 | 0 | State D |
+| test+day8@inat.dev | Day 8 build phase | 8 | 7 | State A |
+| test+day21@inat.dev | Day 21 final day | 21 | 20 | State A |
+| test+doneb@inat.dev | Done today | 5 | 5 | State B |
+| test+gap@inat.dev | Gap return | 6 | 5 | State C |
+| test+grad@inat.dev | Graduation | 22 | 21 | completed |
+
+### Schema note
+`daily_completions.completed_date` is a `date` column (YYYY-MM-DD).
+Migration applied: renamed from `completed_at` to align with service layer.
+
+---
+
 ## CURRENT PHASE
 Component Library Build (pre-Phase 1)
 

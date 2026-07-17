@@ -39,7 +39,7 @@ export default function TabsLayout() {
 
       {__DEV__ && (
         <Pressable
-          onPress={() => router.push('/dev-tools')}
+          onPress={() => router.push('/dev-menu')}
           style={{
             position:        'absolute',
             top:             spacing[10] + spacing[2],

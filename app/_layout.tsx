@@ -46,6 +46,11 @@ export default function RootLayout() {
 
       {/* Graduation — no back gesture */}
       <Stack.Screen name="graduation" options={{ gestureEnabled: false }} />
+
+      {/* Dev menu — only registered in __DEV__ builds */}
+      {__DEV__ && (
+        <Stack.Screen name="dev-menu" options={{ headerShown: false }} />
+      )}
     </Stack>
   )
 }
