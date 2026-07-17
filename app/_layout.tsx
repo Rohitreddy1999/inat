@@ -30,37 +30,17 @@ export default function RootLayout() {
         headerShown: false,
         contentStyle: { backgroundColor: colors.bgPage },
         animation: 'slide_from_right',
+        gestureEnabled: true,
       }}
     >
-      {/* Auth group — no header, no back gesture (Splash controls routing) */}
-      <Stack.Screen
-        name="(auth)"
-        options={{ gestureEnabled: false }}
-      />
+      {/* Splash — no back gesture, controls all routing */}
+      <Stack.Screen name="(auth)/index" options={{ gestureEnabled: false }} />
 
-      {/* Onboarding group — no header, gesture enabled for back */}
-      <Stack.Screen
-        name="(onboarding)"
-        options={{ gestureEnabled: true }}
-      />
+      {/* Main tabs — no back gesture */}
+      <Stack.Screen name="(tabs)" options={{ gestureEnabled: false }} />
 
-      {/* Main tabs — no header, no back gesture */}
-      <Stack.Screen
-        name="(tabs)"
-        options={{ gestureEnabled: false }}
-      />
-
-      {/* Day screen — pushed from Home, back gesture enabled */}
-      <Stack.Screen
-        name="day"
-        options={{ gestureEnabled: true }}
-      />
-
-      {/* Graduation — no back gesture, cannot swipe back */}
-      <Stack.Screen
-        name="graduation"
-        options={{ gestureEnabled: false }}
-      />
+      {/* Graduation — no back gesture */}
+      <Stack.Screen name="graduation" options={{ gestureEnabled: false }} />
     </Stack>
   )
 }
