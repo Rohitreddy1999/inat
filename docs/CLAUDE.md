@@ -1,5 +1,5 @@
 # INAT — Claude Code Context
-Last updated: July 2026 | Last session: Level 4 navigation components — BackButton + BottomNav
+Last updated: July 2026 | Last session: Level 5 shared components — all 9 components including Silhouette
 
 ---
 
@@ -71,13 +71,15 @@ feels confident enough to explore the field independently.
     withSequence spring (ReduceMotion.System), router.replace tab nav, phaseColor prop
   - Default tab bar hidden in (tabs)/_layout.tsx; BottomNav mounted there via usePathname
   - BottomNav naturally unmounted on Day and Graduation (those screens are outside (tabs) group)
-- Level 5 components not built
+- Level 6 screens not built
 - Android: primary button glow is elevation-only (no green color) — platform limitation
 
 ---
 
 ## WHAT TO BUILD THIS SESSION
-Level 5 shared components: ScreenWrapper, SectionLabel, GhostNumber (components/shared/)
+Level 6 screens — wire up real content to all placeholder screens:
+auth (splash/welcome/login/signup), onboarding (life-stage→focus), home (DayCard + ReentryCard),
+day screen (HoldButton + StepCard), ascent (progress + Silhouette), profile, graduation
 
 ---
 
@@ -124,8 +126,8 @@ Level 1 — Primitives: COMPLETE
 Level 2 — Form: COMPLETE
 Level 3 — Task: COMPLETE
 Level 4 — Navigation: COMPLETE
-Level 5 — Shared: IN PROGRESS
-Level 6 — Screens: NOT STARTED
+Level 5 — Shared: COMPLETE
+Level 6 — Screens: IN PROGRESS
 
 ### ARCHITECTURE PHASES STATUS
 Phase 1 — Shell and navigation: NOT STARTED
@@ -135,7 +137,22 @@ Phase 4 — Re-entry card: NOT STARTED
 Phase 5 — Progress and Graduation: NOT STARTED
 Phase 6 — Profile and subscription: NOT STARTED
 
-Current work: Component Library Level 5 (shared components). Next: Complete Level 5, then begin Architecture Phase 1 — Shell and navigation.
+Current work: Component Library Level 6 — screens. Next: Begin Architecture Phase 1 — Shell and navigation once screens are wired.
+
+## SESSION DECISIONS (Level 5)
+- react-native-svg v15.12.1 installed for PhaseProgressRing and Silhouette
+- metro.config.js: added resolveRequest override — forces react-native-svg to resolve
+  to lib/commonjs/index.js instead of TypeScript src/ (Windows Metro path-resolution bug)
+- typography.size.ghost (120) added to theme for GhostNumber
+- colors.textGhost ('rgba(255,255,255,0.04)') added to theme for Silhouette base layer
+- micro-spacing tokens added: inputPadV, badgePadH, badgePadV, badgeSmH, badgeSmV, inputHint
+- Silhouette clipPath: unique IDs via module counter (_silhouetteId) + useRef to prevent
+  collision when multiple Silhouettes render on the same screen
+- Silhouette SVG path: humanoid figure defined in SILHOUETTE_PATH constant inside
+  components/shared/Silhouette.tsx — do not change without re-verifying fill reveal
+- GhostNumber: importantForAccessibility="no-hide-descendants" + accessibilityElementsHidden
+  (not aria-hidden — that's a web prop unsupported in React Native)
+- TrackCard: glow (effects.glowSurge) applied only on Pressable style, not Animated.View wrapper
 
 ## SESSION DECISIONS (Level 2)
 - future-dot color: used colors.textFaint (0.18) — spec says 15% but no theme token
