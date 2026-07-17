@@ -1,5 +1,5 @@
 # INAT — Claude Code Context
-Last updated: July 2026 | Last session: Level 6A auth screens — Splash/Welcome/Login/Signup + auth service + journey service + journey store
+Last updated: July 2026 | Last session: Level 6C — Home, Day, Ascent, Community, Profile screens with real Supabase data
 
 ---
 
@@ -136,17 +136,17 @@ Level 2 — Form: COMPLETE
 Level 3 — Task: COMPLETE
 Level 4 — Navigation: COMPLETE
 Level 5 — Shared: COMPLETE
-Level 6 — Screens: IN PROGRESS
+Level 6 — Screens: IN PROGRESS (6A auth ✓, 6B onboarding ✓, 6C main screens ✓, 6D graduation next)
 
 ### ARCHITECTURE PHASES STATUS
-Phase 1 — Shell and navigation: NOT STARTED
-Phase 2 — Onboarding: NOT STARTED
-Phase 3 — Core experience: NOT STARTED
-Phase 4 — Re-entry card: NOT STARTED
-Phase 5 — Progress and Graduation: NOT STARTED
-Phase 6 — Profile and subscription: NOT STARTED
+Phase 1 — Shell and navigation: IN PROGRESS (screens wired, real data flowing)
+Phase 2 — Onboarding: COMPLETE
+Phase 3 — Core experience: COMPLETE (Day screen + completion flow)
+Phase 4 — Re-entry card: COMPLETE (ReentryCard + dayUnlock util)
+Phase 5 — Progress and Graduation: IN PROGRESS (Ascent complete, Graduation placeholder)
+Phase 6 — Profile and subscription: IN PROGRESS (Profile screen complete, no subscription yet)
 
-Current work: Component Library Level 6B — onboarding screens. Level 6A auth complete.
+Current work: Level 6D — Graduation screen.
 
 ## SESSION DECISIONS (Level 5)
 - react-native-svg v15.12.1 installed for PhaseProgressRing and Silhouette
