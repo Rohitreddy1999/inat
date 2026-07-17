@@ -116,11 +116,26 @@ All tokens live in theme/index.ts — never hardcode values.
 ---
 
 ## CURRENT PHASE
-Phase 2 — Components
-Level 1 primitives complete. Level 2 form components complete. Level 3 task components complete.
-Level 4 navigation components complete (BackButton, BottomNav).
-Next: Level 5 shared components (ScreenWrapper, SectionLabel, GhostNumber, DayCard, ReentryCard, TrackCard, SubtrackCard, PhaseProgressRing, Silhouette).
-See docs/ARCHITECTURE.md for phase checklists.
+Component Library Build (pre-Phase 1)
+
+### COMPONENT LIBRARY STATUS (feeds into phases)
+Level 0 — Token foundation: COMPLETE
+Level 1 — Primitives: COMPLETE
+Level 2 — Form: COMPLETE
+Level 3 — Task: COMPLETE
+Level 4 — Navigation: COMPLETE
+Level 5 — Shared: IN PROGRESS
+Level 6 — Screens: NOT STARTED
+
+### ARCHITECTURE PHASES STATUS
+Phase 1 — Shell and navigation: NOT STARTED
+Phase 2 — Onboarding: NOT STARTED
+Phase 3 — Core experience: NOT STARTED
+Phase 4 — Re-entry card: NOT STARTED
+Phase 5 — Progress and Graduation: NOT STARTED
+Phase 6 — Profile and subscription: NOT STARTED
+
+Current work: Component Library Level 5 (shared components). Next: Complete Level 5, then begin Architecture Phase 1 — Shell and navigation.
 
 ## SESSION DECISIONS (Level 2)
 - future-dot color: used colors.textFaint (0.18) — spec says 15% but no theme token
@@ -155,6 +170,9 @@ See docs/ARCHITECTURE.md for phase checklists.
 4. Run relevant phase checklist items after building.
 5. End every session: update this file → show diff →
    commit → push. Format: [phase] what changed
+6. ARCHITECTURE.md phases are the source of truth for feature
+   delivery. COMPONENTS.md levels track the component library
+   build. Never mix the two numbering systems.
 
 ---
 
