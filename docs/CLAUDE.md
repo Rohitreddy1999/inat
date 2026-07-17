@@ -1,5 +1,5 @@
 # INAT — Claude Code Context
-Last updated: July 2026 | Last session: Level 3 task components — StepCard + HoldButton
+Last updated: July 2026 | Last session: Level 4 navigation components — BackButton + BottomNav
 
 ---
 
@@ -65,13 +65,19 @@ feels confident enough to explore the field independently.
   - HoldButton layout constraint documented in component file header (must never be inside a ScrollView)
   - HoldButton uses RAF-based progress fill, Reanimated heartbeat, expo-haptics on complete
   - StepCard uses two-slot layout (number left + empty circle right when undone; filled circle+check left when done)
-- Level 4–5 components not built
+- Level 4 navigation components complete: BackButton, BottomNav
+  - BackButton: Ionicons chevron-back, 44×44 touch target (spacing.touchMin), hitSlop backup
+  - BottomNav: expo-blur BlurView on iOS, solid bgNav on Android, safe area insets,
+    withSequence spring (ReduceMotion.System), router.replace tab nav, phaseColor prop
+  - Default tab bar hidden in (tabs)/_layout.tsx; BottomNav mounted there via usePathname
+  - BottomNav naturally unmounted on Day and Graduation (those screens are outside (tabs) group)
+- Level 5 components not built
 - Android: primary button glow is elevation-only (no green color) — platform limitation
 
 ---
 
 ## WHAT TO BUILD THIS SESSION
-Level 4 navigation components: BackButton, BottomNav (components/navigation/)
+Level 5 shared components: ScreenWrapper, SectionLabel, GhostNumber (components/shared/)
 
 ---
 
@@ -112,7 +118,8 @@ All tokens live in theme/index.ts — never hardcode values.
 ## CURRENT PHASE
 Phase 2 — Components
 Level 1 primitives complete. Level 2 form components complete. Level 3 task components complete.
-Next: Level 4 navigation components (BackButton, BottomNav).
+Level 4 navigation components complete (BackButton, BottomNav).
+Next: Level 5 shared components (ScreenWrapper, SectionLabel, GhostNumber, DayCard, ReentryCard, TrackCard, SubtrackCard, PhaseProgressRing, Silhouette).
 See docs/ARCHITECTURE.md for phase checklists.
 
 ## SESSION DECISIONS (Level 2)
