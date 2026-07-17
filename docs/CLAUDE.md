@@ -148,8 +148,10 @@ Current work: Component Library Level 6 — screens. Next: Begin Architecture Ph
 - micro-spacing tokens added: inputPadV, badgePadH, badgePadV, badgeSmH, badgeSmV, inputHint
 - Silhouette clipPath: unique IDs via module counter (_silhouetteId) + useRef to prevent
   collision when multiple Silhouettes render on the same screen
-- Silhouette SVG path: humanoid figure defined in SILHOUETTE_PATH constant inside
-  components/shared/Silhouette.tsx — do not change without re-verifying fill reveal
+- Silhouette: PLACEHOLDER — pill-shaped progress bar (80×160 full, 40×80 mini).
+  Real SVG silhouette deferred to post-MVP. Use react-native-skia when implementing.
+  Do NOT use react-native-svg clipPath or LinearGradient fill — both fail on iOS.
+  Props interface is stable; swap in real component with zero screen changes.
 - GhostNumber: importantForAccessibility="no-hide-descendants" + accessibilityElementsHidden
   (not aria-hidden — that's a web prop unsupported in React Native)
 - TrackCard: glow (effects.glowSurge) applied only on Pressable style, not Animated.View wrapper
