@@ -1,5 +1,5 @@
 # INAT — Claude Code Context
-Last updated: July 2026 | Last session: Level 5 shared components — all 9 components including Silhouette
+Last updated: July 2026 | Last session: Level 6A auth screens — Splash/Welcome/Login/Signup + auth service + journey service + journey store
 
 ---
 
@@ -71,15 +71,24 @@ feels confident enough to explore the field independently.
     withSequence spring (ReduceMotion.System), router.replace tab nav, phaseColor prop
   - Default tab bar hidden in (tabs)/_layout.tsx; BottomNav mounted there via usePathname
   - BottomNav naturally unmounted on Day and Graduation (those screens are outside (tabs) group)
-- Level 6 screens not built
+- Level 6A auth screens complete:
+  - services/auth.service.ts (signUp/signIn/signOut/getSession/resetPassword)
+  - services/journey.service.ts (getActiveJourney)
+  - stores/journey.store.ts (hydrate/reset, isHydrated flag)
+  - app/(auth)/index.tsx — Splash: 600ms wordmark + 400ms tagline fade, auth routing
+  - app/(auth)/welcome.tsx — staggered entrance animation, PhaseProgressRings
+  - app/(auth)/login.tsx — signIn + forgot password + hydrate routing
+  - app/(auth)/signup.tsx — signUp → onboarding routing
+  - app/_layout.tsx — all Stack groups configured (auth/onboarding/tabs/day/graduation)
+  - Input.tsx extended: keyboardType + autoCapitalize pass-through props added
+- All 3 auth flow tests pending (requires real Supabase project — .env.local has placeholders)
+- Level 6B onboarding screens not built
 - Android: primary button glow is elevation-only (no green color) — platform limitation
 
 ---
 
 ## WHAT TO BUILD THIS SESSION
-Level 6 screens — wire up real content to all placeholder screens:
-auth (splash/welcome/login/signup), onboarding (life-stage→focus), home (DayCard + ReentryCard),
-day screen (HoldButton + StepCard), ascent (progress + Silhouette), profile, graduation
+Level 6B — onboarding screens (life-stage → bridge → q2 → q3 → q4 → q5 → q6 → match → focus)
 
 ---
 
@@ -137,7 +146,7 @@ Phase 4 — Re-entry card: NOT STARTED
 Phase 5 — Progress and Graduation: NOT STARTED
 Phase 6 — Profile and subscription: NOT STARTED
 
-Current work: Component Library Level 6 — screens. Next: Begin Architecture Phase 1 — Shell and navigation once screens are wired.
+Current work: Component Library Level 6B — onboarding screens. Level 6A auth complete.
 
 ## SESSION DECISIONS (Level 5)
 - react-native-svg v15.12.1 installed for PhaseProgressRing and Silhouette

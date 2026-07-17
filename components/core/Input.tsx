@@ -23,6 +23,8 @@ type Props = {
   multiline?: boolean
   maxLength?: number
   secureTextEntry?: boolean
+  keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'url'
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters'
   error?: string
   hint?: string
   style?: StyleProp<ViewStyle>
@@ -35,6 +37,8 @@ export function Input({
   multiline = false,
   maxLength,
   secureTextEntry = false,
+  keyboardType = 'default',
+  autoCapitalize = 'sentences',
   error,
   hint,
   style,
@@ -87,6 +91,8 @@ export function Input({
           multiline={multiline}
           maxLength={maxLength}
           secureTextEntry={secureTextEntry}
+          keyboardType={keyboardType}
+          autoCapitalize={autoCapitalize}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           style={[

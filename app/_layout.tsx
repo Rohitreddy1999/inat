@@ -32,9 +32,35 @@ export default function RootLayout() {
         animation: 'slide_from_right',
       }}
     >
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="day" />
-      <Stack.Screen name="graduation" />
+      {/* Auth group — no header, no back gesture (Splash controls routing) */}
+      <Stack.Screen
+        name="(auth)"
+        options={{ gestureEnabled: false }}
+      />
+
+      {/* Onboarding group — no header, gesture enabled for back */}
+      <Stack.Screen
+        name="(onboarding)"
+        options={{ gestureEnabled: true }}
+      />
+
+      {/* Main tabs — no header, no back gesture */}
+      <Stack.Screen
+        name="(tabs)"
+        options={{ gestureEnabled: false }}
+      />
+
+      {/* Day screen — pushed from Home, back gesture enabled */}
+      <Stack.Screen
+        name="day"
+        options={{ gestureEnabled: true }}
+      />
+
+      {/* Graduation — no back gesture, cannot swipe back */}
+      <Stack.Screen
+        name="graduation"
+        options={{ gestureEnabled: false }}
+      />
     </Stack>
   )
 }

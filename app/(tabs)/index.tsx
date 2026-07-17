@@ -54,8 +54,8 @@ export default function Home() {
             <Text variant="caption" color={colors.textMid}>10/21 (float)</Text>
           </View>
           <View style={{ alignItems: 'center', gap: spacing[2] }}>
-            <Silhouette completedDays={21} phaseColor={colors.surge} animated={false} />
-            <Text variant="caption" color={colors.textMid}>21/21</Text>
+            <Silhouette completedDays={21} phaseColor={colors.surge} animated />
+            <Text variant="caption" color={colors.textMid}>21/21 (grad)</Text>
           </View>
         </View>
 
