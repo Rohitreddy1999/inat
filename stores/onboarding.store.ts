@@ -32,12 +32,14 @@ interface OnboardingState {
   scores: Scores
   openAnswer: string
   selectedTrack: string | null
+  selectedTrackId: string | null
+  selectedTrackName: string
   selectedSubtractId: string | null
 
   setLifeStage: (value: string) => void
   setAnswer: (question: string, selections: string[]) => void
   calculateScores: () => void
-  setSelectedTrack: (slug: string) => void
+  setSelectedTrack: (slug: string, trackId: string, trackName: string) => void
   setSelectedSubtractId: (id: string) => void
   setOpenAnswer: (text: string) => void
   getRecommendedTrack: () => TrackSlug | null
@@ -50,6 +52,8 @@ const initialState = {
   scores: { ...INITIAL_SCORES },
   openAnswer: '',
   selectedTrack: null,
+  selectedTrackId: null,
+  selectedTrackName: '',
   selectedSubtractId: null,
 }
 
@@ -111,6 +115,9 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => ({
 
   getRecommendedTrack: () => {
     const { scores } = get()
+    // Return null if quiz was never taken (all scores zero = direct path)
+    const total = Object.values(scores).reduce((sum, v) => sum + v, 0)
+    if (total === 0) return null
     const entries = Object.entries(scores) as [keyof Scores, number][]
     // Sort by score desc, then alphabetically for tie-break
     entries.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
@@ -118,7 +125,8 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => ({
     return top ? SLUG_MAP[top[0]] : null
   },
 
-  setSelectedTrack: (slug) => set({ selectedTrack: slug }),
+  setSelectedTrack: (slug, trackId, trackName) =>
+    set({ selectedTrack: slug, selectedTrackId: trackId, selectedTrackName: trackName }),
 
   setSelectedSubtractId: (id) => set({ selectedSubtractId: id }),
 

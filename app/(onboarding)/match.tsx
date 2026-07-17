@@ -32,12 +32,13 @@ export default function Match() {
     getAllTracks().then(({ tracks: t }) => setTracks(t))
   }, [])
 
-  // Auto-select recommended if nothing selected yet
+  // Auto-select recommended track once tracks are loaded (quiz path only)
   useEffect(() => {
-    if (recommendedTrack && !selectedTrack) {
-      setSelectedTrack(recommendedTrack)
+    if (recommendedTrack && !selectedTrack && tracks.length > 0) {
+      const track = tracks.find((t) => t.slug === recommendedTrack)
+      if (track) setSelectedTrack(track.slug, track.id, track.name)
     }
-  }, [recommendedTrack])
+  }, [recommendedTrack, selectedTrack, tracks])
 
   return (
     <ScreenWrapper padded scrollable>
@@ -68,7 +69,7 @@ export default function Match() {
             iconName={(track.icon_name ?? 'ellipse-outline') as IoniconsName}
             isRecommended={track.slug === recommendedTrack}
             isSelected={track.slug === selectedTrack}
-            onPress={() => setSelectedTrack(track.slug)}
+            onPress={() => setSelectedTrack(track.slug, track.id, track.name)}
           />
         ))}
       </View>

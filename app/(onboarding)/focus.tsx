@@ -13,16 +13,17 @@ import { useJourneyStore } from '@/stores/journey.store'
 import { getSession } from '@/services/auth.service'
 import { saveOnboardingAnswers } from '@/services/profile.service'
 import { createJourney } from '@/services/journey.service'
-import { getAllTracks, getSubtracksByTrack } from '@/services/curriculum.service'
-import { Subtrack, Track } from '@/types'
+import { getSubtracksByTrack } from '@/services/curriculum.service'
+import { Subtrack } from '@/types'
 
 export default function Focus() {
-  const [subtracks, setSubtracks]   = useState<Subtrack[]>([])
-  const [trackName, setTrackName]   = useState('')
-  const [isLoading, setIsLoading]   = useState(false)
+  const [subtracks, setSubtracks] = useState<Subtrack[]>([])
+  const [isLoading, setIsLoading] = useState(false)
 
   const {
     selectedTrack,
+    selectedTrackId,
+    selectedTrackName,
     selectedSubtractId,
     setSelectedSubtractId,
     lifeStage,
@@ -36,17 +37,9 @@ export default function Focus() {
   const hydrate = useJourneyStore((s) => s.hydrate)
 
   useEffect(() => {
-    if (!selectedTrack) return
-
-    // Get track name + subtracks
-    getAllTracks().then(({ tracks }) => {
-      const track = tracks.find((t: Track) => t.slug === selectedTrack)
-      if (track) {
-        setTrackName(track.name)
-        getSubtracksByTrack(track.id).then(({ subtracks: s }) => setSubtracks(s))
-      }
-    })
-  }, [selectedTrack])
+    if (!selectedTrackId) return
+    getSubtracksByTrack(selectedTrackId).then(({ subtracks: s }) => setSubtracks(s))
+  }, [selectedTrackId])
 
   async function handleBegin() {
     if (!selectedSubtractId) return
@@ -54,6 +47,7 @@ export default function Focus() {
 
     const { session } = await getSession()
     if (!session?.user) {
+      setIsLoading(false)
       router.replace('/(auth)/login')
       return
     }
@@ -96,10 +90,10 @@ export default function Focus() {
     <ScreenWrapper padded scrollable>
       <BackButton onPress={() => router.back()} />
 
-      {trackName ? (
+      {selectedTrackName ? (
         <View style={styles.pill}>
           <Badge variant="phase" color={colors.surge}>
-            {trackName.toUpperCase()}
+            {selectedTrackName.toUpperCase()}
           </Badge>
         </View>
       ) : null}

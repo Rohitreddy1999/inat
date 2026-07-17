@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   },
   options: {
     marginTop: spacing[8],
-    gap: 9,
+    gap: spacing[2],
   },
   cta: {
     marginTop: 'auto',

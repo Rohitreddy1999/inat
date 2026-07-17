@@ -8,8 +8,6 @@ import { Button } from '@/components/core/Button'
 import { OptionCard } from '@/components/forms/OptionCard'
 import { StepDots } from '@/components/forms/StepDots'
 import { useOnboardingStore } from '@/stores/onboarding.store'
-import { getSession } from '@/services/auth.service'
-import { saveOnboardingAnswers } from '@/services/profile.service'
 
 const OPTIONS = [
   { label: 'Still studying',       value: 'still_studying' },
@@ -22,23 +20,9 @@ export default function LifeStage() {
   const [selected, setSelected] = useState<string | null>(null)
   const { setLifeStage } = useOnboardingStore()
 
-  async function handleContinue() {
+  function handleContinue() {
     if (!selected) return
     setLifeStage(selected)
-
-    // Fire-and-forget life_stage write
-    getSession().then(({ session }) => {
-      if (session?.user) {
-        saveOnboardingAnswers(
-          session.user.id,
-          selected,
-          {},
-          '',
-          '',
-        )
-      }
-    })
-
     router.push('/(onboarding)/bridge')
   }
 
@@ -101,7 +85,7 @@ const styles = StyleSheet.create({
   },
   options: {
     marginTop: spacing[8],
-    gap: 9,
+    gap: spacing[2],
   },
   cta: {
     marginTop: 'auto',

@@ -17,7 +17,6 @@ export async function saveOnboardingAnswers(
       open_answer: openAnswer,
       recommended_track: recommendedTrack,
     })
-    .eq('id', userId)
 
   return { error }
 }

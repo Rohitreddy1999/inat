@@ -34,7 +34,12 @@ export default function RootLayout() {
       }}
     >
       {/* Splash — no back gesture, controls all routing */}
-      <Stack.Screen name="(auth)/index" options={{ gestureEnabled: false }} />
+      <Stack.Screen name="(auth)/index"   options={{ gestureEnabled: false }} />
+
+      {/* Auth screens — no back gesture (no prior stack to return to) */}
+      <Stack.Screen name="(auth)/welcome" options={{ gestureEnabled: false }} />
+      <Stack.Screen name="(auth)/login"   options={{ gestureEnabled: false }} />
+      <Stack.Screen name="(auth)/signup"  options={{ gestureEnabled: false }} />
 
       {/* Main tabs — no back gesture */}
       <Stack.Screen name="(tabs)" options={{ gestureEnabled: false }} />
