@@ -62,16 +62,23 @@ export interface CurriculumDay {
   subtrack_id: string
   day_number: number
   phase: string
-  title: string
+  task_title: string
+  task_description: string | null
   duration_minutes: number
   difficulty: string | null
-  instructions: string[]
-  why_text: string
+  steps: string[] | Array<{ order: number; instruction: string }>
+  why_text: string | null
   quote_text: string | null
   quote_author: string | null
-  primary_video_url: string | null
-  primary_video_label: string | null
-  refs: Record<string, unknown> | null
+  youtube_url: string | null
+  must_watch_label: string | null
+  reference_url_1: string | null
+  reference_url_2: string | null
+  reference_url_3: string | null
+  ref_label_1: string | null
+  ref_label_2: string | null
+  ref_label_3: string | null
+  source_credits: string | null
 }
 
 export type ReentryState = 'A' | 'B' | 'C' | 'D'

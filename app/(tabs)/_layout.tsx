@@ -1,7 +1,9 @@
-import { Tabs, usePathname } from 'expo-router'
-import { View } from 'react-native'
+import { Tabs, usePathname, useRouter } from 'expo-router'
+import { View, Pressable } from 'react-native'
 import { BottomNav } from '@/components/navigation/BottomNav'
-import { colors } from '@/theme'
+import { Text } from '@/components/core/Text'
+import { colors, getPhaseColor, spacing, radius } from '@/theme'
+import { useJourneyStore } from '@/stores/journey.store'
 
 type ActiveTab = 'home' | 'ascent' | 'community' | 'profile'
 
@@ -13,8 +15,11 @@ function getActiveTab(pathname: string): ActiveTab {
 }
 
 export default function TabsLayout() {
-  const pathname = usePathname()
-  const active   = getActiveTab(pathname)
+  const pathname   = usePathname()
+  const router     = useRouter()
+  const active     = getActiveTab(pathname)
+  const currentDay = useJourneyStore((s) => s.currentDay)
+  const phaseColor = currentDay > 0 ? getPhaseColor(currentDay) : colors.surge
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bgPage }}>
@@ -30,7 +35,25 @@ export default function TabsLayout() {
         <Tabs.Screen name="profile"   options={{ title: 'Profile' }} />
       </Tabs>
 
-      <BottomNav active={active} />
+      <BottomNav active={active} phaseColor={phaseColor} />
+
+      {__DEV__ && (
+        <Pressable
+          onPress={() => router.push('/dev-tools')}
+          style={{
+            position:        'absolute',
+            top:             spacing[10] + spacing[2],
+            left:            spacing[3],
+            backgroundColor: colors.surge + '88',
+            borderRadius:    radius.pill,
+            paddingHorizontal: spacing[3],
+            paddingVertical:   spacing[1],
+            zIndex:          9999,
+          }}
+        >
+          <Text variant="label" color={colors.textHi} uppercase>DEV</Text>
+        </Pressable>
+      )}
     </View>
   )
 }

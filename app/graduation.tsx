@@ -1,13 +1,14 @@
-﻿import { View, Text } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+﻿import { View } from 'react-native'
+import { ScreenWrapper } from '@/components/shared/ScreenWrapper'
+import { Text } from '@/components/core/Text'
 import { colors } from '@/theme'
 
 export default function Graduation() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.bgPage }}>
+    <ScreenWrapper padded>
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{ color: colors.textHi, fontSize: 18 }}>Graduation</Text>
+        <Text variant="heading" color={colors.textHi}>Graduation</Text>
       </View>
-    </SafeAreaView>
+    </ScreenWrapper>
   )
 }

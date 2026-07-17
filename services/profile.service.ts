@@ -1,5 +1,18 @@
 import { supabase } from '@/lib/supabase'
+import { Profile } from '@/types'
 import { PostgrestError } from '@supabase/supabase-js'
+
+export async function getProfile(
+  userId: string,
+): Promise<{ profile: Profile | null; error: PostgrestError | null }> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .maybeSingle()
+
+  return { profile: data as Profile | null, error }
+}
 
 export async function saveOnboardingAnswers(
   userId: string,

@@ -1,13 +1,42 @@
-﻿import { View, Text } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { colors } from '@/theme'
+import { View } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
+import { ScreenWrapper } from '@/components/shared/ScreenWrapper'
+import { Text } from '@/components/core/Text'
+import { Badge } from '@/components/core/Badge'
+import { colors, spacing } from '@/theme'
 
 export default function Community() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.bgPage }}>
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{ color: colors.textHi, fontSize: 18 }}>Community</Text>
+    <ScreenWrapper padded>
+      <View
+        style={{
+          flex:           1,
+          justifyContent: 'center',
+          alignItems:     'center',
+          paddingBottom:  spacing.navHeight,
+        }}
+      >
+        <Ionicons name="people" size={48} color={colors.textFaint} />
+        <Text
+          variant="heading"
+          color={colors.textMid}
+          align="center"
+          style={{ marginTop: spacing[4] }}
+        >
+          Community
+        </Text>
+        <Text
+          variant="body"
+          color={colors.textLow}
+          align="center"
+          style={{ marginTop: spacing[2] }}
+        >
+          Connect with others on their circuit.
+        </Text>
+        <View style={{ marginTop: spacing[4] }}>
+          <Badge variant="comingSoon">Coming Soon</Badge>
+        </View>
       </View>
-    </SafeAreaView>
+    </ScreenWrapper>
   )
 }
