@@ -13,7 +13,7 @@ import Animated, {
   withTiming,
   ReduceMotion,
 } from 'react-native-reanimated'
-import { colors, typography, fontFamilies, radius } from '@/theme'
+import { colors, typography, fontFamilies, radius, spacing } from '@/theme'
 import { Text } from './Text'
 
 type Props = {
@@ -124,8 +124,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgInput,
     borderWidth: 1,
     borderRadius: radius.md,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing.inputPadV,
     minHeight: 52,
     color: colors.textHi,
     fontFamily: fontFamilies.regular,
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   message: {
-    marginTop: 6,
-    marginLeft: 4,
+    marginTop: spacing.inputHint,
+    marginLeft: spacing[1],
   },
 })

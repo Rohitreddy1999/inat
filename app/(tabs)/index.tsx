@@ -1,5 +1,4 @@
 import { ScrollView, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors, spacing } from '@/theme'
 import { useState } from 'react'
 import { Text } from '@/components/core/Text'
@@ -13,6 +12,15 @@ import { StepDots } from '@/components/forms/StepDots'
 import { StepCard } from '@/components/tasks/StepCard'
 import { HoldButton } from '@/components/tasks/HoldButton'
 import { BackButton } from '@/components/navigation/BackButton'
+import { ScreenWrapper } from '@/components/shared/ScreenWrapper'
+import { SectionLabel } from '@/components/shared/SectionLabel'
+import { GhostNumber } from '@/components/shared/GhostNumber'
+import { DayCard } from '@/components/shared/DayCard'
+import { ReentryCard } from '@/components/shared/ReentryCard'
+import { TrackCard } from '@/components/shared/TrackCard'
+import { SubtrackCard } from '@/components/shared/SubtrackCard'
+import { PhaseProgressRing } from '@/components/shared/PhaseProgressRing'
+import { Silhouette } from '@/components/shared/Silhouette'
 
 export default function Home() {
   const [name, setName] = useState('')
@@ -27,13 +35,153 @@ export default function Home() {
   const [holdCount, setHoldCount] = useState(0)
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.bgPage }}>
+    <ScreenWrapper>
       <ScrollView
         contentContainerStyle={{
           padding: spacing.pagePad,
           gap: 32,
         }}
       >
+        {/* Silhouette — Level 5 shared */}
+        <Text variant="heading" color={colors.surge}>Silhouette Component</Text>
+        <View style={{ flexDirection: 'row', gap: spacing[8], alignItems: 'flex-end' }}>
+          <View style={{ alignItems: 'center', gap: spacing[2] }}>
+            <Silhouette completedDays={0} phaseColor={colors.surge} animated={false} />
+            <Text variant="caption" color={colors.textMid}>0/21</Text>
+          </View>
+          <View style={{ alignItems: 'center', gap: spacing[2] }}>
+            <Silhouette completedDays={10} phaseColor={colors.surge} animated />
+            <Text variant="caption" color={colors.textMid}>10/21 (float)</Text>
+          </View>
+          <View style={{ alignItems: 'center', gap: spacing[2] }}>
+            <Silhouette completedDays={21} phaseColor={colors.surge} animated={false} />
+            <Text variant="caption" color={colors.textMid}>21/21</Text>
+          </View>
+        </View>
+
+        {/* PhaseProgressRing — Level 5 shared */}
+        <Text variant="heading" color={colors.surge}>PhaseProgressRing Component</Text>
+        <View style={{ flexDirection: 'row', gap: spacing[5], alignItems: 'center' }}>
+          <View style={{ alignItems: 'center', gap: spacing[1] }}>
+            <PhaseProgressRing dayInPhase={1} phaseColor={colors.glacial} />
+            <Text variant="caption" color={colors.textMid}>Day 1/7</Text>
+          </View>
+          <View style={{ alignItems: 'center', gap: spacing[1] }}>
+            <PhaseProgressRing dayInPhase={4} phaseColor={colors.surge} />
+            <Text variant="caption" color={colors.textMid}>Day 4/7</Text>
+          </View>
+          <View style={{ alignItems: 'center', gap: spacing[1] }}>
+            <PhaseProgressRing dayInPhase={7} phaseColor={colors.plasma} />
+            <Text variant="caption" color={colors.textMid}>Day 7/7</Text>
+          </View>
+        </View>
+
+        {/* SubtrackCard — Level 5 shared */}
+        <Text variant="heading" color={colors.surge}>SubtrackCard Component</Text>
+        <View style={{ gap: spacing[2] }}>
+          <Text variant="caption" color={colors.textMid}>live + free + unselected</Text>
+          <SubtrackCard name="Beginner Running" isLive isFree isSelected={false} onPress={() => {}} />
+          <Text variant="caption" color={colors.textMid}>live + free + selected</Text>
+          <SubtrackCard name="Beginner Running" isLive isFree isSelected onPress={() => {}} />
+          <Text variant="caption" color={colors.textMid}>live + not free (locked)</Text>
+          <SubtrackCard name="Elite Protocol" isLive isFree={false} isSelected={false} onPress={() => {}} />
+          <Text variant="caption" color={colors.textMid}>not live (coming soon)</Text>
+          <SubtrackCard name="Trail Running" isLive={false} isFree isSelected={false} onPress={() => {}} />
+        </View>
+
+        {/* TrackCard — Level 5 shared */}
+        <Text variant="heading" color={colors.surge}>TrackCard Component</Text>
+        <View style={{ gap: spacing[3] }}>
+          <TrackCard
+            name="Move"
+            tagline="Build energy through daily movement"
+            iconName="body-outline"
+            isRecommended={false}
+            isSelected={false}
+            onPress={() => {}}
+          />
+          <TrackCard
+            name="Rhythm"
+            tagline="Build a daily cadence that holds"
+            iconName="musical-notes-outline"
+            isRecommended
+            isSelected={false}
+            onPress={() => {}}
+          />
+          <TrackCard
+            name="Express"
+            tagline="Find and use your creative voice"
+            iconName="brush-outline"
+            isRecommended={false}
+            isSelected
+            onPress={() => {}}
+          />
+        </View>
+
+        {/* ReentryCard — Level 5 shared */}
+        <Text variant="heading" color={colors.surge}>ReentryCard Component</Text>
+        <ReentryCard
+          state="A"
+          dayNumber={8}
+          phaseColor={colors.surge}
+          phaseName="BUILD"
+          onCTA={() => {}}
+        />
+        <ReentryCard
+          state="B"
+          dayNumber={8}
+          phaseColor={colors.surge}
+          phaseName="BUILD"
+          onCTA={() => {}}
+        />
+        <ReentryCard
+          state="C"
+          dayNumber={8}
+          phaseColor={colors.surge}
+          phaseName="BUILD"
+          onCTA={() => {}}
+        />
+
+        {/* DayCard — Level 5 shared */}
+        <Text variant="heading" color={colors.surge}>DayCard Component</Text>
+        <DayCard
+          dayNumber={8}
+          title="Box Breathing"
+          phase="BUILD"
+          subtractName="Breathwork"
+          durationMinutes={10}
+          phaseColor={colors.surge}
+          isCompleted={false}
+          onBegin={() => {}}
+        />
+        <DayCard
+          dayNumber={3}
+          title="Cold Exposure"
+          phase="FOUNDATION"
+          subtractName="Recovery"
+          durationMinutes={5}
+          phaseColor={colors.glacial}
+          isCompleted
+          onBegin={() => {}}
+        />
+
+        {/* GhostNumber — Level 5 shared */}
+        <Text variant="heading" color={colors.surge}>GhostNumber Component</Text>
+        <View style={{ height: 140, justifyContent: 'center' }}>
+          <GhostNumber number={2} />
+          <Text variant="heading" style={{ zIndex: 1 }}>Question heading sits here</Text>
+          <Text variant="caption" color={colors.textMid} style={{ zIndex: 1 }}>
+            Ghost "02" fades in behind (4% opacity)
+          </Text>
+        </View>
+
+        {/* SectionLabel — Level 5 shared */}
+        <Text variant="heading" color={colors.surge}>SectionLabel Component</Text>
+        <View style={{ gap: 12 }}>
+          <SectionLabel>WHAT TO DO</SectionLabel>
+          <SectionLabel>WHY THIS MATTERS</SectionLabel>
+        </View>
+
         {/* BackButton — Level 4 navigation test */}
         <Text variant="heading" color={colors.surge}>BackButton Component</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -273,6 +421,6 @@ export default function Home() {
           onComplete={() => setHoldCount(c => c + 1)}
         />
       </View>
-    </SafeAreaView>
+    </ScreenWrapper>
   )
 }

@@ -1,6 +1,6 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
-import { colors, typography, fontFamilies } from '@/theme'
+import { colors, typography, fontFamilies, spacing } from '@/theme'
 import { Text } from './Text'
 
 export type BadgeVariant = 'streak' | 'phase' | 'recommended' | 'comingSoon' | 'pro'
@@ -116,14 +116,14 @@ const styles = StyleSheet.create({
   pill: {
     borderWidth: 1,
     borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: spacing.badgePadH,
+    paddingVertical: spacing.badgePadV,
     backgroundColor: 'transparent',
     alignSelf: 'flex-start',
   },
   pillSmall: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingHorizontal: spacing.badgeSmH,
+    paddingVertical: spacing.badgeSmV,
   },
   pillText: {
     fontSize: typography.size.label,

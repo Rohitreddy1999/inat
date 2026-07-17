@@ -12,6 +12,7 @@ export const colors = {
   textMid:   'rgba(255,255,255,0.60)',
   textLow:   'rgba(255,255,255,0.35)',
   textFaint: 'rgba(255,255,255,0.18)',
+  textGhost: 'rgba(255,255,255,0.04)',
 
   bgPage:  '#07090D',
   bgCard:  '#0F141A',
@@ -56,6 +57,7 @@ export const typography = {
     heading: 26,
     title:   34,
     display: 52,
+    ghost:   120,
   },
   weight: {
     regular:  '400' as const,
@@ -93,6 +95,12 @@ export const spacing = {
   navHeight:  72,
   touchMin:   44,
   stepRow:    14,
+  inputPadV:  14,
+  badgePadH:  8,
+  badgePadV:  3,
+  badgeSmH:   6,
+  badgeSmV:   2,
+  inputHint:  6,
 } as const
 
 export const radius = {
