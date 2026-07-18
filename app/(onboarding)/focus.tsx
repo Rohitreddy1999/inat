@@ -13,33 +13,40 @@ import { useJourneyStore } from '@/stores/journey.store'
 import { getSession } from '@/services/auth.service'
 import { saveOnboardingAnswers } from '@/services/profile.service'
 import { createJourney } from '@/services/journey.service'
-import { getSubtracksByTrack } from '@/services/curriculum.service'
-import { Subtrack } from '@/types'
+import { getAllTracks, getSubtracksByTrack } from '@/services/curriculum.service'
+import { Subtrack, Track } from '@/types'
+import { TrackName } from '@/utils/inat-brain'
 
 export default function Focus() {
+  const [tracks, setTracks] = useState<Track[]>([])
   const [subtracks, setSubtracks] = useState<Subtrack[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
   const {
     selectedTrack,
-    selectedTrackId,
-    selectedTrackName,
     selectedSubtractId,
     setSelectedSubtractId,
     lifeStage,
     answers,
-    scores,
+    matchResult,
     openAnswer,
-    getRecommendedTrack,
     clear,
   } = useOnboardingStore()
 
   const hydrate = useJourneyStore((s) => s.hydrate)
 
+  // Load all tracks once so we can look up the selected track's DB id
   useEffect(() => {
-    if (!selectedTrackId) return
-    getSubtracksByTrack(selectedTrackId).then(({ subtracks: s }) => setSubtracks(s))
-  }, [selectedTrackId])
+    getAllTracks().then(({ tracks: t }) => setTracks(t))
+  }, [])
+
+  // Load subtracks whenever we know which track was selected
+  useEffect(() => {
+    if (!selectedTrack || tracks.length === 0) return
+    const found = tracks.find(t => t.name === selectedTrack)
+    if (!found) return
+    getSubtracksByTrack(found.id).then(({ subtracks: s }) => setSubtracks(s))
+  }, [selectedTrack, tracks])
 
   async function handleBegin() {
     if (!selectedSubtractId) return
@@ -53,15 +60,24 @@ export default function Focus() {
     }
 
     const userId = session.user.id
-    const recommendedTrack = getRecommendedTrack() ?? ''
 
-    // Save all onboarding answers to profile
+    const fullMatchResult = matchResult.primary
+      ? {
+          primary:    matchResult.primary,
+          secondary:  matchResult.secondary!,
+          confidence: matchResult.confidence!,
+          scores:     matchResult.scores!,
+          reasons:    matchResult.reasons,
+          healthMode: matchResult.healthMode,
+        }
+      : null
+
     const { error: profileError } = await saveOnboardingAnswers(
       userId,
       lifeStage ?? '',
-      { q2: answers['q2'], q3: answers['q3'], q4: answers['q4'], q5: answers['q5'], scores },
+      answers,
       openAnswer,
-      recommendedTrack,
+      fullMatchResult,
     )
 
     if (profileError) {
@@ -70,7 +86,6 @@ export default function Focus() {
       return
     }
 
-    // Create the journey
     const { error: journeyError } = await createJourney(userId, selectedSubtractId)
 
     if (journeyError) {
@@ -79,7 +94,6 @@ export default function Focus() {
       return
     }
 
-    // Hydrate journey store and clear onboarding state
     await hydrate(userId)
     clear()
 
@@ -90,10 +104,10 @@ export default function Focus() {
     <ScreenWrapper padded scrollable>
       <BackButton onPress={() => router.back()} />
 
-      {selectedTrackName ? (
+      {selectedTrack ? (
         <View style={styles.pill}>
           <Badge variant="phase" color={colors.surge}>
-            {selectedTrackName.toUpperCase()}
+            {selectedTrack.toUpperCase()}
           </Badge>
         </View>
       ) : null}

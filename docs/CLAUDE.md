@@ -111,7 +111,8 @@ All tokens live in theme/index.ts — never hardcode values.
 - app/day.tsx — day screen (hold to complete)
 - services/ — all Supabase calls
 - stores/journey.store.ts — session state
-- utils/scoring.ts — onboarding algorithm
+- utils/inat-brain.ts — ALL scoring intelligence (vectors, weights, questions). Tune here only.
+- utils/inat-engine.ts — matching engine logic. DO NOT TUNE HERE.
 - utils/dayUnlock.ts — re-entry state logic
 - docs/ARCHITECTURE.md — screen + routing blueprint
 - docs/DATA.md — full schema + service layer
@@ -220,6 +221,8 @@ Current work: Architecture Phase 1 verification, then Phase 2 onboarding polish.
 - Add new colors to the palette
 - Use glassmorphism on cards
 - Build a screen not in docs/ARCHITECTURE.md
+- Edit inat-engine.ts to change scoring behavior — only inat-brain.ts vectors and weights are tunable
+- Add scoring logic to inat-engine.ts — all intelligence lives in inat-brain.ts
 
 ---
 

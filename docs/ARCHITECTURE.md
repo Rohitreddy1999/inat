@@ -79,7 +79,8 @@ inat/
 ├── types/
 │   └── index.ts             # ALL TypeScript types
 ├── utils/
-│   ├── scoring.ts           # Onboarding score algorithm
+│   ├── inat-brain.ts        # ALL scoring intelligence — vectors, weights, questions
+│   ├── inat-engine.ts       # Matching engine logic — DO NOT TUNE HERE
 │   └── dayUnlock.ts         # Day unlock + re-entry state logic
 └── docs/
     ├── ARCHITECTURE.md      # This file
@@ -181,30 +182,34 @@ Note below: "You can always retake questions later"
 No progress indicator — this is a routing decision not a question.
 Routes to q2 or match.
 
-**Q2 — Aspiration** (multi, pick up to 2)
+**Q — Energy** id:'energy' (multi, pick up to 2)
 GhostNumber: 01
-"There's a version of you that doesn't exist yet.
-What does that person do that you don't?"
-Hint: "Pick up to 2."
-4 options, text only, no icons.
-Shake animation if user tries to select 3rd.
+"How's your energy right now?"
+5 options. Sourced from inat-brain.ts QUESTIONS[0].
 
-**Q3 — Energy State** (single select)
+**Q — Barrier** id:'barrier' (multi, pick up to 2)
 GhostNumber: 02
-"Honestly — where are you running on right now?"
-Hint: "Pick one. The honest one."
-5 options.
+"When you start something and it doesn't stick, what happens?"
+6 options. Sourced from inat-brain.ts QUESTIONS[1].
 
-**Q4 — Real Barrier** (multi, pick up to 2)
+**Q — Channel** id:'channel' (single select)
 GhostNumber: 03
-"What actually stops you — be honest."
-5 options.
+"If you had a free hour and no pressure, which sounds fun?"
+5 options. Sourced from inat-brain.ts QUESTIONS[2].
 
-**Q5 — Identity** (multi, pick up to 2)
+**Q — Identity** id:'identity' (multi, pick up to 2)
 GhostNumber: 04
-"Which of these feels most like something
-you secretly believe about yourself?"
-5 options.
+"There is a story you tell about why you are like this."
+6 options. Sourced from inat-brain.ts QUESTIONS[3].
+
+**Q — Presence** id:'presence' (single select)
+GhostNumber: 05
+"When did you last really notice something good in a normal day?"
+4 options. Sourced from inat-brain.ts QUESTIONS[4].
+
+Scoring: vector-based engine in two files:
+utils/inat-brain.ts (data + tuning) and utils/inat-engine.ts (logic).
+Never edit inat-engine.ts for tuning. Only edit inat-brain.ts.
 
 **Q6 — Free Text**
 GhostNumber: 05
@@ -460,7 +465,7 @@ Phase-based messages for State A:
 - [ ] Multi select max 2 enforced on Q2, Q4, Q5
 - [ ] Shake animation fires on attempted 3rd selection
 - [ ] StepDots advance correctly through questions
-- [ ] Scoring algorithm tested against scoring.test.ts
+- [ ] Matching engine tested against all 4 runMatch() test cases
 - [ ] life_stage written to Supabase profiles
 - [ ] open_answer written to Supabase profiles
 - [ ] discovery_answer scores written to Supabase profiles

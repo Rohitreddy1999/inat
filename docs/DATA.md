@@ -76,20 +76,25 @@ CREATE TABLE profiles (
 );
 ```
 
-discovery_answer JSONB structure:
+discovery_answer JSONB structure (version 2):
 {
-  "q2": ["move_body", "create_daily"],
-  "q3": "restless",
-  "q4": ["lose_thread"],
-  "q5": ["capable_of_more"],
-  "scores": {
-    "Move": 5,
-    "Rhythm": 2,
-    "Express": 3,
-    "Calm": 1,
-    "Mindful": 4
-  }
+  "version": 2,
+  "answers": {
+    "energy":   ["e_motions", "e_mindrace"],
+    "barrier":  ["b_drift"],
+    "channel":  ["c_words"],
+    "identity": ["i_lostwant"],
+    "presence": ["p_blur"]
+  },
+  "openAnswer": "...",
+  "scores":     { "Move": 6.9, "Calm": 10.4, "Mindful": 58.5, "Rhythm": 0.0, "Express": 5.75 },
+  "confidence": "high",
+  "primary":    "Mindful",
+  "secondary":  "Calm",
+  "reasons":    [{ "id": "e_motions", "text": "Just going through the motions." }],
+  "healthMode": false
 }
+Direct-path users (no quiz): version:2, answers:{}, openAnswer, no score/match fields.
 
 life_stage values:
   "still_studying" | "building_career" |
@@ -483,18 +488,19 @@ Cleared completely after journey created.
 
   State:
     lifeStage: string | null
-    answers: Record<string, string[]>
-    scores: Record<string, number>
+    answers: Record<string, string[]>   keys: energy|barrier|channel|identity|presence
     openAnswer: string
-    selectedTrack: string | null
-    selectedSubtrack: string | null
+    matchResult: { primary, secondary, confidence, scores, reasons, healthMode }
+    selectedTrack: TrackName | null
+    selectedSubtractId: string | null
 
   Actions:
     setLifeStage(value)
     setAnswer(question, selections)
-    calculateScores(): runs scoring algorithm
-    setSelectedTrack(slug)
-    setSelectedSubtrack(id)
+    runMatch(): calls inat-engine runMatch(), stores result, sets selectedTrack
+    setSelectedTrack(track: TrackName)
+    setSelectedSubtractId(id)
+    setOpenAnswer(text)
     clear(): called immediately after createJourney succeeds
 
 Rule: Never rely on store being populated without

@@ -16,6 +16,7 @@ type Props = {
   tagline: string
   iconName: React.ComponentProps<typeof Ionicons>['name']
   isRecommended: boolean
+  isSecondary?: boolean
   isSelected: boolean
   onPress: () => void
 }
@@ -27,6 +28,7 @@ export function TrackCard({
   tagline,
   iconName,
   isRecommended,
+  isSecondary = false,
   isSelected,
   onPress,
 }: Props) {
@@ -87,8 +89,11 @@ export function TrackCard({
           </Text>
         </View>
 
-        {/* Recommended badge */}
+        {/* Recommended / secondary badges */}
         {isRecommended && <Badge variant="recommended">RECOMMENDED</Badge>}
+        {isSecondary && !isRecommended && (
+          <Badge variant="phase" color={colors.glacial}>ALSO YOU</Badge>
+        )}
       </Pressable>
     </Animated.View>
   )

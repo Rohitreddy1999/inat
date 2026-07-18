@@ -13,11 +13,11 @@ import { useOnboardingStore } from '@/stores/onboarding.store'
 
 export default function Q6() {
   const [text, setText] = useState('')
-  const { setOpenAnswer, calculateScores } = useOnboardingStore()
+  const { setOpenAnswer, runMatch } = useOnboardingStore()
 
   function handleContinue() {
     setOpenAnswer(text)
-    calculateScores()
+    runMatch()
     router.push('/(onboarding)/match')
   }
 

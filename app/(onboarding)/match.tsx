@@ -11,35 +11,81 @@ import { TrackCard } from '@/components/shared/TrackCard'
 import { useOnboardingStore } from '@/stores/onboarding.store'
 import { getAllTracks } from '@/services/curriculum.service'
 import { Track } from '@/types'
+import { TrackName } from '@/utils/inat-brain'
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name']
 
-// Hardcoded UI copy — not stored in DB
 const TRACK_ONELINERS: Record<string, string> = {
-  move:    'Your body knows before your brain does. Start there.',
-  rhythm:  "You don't need an instrument. Just 21 days and one ear.",
-  express: "You've been seeing it for years. Now put it on paper.",
-  calm:    "Not less. Just quieter. So you can finally hear yourself.",
-  mindful: "You already know what's good. Learn to feel it again.",
+  Move:    'Your body knows before your brain does. Start there.',
+  Rhythm:  "You don't need an instrument. Just 21 days and one ear.",
+  Express: "You've been seeing it for years. Now put it on paper.",
+  Calm:    "Not less. Just quieter. So you can finally hear yourself.",
+  Mindful: "You already know what's good. Learn to feel it again.",
+}
+
+type ConfidenceCopy = {
+  label: string
+  heading: string
+  subtext: string
+}
+
+function getConfidenceCopy(
+  confidence: 'high' | 'medium' | 'low' | null,
+  healthMode: boolean,
+): ConfidenceCopy {
+  if (!confidence) {
+    return {
+      label:   'YOUR MATCH',
+      heading: "Here's what we think —\nbut you know yourself best.",
+      subtext: "We've highlighted what resonated most from your answers. Choose whatever calls to you.",
+    }
+  }
+
+  if (confidence === 'high') {
+    return {
+      label:   'YOUR MATCH',
+      heading: healthMode
+        ? "You're ready to build something."
+        : 'This is clearly you.',
+      subtext: 'Your answers pointed here consistently. Trust it.',
+    }
+  }
+
+  if (confidence === 'medium') {
+    return {
+      label:   'YOUR MATCH',
+      heading: healthMode ? "You're ready to build something." : 'We think it\'s this.',
+      subtext: "Here's what we saw in your answers.",
+    }
+  }
+
+  // low
+  return {
+    label:   'CLOSE CALL',
+    heading: "It's between these two.",
+    subtext: "Both fit. Here's how to tell which one is right for you.",
+  }
 }
 
 export default function Match() {
   const [tracks, setTracks] = useState<Track[]>([])
 
-  const { selectedTrack, setSelectedTrack, getRecommendedTrack } = useOnboardingStore()
-  const recommendedTrack = getRecommendedTrack()
+  const { selectedTrack, setSelectedTrack, matchResult } = useOnboardingStore()
 
   useEffect(() => {
     getAllTracks().then(({ tracks: t }) => setTracks(t))
   }, [])
 
-  // Auto-select recommended track once tracks are loaded (quiz path only)
+  // Auto-select the engine's recommendation once tracks are loaded (quiz path only)
   useEffect(() => {
-    if (recommendedTrack && !selectedTrack && tracks.length > 0) {
-      const track = tracks.find((t) => t.slug === recommendedTrack)
-      if (track) setSelectedTrack(track.slug, track.id, track.name)
+    if (matchResult.primary && !selectedTrack && tracks.length > 0) {
+      setSelectedTrack(matchResult.primary)
     }
-  }, [recommendedTrack, selectedTrack, tracks])
+  }, [matchResult.primary, selectedTrack, tracks])
+
+  const copy = getConfidenceCopy(matchResult.confidence, matchResult.healthMode)
+
+  const reasons = matchResult.reasons
 
   return (
     <ScreenWrapper padded scrollable>
@@ -51,28 +97,44 @@ export default function Match() {
         uppercase
         style={styles.label}
       >
-        YOUR MATCH
+        {copy.label}
       </Text>
 
       <Text variant="title" color={colors.textHi} style={styles.heading}>
-        Here's what we think —{'\n'}but you know yourself best.
+        {copy.heading}
       </Text>
 
       <Text variant="body" color={colors.textMid} style={styles.subtext}>
-        We've highlighted what resonated most from your answers. Choose
-        whatever calls to you.
+        {copy.subtext}
       </Text>
+
+      {reasons.length > 0 && (
+        <View style={styles.reasons}>
+          <Text variant="caption" color={colors.textMid}>
+            {`Because: ${reasons[0].text}`}
+          </Text>
+          {reasons[1] && (
+            <Text variant="caption" color={colors.textMid} style={styles.reason2}>
+              {`And: ${reasons[1].text}`}
+            </Text>
+          )}
+        </View>
+      )}
 
       <View style={styles.list}>
         {tracks.map((track) => (
           <TrackCard
             key={track.id}
             name={track.name}
-            tagline={TRACK_ONELINERS[track.slug] ?? track.tagline}
+            tagline={TRACK_ONELINERS[track.name] ?? track.tagline}
             iconName={(track.icon_name ?? 'ellipse-outline') as IoniconsName}
-            isRecommended={track.slug === recommendedTrack}
-            isSelected={track.slug === selectedTrack}
-            onPress={() => setSelectedTrack(track.slug, track.id, track.name)}
+            isRecommended={track.name === matchResult.primary}
+            isSecondary={
+              matchResult.confidence === 'low' &&
+              track.name === matchResult.secondary
+            }
+            isSelected={track.name === selectedTrack}
+            onPress={() => setSelectedTrack(track.name as TrackName)}
           />
         ))}
       </View>
@@ -100,6 +162,12 @@ const styles = StyleSheet.create({
   },
   subtext: {
     marginTop: spacing[2],
+  },
+  reasons: {
+    marginTop: spacing[4],
+  },
+  reason2: {
+    marginTop: spacing[1],
   },
   list: {
     marginTop: spacing[8],
