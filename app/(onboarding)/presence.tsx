@@ -12,64 +12,39 @@ import { BackButton } from '@/components/navigation/BackButton'
 import { useOnboardingStore } from '@/stores/onboarding.store'
 
 const OPTIONS = [
-  {
-    value: 'lose_thread',
-    label: 'I start strong then lose the thread after a few days.',
-  },
-  {
-    value: 'no_beginning',
-    label: "I don't know where to begin so I don't begin.",
-  },
-  {
-    value: 'wrong_thing',
-    label: "I pick the wrong thing and quit when it doesn't feel right.",
-  },
-  {
-    value: 'life_interrupts',
-    label: 'Life interrupts and I never restart after.',
-  },
-  {
-    value: 'afraid',
-    label: "I'm afraid of finding out I can't stick to anything.",
-  },
+  { value: 'p_recent',       label: 'Not long ago. I still notice small good things.' },
+  { value: 'p_blur',         label: 'Not often. My days all feel the same.' },
+  { value: 'p_inside',       label: 'I feel things, but I keep them inside.' },
+  { value: 'p_cantremember', label: 'I can not remember. I am just getting through each day.' },
 ]
 
-const MAX = 2
-
-export default function Q4() {
-  const [selected, setSelected] = useState<string[]>([])
+export default function Presence() {
+  const [selected, setSelected] = useState<string | null>(null)
   const { setAnswer } = useOnboardingStore()
 
-  function toggle(value: string) {
-    setSelected((prev) => {
-      if (prev.includes(value)) return prev.filter((v) => v !== value)
-      if (prev.length >= MAX) return prev
-      return [...prev, value]
-    })
-  }
-
   function handleContinue() {
-    setAnswer('q4', selected)
-    router.push('/(onboarding)/q5')
+    if (!selected) return
+    setAnswer('presence', [selected])
+    router.push('/(onboarding)/q6')
   }
 
   return (
     <ScreenWrapper padded>
       <View style={styles.topRow}>
         <BackButton onPress={() => router.back()} />
-        <StepDots total={6} current={4} style={styles.dots} />
+        <StepDots total={7} current={6} style={styles.dots} />
         <View style={styles.spacer} />
       </View>
 
       <View style={styles.headingWrap}>
-        <GhostNumber number={3} style={StyleSheet.absoluteFillObject} />
+        <GhostNumber number={5} style={StyleSheet.absoluteFillObject} />
         <Text variant="heading" color={colors.textHi} style={styles.heading}>
-          What actually stops you — be honest.
+          When did you last really notice something good in a normal day?
         </Text>
       </View>
 
       <Text variant="caption" color={colors.textMid} style={styles.hint}>
-        Pick up to 2.
+        Pick one.
       </Text>
 
       <View style={styles.options}>
@@ -77,9 +52,8 @@ export default function Q4() {
           <OptionCard
             key={opt.value}
             label={opt.label}
-            selected={selected.includes(opt.value)}
-            disabled={!selected.includes(opt.value) && selected.length >= MAX}
-            onPress={() => toggle(opt.value)}
+            selected={selected === opt.value}
+            onPress={() => setSelected(opt.value)}
           />
         ))}
       </View>
@@ -88,7 +62,7 @@ export default function Q4() {
         <Button
           variant="primary"
           onPress={handleContinue}
-          disabled={selected.length === 0}
+          disabled={!selected}
         >
           Continue
         </Button>

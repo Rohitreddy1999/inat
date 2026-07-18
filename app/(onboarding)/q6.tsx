@@ -25,7 +25,7 @@ export default function Q6() {
     <ScreenWrapper padded scrollable>
       <View style={styles.topRow}>
         <BackButton onPress={() => router.back()} />
-        <StepDots total={6} current={6} style={styles.dots} />
+        <StepDots total={7} current={7} style={styles.dots} />
         <View style={styles.spacer} />
       </View>
 

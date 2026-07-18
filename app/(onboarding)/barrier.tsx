@@ -12,36 +12,31 @@ import { BackButton } from '@/components/navigation/BackButton'
 import { useOnboardingStore } from '@/stores/onboarding.store'
 
 const OPTIONS = [
-  {
-    value: 'fumes',
-    label: "Running on fumes. I'm more tired than I let on.",
-  },
-  {
-    value: 'restless',
-    label: 'Restless. I have energy but nowhere to put it.',
-  },
-  {
-    value: 'numb',
-    label: 'Numb. Not low, not high. Just flat.',
-  },
-  {
-    value: 'anxious',
-    label: "Anxious. My mind doesn't stop even when my body does.",
-  },
-  {
-    value: 'okay',
-    label: 'Actually okay. I just want to build something real.',
-  },
+  { value: 'b_burnout',  label: 'I go all-in, then burn out and stop.' },
+  { value: 'b_scatter',  label: 'I jump to the next thing before I finish.' },
+  { value: 'b_drift',    label: "It stops feeling worth it, so I drift away." },
+  { value: 'b_notbuilt', label: "I decide I'm just not built for it." },
+  { value: 'b_judged',   label: 'I stop the moment someone might see it.' },
+  { value: 'b_nothing',  label: "Nothing stops me — I just haven't started yet." },
 ]
 
-export default function Q3() {
-  const [selected, setSelected] = useState<string | null>(null)
+const MAX = 2
+
+export default function Barrier() {
+  const [selected, setSelected] = useState<string[]>([])
   const { setAnswer } = useOnboardingStore()
 
+  function toggle(value: string) {
+    setSelected((prev) => {
+      if (prev.includes(value)) return prev.filter((v) => v !== value)
+      if (prev.length >= MAX) return prev
+      return [...prev, value]
+    })
+  }
+
   function handleContinue() {
-    if (!selected) return
-    setAnswer('q3', [selected])
-    router.push('/(onboarding)/q4')
+    setAnswer('barrier', selected)
+    router.push('/(onboarding)/channel')
   }
 
   return (
@@ -55,12 +50,12 @@ export default function Q3() {
       <View style={styles.headingWrap}>
         <GhostNumber number={2} style={StyleSheet.absoluteFillObject} />
         <Text variant="heading" color={colors.textHi} style={styles.heading}>
-          Honestly — where are you running on right now?
+          When you start something and it doesn't stick, what happens?
         </Text>
       </View>
 
       <Text variant="caption" color={colors.textMid} style={styles.hint}>
-        Pick one. The honest one.
+        Pick up to two that sound like you.
       </Text>
 
       <View style={styles.options}>
@@ -68,8 +63,9 @@ export default function Q3() {
           <OptionCard
             key={opt.value}
             label={opt.label}
-            selected={selected === opt.value}
-            onPress={() => setSelected(opt.value)}
+            selected={selected.includes(opt.value)}
+            disabled={!selected.includes(opt.value) && selected.length >= MAX}
+            onPress={() => toggle(opt.value)}
           />
         ))}
       </View>
@@ -78,7 +74,7 @@ export default function Q3() {
         <Button
           variant="primary"
           onPress={handleContinue}
-          disabled={!selected}
+          disabled={selected.length === 0}
         >
           Continue
         </Button>

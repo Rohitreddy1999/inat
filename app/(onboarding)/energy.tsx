@@ -12,31 +12,16 @@ import { BackButton } from '@/components/navigation/BackButton'
 import { useOnboardingStore } from '@/stores/onboarding.store'
 
 const OPTIONS = [
-  {
-    value: 'not_creative',
-    label: "I'm not really a creative person. That's just not me.",
-  },
-  {
-    value: 'lazy',
-    label: "I'm lazy by nature. I've accepted it.",
-  },
-  {
-    value: 'care_opinions',
-    label: "I care too much what people think to really commit.",
-  },
-  {
-    value: 'lost_touch',
-    label: "I've lost touch with what I actually want.",
-  },
-  {
-    value: 'capable_more',
-    label: "I'm capable of more than I'm currently doing. Just haven't proven it yet.",
-  },
+  { value: 'e_empty',    label: "I've got nothing left." },
+  { value: 'e_restless', label: 'Restless — energy but nowhere to put it.' },
+  { value: 'e_motions',  label: 'Just going through the motions.' },
+  { value: 'e_mindrace', label: "My mind won't slow down." },
+  { value: 'e_steady',   label: "Steady — I've got energy and want to use it." },
 ]
 
 const MAX = 2
 
-export default function Q5() {
+export default function Energy() {
   const [selected, setSelected] = useState<string[]>([])
   const { setAnswer } = useOnboardingStore()
 
@@ -49,28 +34,27 @@ export default function Q5() {
   }
 
   function handleContinue() {
-    setAnswer('q5', selected)
-    router.push('/(onboarding)/q6')
+    setAnswer('energy', selected)
+    router.push('/(onboarding)/barrier')
   }
 
   return (
     <ScreenWrapper padded>
       <View style={styles.topRow}>
         <BackButton onPress={() => router.back()} />
-        <StepDots total={6} current={5} style={styles.dots} />
+        <StepDots total={6} current={2} style={styles.dots} />
         <View style={styles.spacer} />
       </View>
 
       <View style={styles.headingWrap}>
-        <GhostNumber number={4} style={StyleSheet.absoluteFillObject} />
+        <GhostNumber number={1} style={StyleSheet.absoluteFillObject} />
         <Text variant="heading" color={colors.textHi} style={styles.heading}>
-          Which of these feels most like something you secretly believe about
-          yourself?
+          How's your energy right now?
         </Text>
       </View>
 
       <Text variant="caption" color={colors.textMid} style={styles.hint}>
-        Pick up to 2.
+        Pick up to two that feel true.
       </Text>
 
       <View style={styles.options}>

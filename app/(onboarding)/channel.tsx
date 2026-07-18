@@ -12,61 +12,40 @@ import { BackButton } from '@/components/navigation/BackButton'
 import { useOnboardingStore } from '@/stores/onboarding.store'
 
 const OPTIONS = [
-  {
-    value: 'move_body',
-    label: 'They move their body without negotiating with themselves.',
-  },
-  {
-    value: 'rituals',
-    label: "They have rituals they never skip. Not once.",
-  },
-  {
-    value: 'create_daily',
-    label: 'They create or make something every single day.',
-  },
-  {
-    value: 'write_thoughts',
-    label: "They write down what they're thinking instead of just carrying it.",
-  },
+  { value: 'c_sound',  label: 'Playing music or making sounds.' },
+  { value: 'c_visual', label: 'Drawing or making something to look at.' },
+  { value: 'c_words',  label: 'Writing my thoughts down.' },
+  { value: 'c_move',   label: 'Moving — walk, sport, gym, out of my head.' },
+  { value: 'c_rest',   label: 'Switching off — rest, quiet, no task.' },
 ]
 
-const MAX = 2
-
-export default function Q2() {
-  const [selected, setSelected] = useState<string[]>([])
+export default function Channel() {
+  const [selected, setSelected] = useState<string | null>(null)
   const { setAnswer } = useOnboardingStore()
 
-  function toggle(value: string) {
-    setSelected((prev) => {
-      if (prev.includes(value)) return prev.filter((v) => v !== value)
-      if (prev.length >= MAX) return prev
-      return [...prev, value]
-    })
-  }
-
   function handleContinue() {
-    setAnswer('q2', selected)
-    router.push('/(onboarding)/q3')
+    if (!selected) return
+    setAnswer('channel', [selected])
+    router.push('/(onboarding)/identity')
   }
 
   return (
     <ScreenWrapper padded>
       <View style={styles.topRow}>
         <BackButton onPress={() => router.back()} />
-        <StepDots total={6} current={2} style={styles.dots} />
+        <StepDots total={6} current={4} style={styles.dots} />
         <View style={styles.spacer} />
       </View>
 
       <View style={styles.headingWrap}>
-        <GhostNumber number={1} style={StyleSheet.absoluteFillObject} />
+        <GhostNumber number={3} style={StyleSheet.absoluteFillObject} />
         <Text variant="heading" color={colors.textHi} style={styles.heading}>
-          There's a version of you that doesn't exist yet. What does that
-          person do that you don't?
+          If you had a free hour and no pressure, which sounds fun?
         </Text>
       </View>
 
       <Text variant="caption" color={colors.textMid} style={styles.hint}>
-        Pick up to 2.
+        Pick one.
       </Text>
 
       <View style={styles.options}>
@@ -74,9 +53,8 @@ export default function Q2() {
           <OptionCard
             key={opt.value}
             label={opt.label}
-            selected={selected.includes(opt.value)}
-            disabled={!selected.includes(opt.value) && selected.length >= MAX}
-            onPress={() => toggle(opt.value)}
+            selected={selected === opt.value}
+            onPress={() => setSelected(opt.value)}
           />
         ))}
       </View>
@@ -85,7 +63,7 @@ export default function Q2() {
         <Button
           variant="primary"
           onPress={handleContinue}
-          disabled={selected.length === 0}
+          disabled={!selected}
         >
           Continue
         </Button>

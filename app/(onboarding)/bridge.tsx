@@ -19,7 +19,7 @@ export default function Bridge() {
       <View style={styles.options}>
         {/* Option 1 — Quiz path */}
         <Card
-          onPress={() => router.push('/(onboarding)/q2')}
+          onPress={() => router.push('/(onboarding)/energy')}
           style={styles.card}
         >
           <View style={styles.badgeRow}>
