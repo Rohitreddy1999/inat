@@ -45,11 +45,12 @@ inat/
 │   ├── (onboarding)/
 │   │   ├── life-stage.tsx   # Q1 — life stage
 │   │   ├── bridge.tsx       # How to find track
-│   │   ├── q2.tsx           # Aspiration
-│   │   ├── q3.tsx           # Energy state
-│   │   ├── q4.tsx           # Real barrier
-│   │   ├── q5.tsx           # Identity belief
-│   │   ├── q6.tsx           # Free text
+│   │   ├── energy.tsx       # Q — energy state (step 2/7)
+│   │   ├── barrier.tsx      # Q — barrier (step 3/7)
+│   │   ├── channel.tsx      # Q — channel / single select (step 4/7)
+│   │   ├── identity.tsx     # Q — identity belief (step 5/7)
+│   │   ├── presence.tsx     # Q — presence / single select (step 6/7)
+│   │   ├── q6.tsx           # Free text (step 7/7)
 │   │   ├── match.tsx        # Track recommendation
 │   │   └── focus.tsx        # Subtrack selection
 │   ├── (tabs)/
@@ -104,15 +105,17 @@ Session, day 21 complete, graduation seen     → Home
 ### Onboarding flow
 ```
 life-stage → bridge
-               ↓ answer questions        ↓ I know what I want
-              q2 → q3 → q4 → q5 → q6   match (no recommendation)
-                              ↓               ↓
-                            match ————→ focus (SAME screen)
-                                            ↓
-                                          Home
+               ↓ answer questions             ↓ I know what I want
+              energy → barrier → channel      match (no recommendation)
+                → identity → presence → q6         ↓
+                                   ↓          focus (SAME screen)
+                                 match ——————→      ↓
+                                                  Home
 ```
 Both paths end at the same focus.tsx and the same Home.
 No exceptions. No separate components for each path.
+Quiz path: 7 steps total (StepDots total=7). life-stage is step 1;
+energy=2, barrier=3, channel=4, identity=5, presence=6, q6=7.
 
 ### Main app tabs
 ```
@@ -166,7 +169,7 @@ Routes to onboarding life-stage.
 ### (onboarding) group
 
 **Life Stage — Q1** (single select)
-Progress: StepDots step 1 of 6.
+Progress: StepDots step 1 of 7.
 Question: "Before we begin — where are you in life right now?"
 Subtitle: "Just so we speak your language."
 Options (icon cards): Still studying / Building my career /
@@ -460,9 +463,9 @@ Phase-based messages for State A:
 - [ ] BottomNav not visible on Day screen
 
 ### Phase 2 — Onboarding
-- [ ] All 6 question screens display correctly
-- [ ] Single select enforced on Q1 and Q3
-- [ ] Multi select max 2 enforced on Q2, Q4, Q5
+- [ ] All 7 question screens display correctly (energy/barrier/channel/identity/presence/q6 + life-stage)
+- [ ] Single select enforced on life-stage, channel, presence
+- [ ] Multi select max 2 enforced on energy, barrier, identity
 - [ ] Shake animation fires on attempted 3rd selection
 - [ ] StepDots advance correctly through questions
 - [ ] Matching engine tested against all 4 runMatch() test cases
