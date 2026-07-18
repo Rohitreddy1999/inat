@@ -6,6 +6,7 @@ import { colors, spacing } from '@/theme'
 import { ScreenWrapper } from '@/components/shared/ScreenWrapper'
 import { Text } from '@/components/core/Text'
 import { Button } from '@/components/core/Button'
+import { BackButton } from '@/components/navigation/BackButton'
 import { TrackCard } from '@/components/shared/TrackCard'
 import { useOnboardingStore } from '@/stores/onboarding.store'
 import { getAllTracks } from '@/services/curriculum.service'
@@ -42,6 +43,8 @@ export default function Match() {
 
   return (
     <ScreenWrapper padded scrollable>
+      <BackButton onPress={() => router.back()} />
+
       <Text
         variant="micro"
         color={colors.textLow}
