@@ -42,6 +42,21 @@ export async function updateLastActive(
     .eq('id', journeyId)
 }
 
+export async function markGraduationSeen(
+  journeyId: string,
+): Promise<{ error: PostgrestError | null }> {
+  const { error } = await supabase
+    .from('user_journeys')
+    .update({
+      graduation_seen: true,
+      is_completed: true,
+      completed_at: new Date().toISOString(),
+    })
+    .eq('id', journeyId)
+
+  return { error }
+}
+
 export async function getActiveJourney(
   userId: string,
 ): Promise<{ journey: Journey | null; error: PostgrestError | null }> {

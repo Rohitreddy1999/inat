@@ -1,5 +1,5 @@
 # INAT — Claude Code Context
-Last updated: July 2026 | Last session: Level 6C — Home, Day, Ascent, Community, Profile screens with real Supabase data
+Last updated: July 2026 | Last session: Level 6D — Graduation screen, three beats with aura animation
 
 ---
 
@@ -88,7 +88,7 @@ feels confident enough to explore the field independently.
 ---
 
 ## WHAT TO BUILD THIS SESSION
-Level 6B — onboarding screens (life-stage → bridge → q2 → q3 → q4 → q5 → q6 → match → focus)
+Architecture Phase 1 verification, then Phase 2 onboarding polish
 
 ---
 
@@ -168,17 +168,17 @@ Level 2 — Form: COMPLETE
 Level 3 — Task: COMPLETE
 Level 4 — Navigation: COMPLETE
 Level 5 — Shared: COMPLETE
-Level 6 — Screens: IN PROGRESS (6A auth ✓, 6B onboarding ✓, 6C main screens ✓, 6D graduation next)
+Level 6 — Screens: COMPLETE (6A auth ✓, 6B onboarding ✓, 6C main screens ✓, 6D graduation ✓)
 
 ### ARCHITECTURE PHASES STATUS
-Phase 1 — Shell and navigation: IN PROGRESS (screens wired, real data flowing)
+Phase 1 — Shell and navigation: IN PROGRESS (all screens wired, real data flowing, graduation pending device verification)
 Phase 2 — Onboarding: COMPLETE
 Phase 3 — Core experience: COMPLETE (Day screen + completion flow)
 Phase 4 — Re-entry card: COMPLETE (ReentryCard + dayUnlock util)
-Phase 5 — Progress and Graduation: IN PROGRESS (Ascent complete, Graduation placeholder)
+Phase 5 — Progress and Graduation: COMPLETE (Ascent complete, Graduation 3-beat screen complete)
 Phase 6 — Profile and subscription: IN PROGRESS (Profile screen complete, no subscription yet)
 
-Current work: Level 6D — Graduation screen.
+Current work: Architecture Phase 1 verification, then Phase 2 onboarding polish.
 
 ## SESSION DECISIONS (Level 5)
 - react-native-svg v15.12.1 installed for PhaseProgressRing and Silhouette
