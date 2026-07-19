@@ -127,35 +127,42 @@ All tokens live in theme/index.ts — never hardcode values.
 
 ---
 
-## DEV TEST HARNESS
+## DEV ADMIN PANEL
 
 ### Access
-5-tap the INAT wordmark on the Welcome screen → opens dev menu.
+5-tap the INAT wordmark on the Welcome screen → opens `app/admin.tsx`.
 Only functional when `__DEV__ === true` (development builds only).
-Never ships: all code is wrapped in `__DEV__` checks.
+Never ships: guarded by `if (!__DEV__) throw` at the top of the file.
 
 ### Files
-- `utils/devTestData.ts` — DEV_SCENARIOS export, throws in production
-- `app/dev-menu.tsx` — full dev menu screen (quick login, quick nav, sign-out reset)
+- `app/admin.tsx` — admin panel (journey state, re-entry simulation, nav, reset)
 - `app/(auth)/welcome.tsx` — 5-tap handler on wordmark (2-second reset window)
-- `app/_layout.tsx` — `dev-menu` Stack.Screen gated by `__DEV__`
+- `app/_layout.tsx` — `admin` Stack.Screen gated by `__DEV__`
 
-### Test Accounts (Supabase — FlowState project)
-All passwords: `testpass123`
+### Admin Account (Supabase — FlowState project)
+| email | password |
+|---|---|
+| admin@inat.dev | Surge2026!#iNAT |
 
-| email | scenario | day | completions | re-entry |
-|---|---|---|---|---|
-| test+new@inat.dev | New user | — | 0 | — |
-| test+day1@inat.dev | Day 1 first open | 1 | 0 | State D |
-| test+day8@inat.dev | Day 8 build phase | 8 | 7 | State A |
-| test+day21@inat.dev | Day 21 final day | 21 | 20 | State A |
-| test+doneb@inat.dev | Done today | 5 | 5 | State B |
-| test+gap@inat.dev | Gap return | 6 | 5 | State C |
-| test+grad@inat.dev | Graduation | 22 | 21 | completed |
+### Admin Controls
+- **SET JOURNEY STATE** — shows current user_id / journey_id / day; buttons set
+  `current_day` to [1,2,3,7,8,14,15,20,21] and backfills completions accordingly
+- **SIMULATE RE-ENTRY** — State A (yesterday), B (today), C (5 days ago), D (no completions)
+  by updating the latest completion row's date then re-hydrating
+- **JUMP TO SCREEN** — direct nav to any screen without auth/journey preconditions
+- **DANGER** — Reset Journey (deactivates + clears completions → onboarding) / Sign Out
 
 ### Schema note
 `daily_completions.completed_date` is a `date` column (YYYY-MM-DD).
 Migration applied: renamed from `completed_at` to align with service layer.
+
+## BUGS FIXED (this session)
+- `completeDay()` correctly writes `current_day: dayNumber + 1` — verified via Supabase
+- `handleComplete()` in day.tsx already awaits `hydrate()` before navigation — confirmed correct
+- `hydrate()` sets `isHydrated: true` even when no active journey exists — confirmed correct
+- `focus.tsx` now calls `deactivateJourney(userId)` before `createJourney()` — fixes ghost
+  active journey when user re-enters onboarding (especially same-subtrack re-selection)
+- All 7 stale test accounts deleted; `admin@inat.dev` is the single dev account
 
 ---
 

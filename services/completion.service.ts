@@ -72,3 +72,66 @@ export async function getLastCompletionDate(
 
   return { date: (data as { completed_date: string } | null)?.completed_date ?? null, error }
 }
+
+// ── Admin-only helpers (dev builds) ─────────────────────────────────────────
+
+type CompletionInsert = {
+  journey_id: string
+  user_id: string
+  day_number: number
+  completed_date: string
+  feeling: string
+  reflection_note: string
+}
+
+export async function deleteJourneyCompletions(journeyId: string): Promise<PostgrestError | null> {
+  const { error } = await supabase
+    .from('daily_completions')
+    .delete()
+    .eq('journey_id', journeyId)
+  return error
+}
+
+export async function insertJourneyCompletions(rows: CompletionInsert[]): Promise<PostgrestError | null> {
+  const { error } = await supabase.from('daily_completions').insert(rows)
+  return error
+}
+
+export async function getLatestCompletionId(journeyId: string): Promise<string | null> {
+  const { data } = await supabase
+    .from('daily_completions')
+    .select('id')
+    .eq('journey_id', journeyId)
+    .order('completed_date', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  return (data as { id: string } | null)?.id ?? null
+}
+
+export async function updateCompletionDate(
+  completionId: string,
+  dateStr: string,
+): Promise<PostgrestError | null> {
+  const { error } = await supabase
+    .from('daily_completions')
+    .update({ completed_date: dateStr })
+    .eq('id', completionId)
+  return error
+}
+
+export async function insertSyntheticCompletion(
+  journeyId: string,
+  userId: string,
+  dayNumber: number,
+  dateStr: string,
+): Promise<PostgrestError | null> {
+  const { error } = await supabase.from('daily_completions').insert({
+    journey_id: journeyId,
+    user_id: userId,
+    day_number: dayNumber,
+    completed_date: dateStr,
+    feeling: 'good',
+    reflection_note: '',
+  })
+  return error
+}

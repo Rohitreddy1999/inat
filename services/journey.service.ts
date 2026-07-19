@@ -6,15 +6,7 @@ export async function createJourney(
   userId: string,
   subtractId: string,
 ): Promise<{ journey: Journey | null; error: PostgrestError | null }> {
-  // Deactivate all other active journeys for this user first
-  await supabase
-    .from('user_journeys')
-    .update({ is_active: false })
-    .eq('user_id', userId)
-    .eq('is_active', true)
-    .neq('subtrack_id', subtractId)
-
-  // Upsert: insert fresh or reactivate + reset if the row already exists
+  // Upsert first — if this fails, no existing journeys are touched
   const { data, error } = await supabase
     .from('user_journeys')
     .upsert(
@@ -30,7 +22,34 @@ export async function createJourney(
     .select()
     .single()
 
-  return { journey: data as Journey | null, error }
+  if (error) return { journey: null, error }
+
+  // Upsert succeeded — deactivate every other active journey for this user
+  await supabase
+    .from('user_journeys')
+    .update({ is_active: false })
+    .eq('user_id', userId)
+    .eq('is_active', true)
+    .neq('id', data.id)
+
+  return { journey: data as Journey | null, error: null }
+}
+
+export async function deactivateJourney(userId: string): Promise<PostgrestError | null> {
+  const { error } = await supabase
+    .from('user_journeys')
+    .update({ is_active: false })
+    .eq('user_id', userId)
+    .eq('is_active', true)
+  return error
+}
+
+export async function setJourneyDay(journeyId: string, day: number): Promise<PostgrestError | null> {
+  const { error } = await supabase
+    .from('user_journeys')
+    .update({ current_day: day })
+    .eq('id', journeyId)
+  return error
 }
 
 export async function updateLastActive(

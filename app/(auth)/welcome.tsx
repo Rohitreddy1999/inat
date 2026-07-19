@@ -63,7 +63,7 @@ export default function Welcome() {
                 const next = prev + 1
                 if (tapTimer.current) clearTimeout(tapTimer.current)
                 if (next >= 5 && __DEV__) {
-                  router.push('/dev-menu')
+                  router.push('/admin')
                   return 0
                 }
                 tapTimer.current = setTimeout(() => setTapCount(0), 2000)

@@ -17,20 +17,21 @@ export default function Home() {
   const [dayContent, setDayContent]     = useState<CurriculumDay | null>(null)
   const [subtrack, setSubtrack]         = useState<Subtrack | null>(null)
 
-  const phaseColor = currentDay > 0 ? getPhaseColor(currentDay) : getPhaseColor(1)
-  const phaseName  = currentDay > 0 ? getPhaseName(currentDay)  : getPhaseName(1)
+  // In State B, currentDay is already incremented to the NEXT day.
+  // Display and fetch the day that was actually completed (currentDay - 1).
+  const displayDay = reentryState === 'B' ? Math.max(currentDay - 1, 1) : currentDay
+  const phaseColor = getPhaseColor(Math.max(displayDay, 1))
+  const phaseName  = getPhaseName(Math.max(displayDay, 1))
 
   useEffect(() => {
     if (!activeJourney) return
+    getDayContent(activeJourney.subtrack_id, displayDay).then(({ day }) => setDayContent(day))
+  }, [activeJourney, reentryState])
 
-    Promise.all([
-      getDayContent(activeJourney.subtrack_id, activeJourney.current_day),
-      getSubtrackById(activeJourney.subtrack_id),
-    ]).then(([{ day }, { subtrack: s }]) => {
-      setDayContent(day)
-      setSubtrack(s)
-    })
-  }, [activeJourney])
+  useEffect(() => {
+    if (!activeJourney) return
+    getSubtrackById(activeJourney.subtrack_id).then(({ subtrack: s }) => setSubtrack(s))
+  }, [activeJourney?.subtrack_id])
 
   if (!activeJourney) {
     return (
@@ -51,7 +52,7 @@ export default function Home() {
       {reentryState !== null && reentryState !== 'D' && (
         <ReentryCard
           state={reentryState}
-          dayNumber={currentDay}
+          dayNumber={displayDay}
           phaseColor={phaseColor}
           phaseName={phaseName}
           onCTA={() => router.push('/day')}
@@ -60,7 +61,7 @@ export default function Home() {
 
       <View style={{ marginTop: reentryState === 'D' ? 0 : spacing[4] }}>
         <DayCard
-          dayNumber={currentDay}
+          dayNumber={displayDay}
           title={dayContent?.task_title ?? ''}
           phase={phaseName}
           subtractName={subtrack?.name ?? ''}
