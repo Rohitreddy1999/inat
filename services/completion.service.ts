@@ -7,17 +7,23 @@ export async function completeDay(
   dayNumber: number,
   feeling: string,
   reflectionNote: string,
-): Promise<{ error: PostgrestError | null }> {
+): Promise<{ error: PostgrestError | string | null }> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
   const completedDate = new Date().toISOString().split('T')[0]
 
   const { error: insertError } = await supabase
     .from('daily_completions')
     .upsert({
       journey_id: journeyId,
+      user_id: user.id,
       day_number: dayNumber,
       completed_date: completedDate,
       feeling,
       reflection_note: reflectionNote,
+    }, {
+      onConflict: 'journey_id,day_number',
     })
 
   if (insertError) return { error: insertError }

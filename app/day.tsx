@@ -58,17 +58,29 @@ export default function Day() {
 
     setIsCompleted(true)
 
-    await completeDay(activeJourney.id, currentDay, 'good', '')
+    const { error: completionError } = await completeDay(
+      activeJourney.id, currentDay, 'good', '',
+    )
+
+    if (completionError) {
+      setIsCompleted(false)
+      Alert.alert(
+        'Could not save',
+        'Your completion did not save. Please try again.',
+        [{ text: 'OK' }],
+      )
+      return
+    }
 
     const { session } = await getSession()
-    if (session?.user?.id) {
+    if (session) {
       await hydrate(session.user.id)
     }
 
-    if (currentDay === 21) {
+    if (currentDay >= 21) {
       router.push('/graduation')
     } else {
-      setTimeout(() => router.back(), 1000)
+      router.back()
     }
   }
 
