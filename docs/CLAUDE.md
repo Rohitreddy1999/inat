@@ -88,22 +88,28 @@ feels confident enough to explore the field independently.
 ---
 
 ## WHAT TO BUILD THIS SESSION
-Architecture Phase 1 verification, then Phase 2 onboarding polish
+Color system + Syne font + onboarding screen rebuild — COMPLETE (commit 90b6314)
 
 ---
 
 ## DESIGN SYSTEM
-Font: Hanken Grotesk (only font, never swap)
+Display/Headings: Syne (ExtraBold for display, Bold for title/heading)
+Body: Hanken Grotesk (Regular/Medium/SemiBold/Bold/Black)
+Never swap fonts — Syne for display+heading variants only, Hanken for everything else.
+
 Abyss:    #07090D  page background
 Fathom:   #0F141A  card background
-Electric: #4DBBFF  universal UI accent — CTAs, selected states, all interactive elements
-Volt:     #DAFF00  Build phase only (days 8–14)
-Plasma:   #FF4FD8  Commit phase only (days 15–21)
+Iris:     #8B5CF6  Foundation phase + selected states + onboarding accent
+Volt:     #62EE10  Build phase + ALL CTAs (primary buttons, active states)
+Plasma:   #FF4FD8  Commit phase
 Arc-Light:#EAFFF5  near-white text
 All tokens live in theme/index.ts — never hardcode values.
 
-Color role rule: Onboarding uses Electric exclusively.
-Phase colors (Volt, Plasma) only appear inside the active journey experience.
+Color role rule:
+  Iris  — Foundation phase (days 1-7), selected card states, onboarding highlights
+  Volt  — Build phase (days 8-14), all CTA buttons app-wide
+  Plasma — Commit phase (days 15-21)
+  Electric (#4DBBFF) is REMOVED — replaced by Iris. Never use it again.
 
 ---
 
@@ -209,7 +215,7 @@ Level 1 — Primitives: COMPLETE
 Level 2 — Form: COMPLETE
 Level 3 — Task: COMPLETE
 Level 4 — Navigation: COMPLETE
-Level 5 — Shared: COMPLETE
+Level 5 — Shared: COMPLETE (QuestionHeading added this session)
 Level 6 — Screens: COMPLETE (6A auth ✓, 6B onboarding ✓, 6C main screens ✓, 6D graduation ✓)
 
 ### ARCHITECTURE PHASES STATUS
@@ -238,6 +244,26 @@ Current work: Architecture Phase 1 verification, then Phase 2 onboarding polish.
 - GhostNumber: importantForAccessibility="no-hide-descendants" + accessibilityElementsHidden
   (not aria-hidden — that's a web prop unsupported in React Native)
 - TrackCard: glow (effects.glowVolt) applied only on Pressable style, not Animated.View wrapper
+
+## SESSION DECISIONS (Color + Syne + Onboarding Rebuild)
+- Palette locked: Iris #8B5CF6 replaces Electric #4DBBFF for Foundation/selected states
+- Volt value changed: #DAFF00 → #62EE10 (brighter, more legible green)
+- Syne-Bold.ttf + Syne-ExtraBold.ttf added to assets/fonts/; loaded in _layout.tsx
+- fontFamilies.display = 'Syne-ExtraBold', fontFamilies.heading = 'Syne-Bold'
+- Text component: display/title/heading variants now use Syne; all others stay Hanken
+- OptionCard rebuilt: two-layer (outer shadow, inner overflow:hidden), LinearGradient
+  surface, iris glow + left bar + filled circle checkmark on selected state
+- OptionCard shadow on outer Animated.View (not inner) to avoid overflow:hidden clipping
+- QuestionHeading: new component in components/shared/ — Syne-Bold 30px, splits text
+  around a single highlight word rendered in an accent color
+- typography.size.question = 30 added to theme for QuestionHeading font size
+- All 7 onboarding screens rebuilt: absolute-positioned CTA (bottom: spacing[10]),
+  QuestionHeading replaces Text variant="heading", GhostNumber top-right, total=7 StepDots
+- q6 textarea: bare TextInput (not Input component) with styles applied directly —
+  wrapping in a View intercepted touches and blocked keyboard on iOS
+- Button disabled primary opacity: 0.2 → 0.3 (matches spec, more clearly inactive)
+- Global rename across 18 files: electric→iris, borderElectric→borderIris,
+  electricTint→irisTint, glowElectric→glowIris
 
 ## SESSION DECISIONS (Level 2)
 - future-dot color: used colors.textFaint (0.18) — spec says 15% but no theme token
