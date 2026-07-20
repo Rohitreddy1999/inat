@@ -156,13 +156,41 @@ Never ships: guarded by `if (!__DEV__) throw` at the top of the file.
 `daily_completions.completed_date` is a `date` column (YYYY-MM-DD).
 Migration applied: renamed from `completed_at` to align with service layer.
 
-## BUGS FIXED (this session)
+## BUGS FIXED
+
+### Journey / day advancement
 - `completeDay()` correctly writes `current_day: dayNumber + 1` — verified via Supabase
 - `handleComplete()` in day.tsx already awaits `hydrate()` before navigation — confirmed correct
 - `hydrate()` sets `isHydrated: true` even when no active journey exists — confirmed correct
-- `focus.tsx` now calls `deactivateJourney(userId)` before `createJourney()` — fixes ghost
-  active journey when user re-enters onboarding (especially same-subtrack re-selection)
-- All 7 stale test accounts deleted; `admin@inat.dev` is the single dev account
+
+### State B home screen display
+- After completing a day, `currentDay` in the store is the NEXT day (already incremented).
+  Home screen now uses `displayDay = reentryState === 'B' ? currentDay - 1 : currentDay`
+  so the card shows the day that was actually completed, not the upcoming one.
+- `getDayContent` call also uses `displayDay` directly — no duplicate offset expression.
+- `getSubtrackById` split into a separate `useEffect` keyed on `subtrack_id` only;
+  it no longer re-fetches on every re-entry state change.
+
+### Journey creation (onboarding re-entry)
+- `createJourney` restructured: upsert first (safe), deactivate others after success.
+  Previously deactivated existing journeys before the upsert — if the upsert failed,
+  the user was left with no active journey and looped back to onboarding indefinitely.
+- Deactivation now uses `.neq('id', newJourney.id)` instead of `.neq('subtrack_id', ...)`
+  so any stale same-subtrack rows are also cleaned up.
+- `deactivateJourney` now returns `PostgrestError | null` instead of `void`.
+- `focus.tsx` no longer calls `deactivateJourney` directly — handled inside `createJourney`.
+
+### Admin panel
+- All direct `supabase.from()` calls moved out of `admin.tsx` into service functions:
+  - `services/journey.service.ts`: `setJourneyDay(journeyId, day)`
+  - `services/completion.service.ts`: `deleteJourneyCompletions`, `insertJourneyCompletions`,
+    `getLatestCompletionId`, `updateCompletionDate`, `insertSyntheticCompletion`
+- Every DB call now checks the returned error and surfaces it via `Alert` — no more
+  silent failures that showed a success confirmation when nothing changed.
+- `handleResetJourney` stops and shows an error if deactivation fails; no longer navigates
+  to onboarding while the active journey is still live in the DB.
+- Date offset in `handleSetDay` simplified: `day - 1 - (i - 1)` → `day - i`.
+- All 7 stale test accounts deleted; `admin@inat.dev` is the single dev account.
 
 ---
 
