@@ -67,9 +67,9 @@ export default function DevTools() {
         }}
       >
         <Pressable onPress={() => router.back()} style={{ marginRight: spacing[3] }}>
-          <Text variant="body" color={colors.electric}>← Back</Text>
+          <Text variant="body" color={colors.iris}>← Back</Text>
         </Pressable>
-        <Text variant="heading" color={colors.electric}>Dev Tools</Text>
+        <Text variant="heading" color={colors.iris}>Dev Tools</Text>
       </View>
 
       <ScrollView
@@ -150,7 +150,7 @@ export default function DevTools() {
                 onPress={() => devOverride({ reentryState: key })}
               >
                 <Card
-                  accent={reentryState === key ? colors.electric : undefined}
+                  accent={reentryState === key ? colors.iris : undefined}
                   style={{ opacity: reentryState === key ? 1 : 0.6 }}
                 >
                   <Text variant="base" color={reentryState === key ? colors.textHi : colors.textMid}>

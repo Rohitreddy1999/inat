@@ -72,7 +72,7 @@ export function Input({
 
   const focusGlow = focused && !error
     ? {
-        shadowColor: colors.electric,
+        shadowColor: colors.iris,
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.12,
         shadowRadius: 10,

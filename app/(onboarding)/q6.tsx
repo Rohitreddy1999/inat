@@ -1,18 +1,19 @@
 import { useState } from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, TextInput } from 'react-native'
 import { router } from 'expo-router'
-import { colors, spacing } from '@/theme'
+import { colors, spacing, radius, typography, fontFamilies } from '@/theme'
 import { ScreenWrapper } from '@/components/shared/ScreenWrapper'
 import { Text } from '@/components/core/Text'
 import { Button } from '@/components/core/Button'
-import { Input } from '@/components/core/Input'
 import { StepDots } from '@/components/forms/StepDots'
 import { GhostNumber } from '@/components/shared/GhostNumber'
 import { BackButton } from '@/components/navigation/BackButton'
+import { QuestionHeading } from '@/components/shared/QuestionHeading'
 import { useOnboardingStore } from '@/stores/onboarding.store'
 
 export default function Q6() {
-  const [text, setText] = useState('')
+  const [text,    setText]    = useState('')
+  const [focused, setFocused] = useState(false)
   const { setOpenAnswer, runMatch } = useOnboardingStore()
 
   function handleContinue() {
@@ -20,6 +21,17 @@ export default function Q6() {
     runMatch()
     router.push('/(onboarding)/match')
   }
+
+  const borderColor = focused ? colors.borderIris : colors.borderCard
+  const focusGlow   = focused
+    ? {
+        shadowColor:   colors.iris,
+        shadowOffset:  { width: 0, height: 0 },
+        shadowOpacity: 0.18,
+        shadowRadius:  12,
+        elevation:     4,
+      }
+    : {}
 
   return (
     <ScreenWrapper padded scrollable>
@@ -30,19 +42,26 @@ export default function Q6() {
       </View>
 
       <View style={styles.headingWrap}>
-        <GhostNumber number={5} style={StyleSheet.absoluteFillObject} />
-        <Text variant="heading" color={colors.textHi} style={styles.heading}>
-          What's the thing you keep saying you'll start when the time is right?
-        </Text>
+        <GhostNumber number={6} style={styles.ghost} />
+        <QuestionHeading
+          text="What's the thing you keep saying you'll start when the time is right?"
+          highlight="start"
+          highlightColor={colors.volt}
+          style={styles.heading}
+        />
       </View>
 
-      <Input
-        placeholder="The thing you've been putting off the longest..."
+      <TextInput
         value={text}
         onChangeText={setText}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        placeholder="The thing you've been putting off the longest..."
+        placeholderTextColor={colors.textLow}
         multiline
         maxLength={500}
-        style={styles.input}
+        textAlignVertical="top"
+        style={[styles.inputWrap, { borderColor }, focusGlow]}
       />
 
       <Text variant="caption" color={colors.textLow} style={styles.hint}>
@@ -53,8 +72,9 @@ export default function Q6() {
         <Button
           variant="primary"
           onPress={handleContinue}
+          disabled={text.trim().length <= 3}
         >
-          Show my match →
+          Show my match
         </Button>
       </View>
     </ScreenWrapper>
@@ -64,31 +84,45 @@ export default function Q6() {
 const styles = StyleSheet.create({
   topRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: spacing[2],
+    alignItems:   'center',
+    marginTop:    spacing[2],
   },
   dots: {
-    flex: 1,
+    flex:       1,
     alignItems: 'center',
   },
   spacer: {
     width: spacing.touchMin,
   },
   headingWrap: {
-    marginTop: spacing.touchMin,
-    position: 'relative',
+    marginTop: spacing[10],
+    position:  'relative',
+  },
+  ghost: {
+    position: 'absolute',
+    top:      -spacing[6],
+    right:    -spacing[5],
   },
   heading: {
     zIndex: 1,
   },
-  input: {
-    marginTop: spacing[8],
+  inputWrap: {
+    marginTop:        spacing[8],
+    backgroundColor:  colors.bgInput,
+    borderWidth:      1,
+    borderRadius:     radius.md,
+    padding:          spacing[4],
+    minHeight:        120,
+    color:            colors.textHi,
+    fontFamily:       fontFamilies.regular,
+    fontSize:         typography.size.base,
+    lineHeight:       typography.size.base * typography.leading.body,
   },
   hint: {
     marginTop: spacing[2],
   },
   cta: {
-    marginTop: spacing[8],
+    marginTop:     spacing[8],
     paddingBottom: spacing[10],
   },
 })

@@ -77,7 +77,7 @@ export default function Welcome() {
               })
             }}
           >
-            <Text variant="display" color={colors.electric} align="center">
+            <Text variant="display" color={colors.iris} align="center">
               INAT
             </Text>
           </TouchableOpacity>
@@ -90,7 +90,7 @@ export default function Welcome() {
         </Animated.View>
 
         <Animated.View style={[styles.rings, rings.animStyle]}>
-          <PhaseProgressRing dayInPhase={3} phaseColor={colors.electric} />
+          <PhaseProgressRing dayInPhase={3} phaseColor={colors.iris} />
           <PhaseProgressRing dayInPhase={5} phaseColor={colors.volt}    />
           <PhaseProgressRing dayInPhase={7} phaseColor={colors.plasma}  />
         </Animated.View>

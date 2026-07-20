@@ -3,21 +3,21 @@ import { View, StyleSheet } from 'react-native'
 import { router } from 'expo-router'
 import { colors, spacing } from '@/theme'
 import { ScreenWrapper } from '@/components/shared/ScreenWrapper'
-import { Text } from '@/components/core/Text'
 import { Button } from '@/components/core/Button'
 import { OptionCard } from '@/components/forms/OptionCard'
 import { StepDots } from '@/components/forms/StepDots'
 import { GhostNumber } from '@/components/shared/GhostNumber'
 import { BackButton } from '@/components/navigation/BackButton'
+import { QuestionHeading } from '@/components/shared/QuestionHeading'
 import { useOnboardingStore } from '@/stores/onboarding.store'
 
 const OPTIONS = [
-  { value: 'i_discipline', label: 'I have never been a disciplined person.' },
-  { value: 'i_creative',   label: 'I am just not the creative type.' },
+  { value: 'i_discipline', label: "I've never been a disciplined person." },
+  { value: 'i_creative',   label: "I'm just not the creative type." },
   { value: 'i_opinions',   label: 'I care too much what people think.' },
-  { value: 'i_lostwant',   label: 'I have lost touch with what I want.' },
-  { value: 'i_inhead',     label: 'I live in my head. I have left my body behind.' },
-  { value: 'i_capable',    label: 'I know I can do more. I just have not shown it yet.' },
+  { value: 'i_lostwant',   label: "I've lost touch with what I want." },
+  { value: 'i_inhead',     label: "I live in my head. I've left my body behind." },
+  { value: 'i_capable',    label: "I know I can do more. I just haven't shown it yet." },
 ]
 
 const MAX = 2
@@ -43,20 +43,19 @@ export default function Identity() {
     <ScreenWrapper padded>
       <View style={styles.topRow}>
         <BackButton onPress={() => router.back()} />
-        <StepDots total={6} current={5} style={styles.dots} />
+        <StepDots total={7} current={5} style={styles.dots} />
         <View style={styles.spacer} />
       </View>
 
       <View style={styles.headingWrap}>
-        <GhostNumber number={4} style={StyleSheet.absoluteFillObject} />
-        <Text variant="heading" color={colors.textHi} style={styles.heading}>
-          There's a story behind why you are the way you are. Which one is yours?
-        </Text>
+        <GhostNumber number={4} style={styles.ghost} />
+        <QuestionHeading
+          text="There's a story behind why you are the way you are. Which one is yours?"
+          highlight="story"
+          highlightColor={colors.iris}
+          style={styles.heading}
+        />
       </View>
-
-      <Text variant="caption" color={colors.textMid} style={styles.hint}>
-        Pick up to two.
-      </Text>
 
       <View style={styles.options}>
         {OPTIONS.map((opt) => (
@@ -86,32 +85,36 @@ export default function Identity() {
 const styles = StyleSheet.create({
   topRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: spacing[2],
+    alignItems:   'center',
+    marginTop:    spacing[2],
   },
   dots: {
-    flex: 1,
+    flex:       1,
     alignItems: 'center',
   },
   spacer: {
     width: spacing.touchMin,
   },
   headingWrap: {
-    marginTop: spacing.touchMin,
-    position: 'relative',
+    marginTop: spacing[10],
+    position:  'relative',
+  },
+  ghost: {
+    position: 'absolute',
+    top:      -spacing[6],
+    right:    -spacing[5],
   },
   heading: {
     zIndex: 1,
   },
-  hint: {
-    marginTop: spacing[2],
-  },
   options: {
     marginTop: spacing[8],
-    gap: spacing[2],
+    gap:       spacing[2] + spacing[1],
   },
   cta: {
-    marginTop: 'auto',
-    paddingBottom: spacing[10],
+    position: 'absolute',
+    bottom:   spacing[10],
+    left:     spacing.pagePad,
+    right:    spacing.pagePad,
   },
 })

@@ -106,7 +106,7 @@ export default function Focus() {
 
       {selectedTrack ? (
         <View style={styles.pill}>
-          <Badge variant="phase" color={colors.electric}>
+          <Badge variant="phase" color={colors.iris}>
             {selectedTrack.toUpperCase()}
           </Badge>
         </View>

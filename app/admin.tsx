@@ -126,7 +126,7 @@ export default function Admin() {
     <ScreenWrapper padded scrollable>
       {/* Header */}
       <View style={styles.header}>
-        <Text variant="heading" color={colors.electric}>DEV ADMIN</Text>
+        <Text variant="heading" color={colors.iris}>DEV ADMIN</Text>
         <Text variant="caption" color={colors.textLow}>dev@inat.app only</Text>
       </View>
 
@@ -158,7 +158,7 @@ export default function Admin() {
             key={day}
             style={[
               styles.dayBtn,
-              { backgroundColor: day === currentDay ? colors.electric : colors.fathom },
+              { backgroundColor: day === currentDay ? colors.iris : colors.fathom },
             ]}
             onPress={() => handleJumpToDay(day)}
             disabled={isLoading}

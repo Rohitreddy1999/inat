@@ -18,19 +18,19 @@ type Props = {
 const variantStyles: Record<TextVariant, TextStyle> = {
   display: {
     fontSize: typography.size.display,
-    fontFamily: fontFamilies.black,
+    fontFamily: fontFamilies.display,
     letterSpacing: typography.tracking.tight * typography.size.display,
     lineHeight: typography.size.display * typography.leading.tight,
   },
   title: {
     fontSize: typography.size.title,
-    fontFamily: fontFamilies.bold,
+    fontFamily: fontFamilies.heading,
     letterSpacing: typography.tracking.tight * typography.size.title,
     lineHeight: typography.size.title * typography.leading.tight,
   },
   heading: {
     fontSize: typography.size.heading,
-    fontFamily: fontFamilies.bold,
+    fontFamily: fontFamilies.heading,
     letterSpacing: typography.tracking.tight * typography.size.heading,
     lineHeight: typography.size.heading * typography.leading.heading,
   },

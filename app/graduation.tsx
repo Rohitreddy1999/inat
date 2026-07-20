@@ -154,13 +154,13 @@ function Beat1({ onAdvance }: Beat1Props) {
     >
       <View style={{ flex: 1, backgroundColor: colors.abyss, alignItems: 'center', justifyContent: 'center' }}>
         {/* Super saint aura glow — behind silhouette */}
-        <AuraGlow color={colors.electric} top={-20} left={-20} startDelay={2500} />
+        <AuraGlow color={colors.iris} top={-20} left={-20} startDelay={2500} />
         <AuraGlow color={colors.volt}     top={0}   right={-20} startDelay={2600} />
         <AuraGlow color={colors.plasma}  bottom={-20} left={0} startDelay={2700} />
 
         {/* Aura pulse rings — centered on silhouette */}
         <View style={{ position: 'absolute', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
-          <AuraPulse color={colors.electric} delay={1000} />
+          <AuraPulse color={colors.iris} delay={1000} />
           <AuraPulse color={colors.volt}    delay={1300} />
           <AuraPulse color={colors.plasma}  delay={1600} />
         </View>
@@ -249,7 +249,7 @@ function Beat2({ openAnswer, onAdvance }: Beat2Props) {
         </Animated.View>
 
         <Animated.View style={[cardStyle, { marginTop: spacing[6] }]}>
-          <Card accent={colors.electric} strip="left">
+          <Card accent={colors.iris} strip="left">
             <Text variant="quote" color={colors.textHi} style={{ fontStyle: 'italic' }}>
               {openAnswer ?? 'Something worth starting.'}
             </Text>
@@ -331,7 +331,7 @@ function Beat3({ onNewCircuit, onGoDeeper, onDone }: Beat3Props) {
         <View style={{ marginTop: spacing[10], gap: spacing[3] }}>
 
           <Animated.View style={card1Style}>
-            <Card onPress={onNewCircuit} accent={colors.electric}>
+            <Card onPress={onNewCircuit} accent={colors.iris}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View style={{ flex: 1 }}>
                   <Text variant="base" color={colors.textHi} style={{ fontWeight: '700' }}>
@@ -341,13 +341,13 @@ function Beat3({ onNewCircuit, onGoDeeper, onDone }: Beat3Props) {
                     Pick a different track. Keep the momentum.
                   </Text>
                 </View>
-                <Ionicons name="arrow-forward" color={colors.electric} size={20} />
+                <Ionicons name="arrow-forward" color={colors.iris} size={20} />
               </View>
             </Card>
           </Animated.View>
 
           <Animated.View style={card2Style}>
-            <Card onPress={onGoDeeper} accent={colors.electric}>
+            <Card onPress={onGoDeeper} accent={colors.iris}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View style={{ flex: 1 }}>
                   <Text variant="base" color={colors.textHi} style={{ fontWeight: '700' }}>

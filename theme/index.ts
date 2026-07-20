@@ -1,44 +1,68 @@
 export const colors = {
-  abyss:    '#07090D',
-  fathom:   '#0F141A',
-  volt:     '#DAFF00',
-  electric: '#4DBBFF',
-  plasma:   '#FF4FD8',
-  arcLight: '#EAFFF5',
-  error:    '#E24B4A',
+  // Base surfaces
+  abyss:     '#07090D',
+  fathom:    '#0F141A',
+  fathomTop: '#141920',
 
+  // Three phase accents
+  iris:    '#8B5CF6',   // Foundation phase
+  volt:    '#62EE10',   // Build phase + CTAs
+  plasma:  '#FF4FD8',   // Commit phase
+  arcLight: '#EAFFF5',  // near-white text
+
+  // Text tiers
   textHi:    'rgba(255,255,255,0.95)',
   textArc:   '#EAFFF5',
   textMid:   'rgba(255,255,255,0.60)',
   textLow:   'rgba(255,255,255,0.35)',
-  textFaint: 'rgba(255,255,255,0.18)',
-  textGhost: 'rgba(255,255,255,0.04)',
+  textFaint: 'rgba(255,255,255,0.04)',
 
+  // Surfaces
   bgPage:  '#07090D',
   bgCard:  '#0F141A',
-  bgRaise: '#10161D',
+  bgRaise: '#141920',
   bgInput: 'rgba(255,255,255,0.05)',
   bgNav:   'rgba(7,9,13,0.96)',
   bgScrim: 'rgba(7,9,13,0.80)',
 
-  border:         'rgba(255,255,255,0.08)',
-  borderSoft:     'rgba(255,255,255,0.06)',
-  borderCard:     'rgba(255,255,255,0.07)',
-  borderStrong:   'rgba(255,255,255,0.12)',
-  borderElectric: 'rgba(77,187,255,0.40)',
+  // Borders
+  border:       'rgba(255,255,255,0.08)',
+  borderSoft:   'rgba(255,255,255,0.06)',
+  borderCard:   'rgba(255,255,255,0.06)',
+  borderStrong: 'rgba(255,255,255,0.12)',
+  borderInner:  'rgba(255,255,255,0.08)',
 
-  voltTint:     'rgba(218,255,0,0.12)',
-  electricTint: 'rgba(77,187,255,0.12)',
-  plasmaTint:   'rgba(255,79,216,0.12)',
-  selectedBg:   'rgba(77,187,255,0.06)',
+  // Iris (Foundation / selected states)
+  borderIris: 'rgba(139,92,246,0.60)',
+  irisTint:   'rgba(139,92,246,0.08)',
+  irisGlow:   'rgba(139,92,246,0.20)',
+  irisInner:  'rgba(139,92,246,0.20)',
 
-  ctaBg:   '#4DBBFF',
+  // Volt (Build / CTAs)
+  borderVolt: 'rgba(98,238,16,0.60)',
+  voltTint:   'rgba(98,238,16,0.08)',
+  voltGlow:   'rgba(98,238,16,0.30)',
+
+  // Plasma (Commit)
+  borderPlasma: 'rgba(255,77,216,0.60)',
+  plasmaTint:   'rgba(255,77,216,0.08)',
+  plasmaGlow:   'rgba(255,77,216,0.20)',
+
+  // Selected state (uses Iris)
+  selectedBg: 'rgba(139,92,246,0.08)',
+
+  // CTA (Volt)
+  ctaBg:   '#62EE10',
   ctaText: '#07090D',
 
+  // Error
+  error: '#E24B4A',
+
+  // Phase system
   phase: {
-    foundation: '#4DBBFF',
-    build:      '#DAFF00',
-    commit:     '#FF4FD8',
+    foundation: '#8B5CF6',  // Iris — days 1-7
+    build:      '#62EE10',  // Volt — days 8-14
+    commit:     '#FF4FD8',  // Plasma — days 15-21
   },
 } as const
 
@@ -53,9 +77,10 @@ export const typography = {
     step:    14.5,
     base:    15,
     button:  16,
-    quote:   20,
-    heading: 26,
-    title:   34,
+    quote:    20,
+    question: 30,
+    heading:  26,
+    title:    34,
     display: 52,
     ghost:   120,
   },
@@ -80,6 +105,10 @@ export const typography = {
 } as const
 
 export const fontFamilies = {
+  // Display / headings — Syne
+  display:  'Syne-ExtraBold',
+  heading:  'Syne-Bold',
+  // Body — Hanken Grotesk
   regular:  'HankenGrotesk-Regular',
   medium:   'HankenGrotesk-Medium',
   semibold: 'HankenGrotesk-SemiBold',
@@ -115,21 +144,21 @@ export const radius = {
 
 export const effects = {
   glowCta: {
-    shadowColor: '#4DBBFF',
+    shadowColor: '#62EE10',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.25,
     shadowRadius: 20,
     elevation: 8,
   },
-  glowVolt: {
-    shadowColor: '#DAFF00',
+  glowIris: {
+    shadowColor: '#8B5CF6',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.18,
     shadowRadius: 16,
     elevation: 6,
   },
-  glowElectric: {
-    shadowColor: '#4DBBFF',
+  glowVolt: {
+    shadowColor: '#62EE10',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.18,
     shadowRadius: 16,

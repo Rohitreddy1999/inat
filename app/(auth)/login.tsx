@@ -94,7 +94,7 @@ export default function Login() {
       )}
 
       {!!resetMsg && (
-        <Text variant="caption" color={colors.electric} style={styles.message}>
+        <Text variant="caption" color={colors.iris} style={styles.message}>
           {resetMsg}
         </Text>
       )}
@@ -131,7 +131,7 @@ export default function Login() {
           <Text variant="caption" color={colors.textMid}>
             Don't have an account?{' '}
           </Text>
-          <Text variant="caption" color={colors.electric}>
+          <Text variant="caption" color={colors.iris}>
             Sign up
           </Text>
         </View>

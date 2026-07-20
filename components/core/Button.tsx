@@ -93,7 +93,7 @@ export function Button({
           styles.base,
           isPrimary ? styles.primary : styles.secondary,
           isPrimary && glow && !disabled ? effects.glowCta : null,
-          { opacity: disabled ? (isPrimary ? 0.2 : 0.35) : 1 },
+          { opacity: disabled ? (isPrimary ? 0.3 : 0.35) : 1 },
         ]}
         accessibilityRole="button"
         accessibilityState={{ disabled, busy: loading }}

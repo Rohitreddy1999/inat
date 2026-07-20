@@ -31,7 +31,7 @@ export default function Bridge() {
           <Text variant="body" color={colors.textMid} style={styles.cardBody}>
             We use your answers to suggest the perfect track for you.
           </Text>
-          <Text variant="caption" color={colors.electric} style={styles.cardCaption}>
+          <Text variant="caption" color={colors.iris} style={styles.cardCaption}>
             Takes less than 2 minutes
           </Text>
         </Card>

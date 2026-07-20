@@ -9,14 +9,15 @@ import { OptionCard } from '@/components/forms/OptionCard'
 import { StepDots } from '@/components/forms/StepDots'
 import { GhostNumber } from '@/components/shared/GhostNumber'
 import { BackButton } from '@/components/navigation/BackButton'
+import { QuestionHeading } from '@/components/shared/QuestionHeading'
 import { useOnboardingStore } from '@/stores/onboarding.store'
 
 const OPTIONS = [
   { value: 'c_sound',  label: 'Playing music or making sounds.' },
   { value: 'c_visual', label: 'Drawing or making something to look at.' },
   { value: 'c_words',  label: 'Writing my thoughts down.' },
-  { value: 'c_move',   label: 'Moving — walk, sport, gym, out of my head.' },
-  { value: 'c_rest',   label: 'Switching off — rest, quiet, no task.' },
+  { value: 'c_move',   label: 'Moving. Walk, sport, gym, out of my head.' },
+  { value: 'c_rest',   label: 'Switching off. Rest, quiet, no task.' },
 ]
 
 export default function Channel() {
@@ -33,18 +34,21 @@ export default function Channel() {
     <ScreenWrapper padded>
       <View style={styles.topRow}>
         <BackButton onPress={() => router.back()} />
-        <StepDots total={6} current={4} style={styles.dots} />
+        <StepDots total={7} current={4} style={styles.dots} />
         <View style={styles.spacer} />
       </View>
 
       <View style={styles.headingWrap}>
-        <GhostNumber number={3} style={StyleSheet.absoluteFillObject} />
-        <Text variant="heading" color={colors.textHi} style={styles.heading}>
-          If you had a free hour and no pressure, what sounds fun?
-        </Text>
+        <GhostNumber number={3} style={styles.ghost} />
+        <QuestionHeading
+          text="If you had a free hour and no pressure, what sounds fun?"
+          highlight="fun"
+          highlightColor={colors.volt}
+          style={styles.heading}
+        />
       </View>
 
-      <Text variant="caption" color={colors.textMid} style={styles.hint}>
+      <Text variant="caption" color={colors.textLow} style={styles.hint}>
         Pick one.
       </Text>
 
@@ -75,19 +79,24 @@ export default function Channel() {
 const styles = StyleSheet.create({
   topRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: spacing[2],
+    alignItems:   'center',
+    marginTop:    spacing[2],
   },
   dots: {
-    flex: 1,
+    flex:       1,
     alignItems: 'center',
   },
   spacer: {
     width: spacing.touchMin,
   },
   headingWrap: {
-    marginTop: spacing.touchMin,
-    position: 'relative',
+    marginTop: spacing[10],
+    position:  'relative',
+  },
+  ghost: {
+    position: 'absolute',
+    top:      -spacing[6],
+    right:    -spacing[5],
   },
   heading: {
     zIndex: 1,
@@ -96,11 +105,13 @@ const styles = StyleSheet.create({
     marginTop: spacing[2],
   },
   options: {
-    marginTop: spacing[8],
-    gap: spacing[2],
+    marginTop: spacing[6],
+    gap:       spacing[2] + spacing[1],
   },
   cta: {
-    marginTop: 'auto',
-    paddingBottom: spacing[10],
+    position: 'absolute',
+    bottom:   spacing[10],
+    left:     spacing.pagePad,
+    right:    spacing.pagePad,
   },
 })

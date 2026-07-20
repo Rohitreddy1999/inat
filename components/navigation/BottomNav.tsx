@@ -114,7 +114,7 @@ function Tab({
   )
 }
 
-export function BottomNav({ active, phaseColor = colors.electric }: Props) {
+export function BottomNav({ active, phaseColor = colors.iris }: Props) {
   const router    = useRouter()
   const insets    = useSafeAreaInsets()
   const navHeight = spacing.navHeight + insets.bottom

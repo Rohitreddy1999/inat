@@ -77,7 +77,7 @@ export default function Splash() {
         <Animated.View style={wordmarkStyle}>
           <Text
             variant="display"
-            color={colors.electric}
+            color={colors.iris}
             style={styles.wordmark}
           >
             INAT

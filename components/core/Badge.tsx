@@ -46,7 +46,7 @@ export function Badge({ variant, color = colors.phase.build, children }: Props) 
 
     case 'recommended':
       return (
-        <View style={[styles.pill, { backgroundColor: colors.electric, borderColor: colors.electric }]}>
+        <View style={[styles.pill, { backgroundColor: colors.iris, borderColor: colors.iris }]}>
           <Text
             variant="label"
             color={colors.abyss}

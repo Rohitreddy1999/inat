@@ -3,10 +3,11 @@ import { View, StyleSheet } from 'react-native'
 import { router } from 'expo-router'
 import { colors, spacing } from '@/theme'
 import { ScreenWrapper } from '@/components/shared/ScreenWrapper'
-import { Text } from '@/components/core/Text'
 import { Button } from '@/components/core/Button'
 import { OptionCard } from '@/components/forms/OptionCard'
 import { StepDots } from '@/components/forms/StepDots'
+import { GhostNumber } from '@/components/shared/GhostNumber'
+import { QuestionHeading } from '@/components/shared/QuestionHeading'
 import { useOnboardingStore } from '@/stores/onboarding.store'
 
 const OPTIONS = [
@@ -29,16 +30,18 @@ export default function LifeStage() {
   return (
     <ScreenWrapper padded>
       <View style={styles.dotsRow}>
-        <StepDots total={6} current={1} />
+        <StepDots total={7} current={1} />
       </View>
 
-      <Text
-        variant="heading"
-        color={colors.textHi}
-        style={styles.heading}
-      >
-        Where are you in life right now?
-      </Text>
+      <View style={styles.headingWrap}>
+        <GhostNumber number={1} style={styles.ghost} />
+        <QuestionHeading
+          text="Where are you in life right now?"
+          highlight="life"
+          highlightColor={colors.volt}
+          style={styles.heading}
+        />
+      </View>
 
       <View style={styles.options}>
         {OPTIONS.map((opt) => (
@@ -67,17 +70,28 @@ export default function LifeStage() {
 const styles = StyleSheet.create({
   dotsRow: {
     alignItems: 'center',
-    marginTop: spacing[2],
+    marginTop:  spacing[8],
+  },
+  headingWrap: {
+    marginTop: spacing[10],
+    position:  'relative',
+  },
+  ghost: {
+    position: 'absolute',
+    top:      -spacing[6],
+    right:    -spacing[5],
   },
   heading: {
-    marginTop: spacing[8],
+    zIndex: 1,
   },
   options: {
     marginTop: spacing[8],
-    gap: spacing[2],
+    gap:       spacing[2] + spacing[1],
   },
   cta: {
-    marginTop: 'auto',
-    paddingBottom: spacing[10],
+    position: 'absolute',
+    bottom:   spacing[10],
+    left:     spacing.pagePad,
+    right:    spacing.pagePad,
   },
 })

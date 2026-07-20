@@ -51,7 +51,7 @@ export function TrackCard({
           {
             backgroundColor: isSelected ? colors.selectedBg : colors.fathom,
             borderWidth: 1,
-            borderColor: isSelected ? colors.borderElectric : colors.borderCard,
+            borderColor: isSelected ? colors.borderIris : colors.borderCard,
             borderRadius: radius.card,
             padding: spacing[5],
             flexDirection: 'row',
@@ -75,7 +75,7 @@ export function TrackCard({
           <Ionicons
             name={iconName}
             size={28}
-            color={isSelected ? colors.electric : colors.textMid}
+            color={isSelected ? colors.iris : colors.textMid}
           />
         </View>
 
@@ -92,7 +92,7 @@ export function TrackCard({
         {/* Recommended / secondary badges */}
         {isRecommended && <Badge variant="recommended">RECOMMENDED</Badge>}
         {isSecondary && !isRecommended && (
-          <Badge variant="phase" color={colors.electric}>ALSO YOU</Badge>
+          <Badge variant="phase" color={colors.iris}>ALSO YOU</Badge>
         )}
       </Pressable>
     </Animated.View>

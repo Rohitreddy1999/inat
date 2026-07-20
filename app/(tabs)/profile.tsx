@@ -113,12 +113,12 @@ export default function ProfileScreen() {
             borderRadius:    30,
             backgroundColor: colors.voltTint,
             borderWidth:     2,
-            borderColor:     colors.borderElectric,
+            borderColor:     colors.borderIris,
             alignItems:      'center',
             justifyContent:  'center',
           }}
         >
-          <Text variant="heading" color={colors.electric}>
+          <Text variant="heading" color={colors.iris}>
             {initials}
           </Text>
         </View>

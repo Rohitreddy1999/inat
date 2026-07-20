@@ -19,7 +19,7 @@ export default function TabsLayout() {
   const router     = useRouter()
   const active     = getActiveTab(pathname)
   const currentDay = useJourneyStore((s) => s.currentDay)
-  const phaseColor = currentDay > 0 ? getPhaseColor(currentDay) : colors.electric
+  const phaseColor = currentDay > 0 ? getPhaseColor(currentDay) : colors.iris
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bgPage }}>
@@ -44,7 +44,7 @@ export default function TabsLayout() {
             position:        'absolute',
             top:             spacing[10] + spacing[2],
             left:            spacing[3],
-            backgroundColor: colors.electric + '88',
+            backgroundColor: colors.iris + '88',
             borderRadius:    radius.pill,
             paddingHorizontal: spacing[3],
             paddingVertical:   spacing[1],

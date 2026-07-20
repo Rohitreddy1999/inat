@@ -96,7 +96,7 @@ export default function Signup() {
           <Text variant="caption" color={colors.textMid}>
             Already have an account?{' '}
           </Text>
-          <Text variant="caption" color={colors.electric}>
+          <Text variant="caption" color={colors.iris}>
             Sign in
           </Text>
         </View>

@@ -14,6 +14,8 @@ export default function RootLayout() {
     'HankenGrotesk-SemiBold': require('../assets/fonts/HankenGrotesk-SemiBold.ttf'),
     'HankenGrotesk-Bold':     require('../assets/fonts/HankenGrotesk-Bold.ttf'),
     'HankenGrotesk-Black':    require('../assets/fonts/HankenGrotesk-Black.ttf'),
+    'Syne-Bold':              require('../assets/fonts/Syne-Bold.ttf'),
+    'Syne-ExtraBold':         require('../assets/fonts/Syne-ExtraBold.ttf'),
   })
 
   useEffect(() => {
