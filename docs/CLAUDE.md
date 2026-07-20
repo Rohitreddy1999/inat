@@ -96,11 +96,14 @@ Architecture Phase 1 verification, then Phase 2 onboarding polish
 Font: Hanken Grotesk (only font, never swap)
 Abyss:    #07090D  page background
 Fathom:   #0F141A  card background
-Surge:    #3DF5A6  primary action, BUILD phase
-Glacial:  #82D4FF  FOUNDATION phase
-Plasma:   #FF4FD8  COMMIT phase
+Electric: #4DBBFF  universal UI accent — CTAs, selected states, all interactive elements
+Volt:     #DAFF00  Build phase only (days 8–14)
+Plasma:   #FF4FD8  Commit phase only (days 15–21)
 Arc-Light:#EAFFF5  near-white text
 All tokens live in theme/index.ts — never hardcode values.
+
+Color role rule: Onboarding uses Electric exclusively.
+Phase colors (Volt, Plasma) only appear inside the active journey experience.
 
 ---
 
@@ -127,26 +130,29 @@ All tokens live in theme/index.ts — never hardcode values.
 
 ---
 
-## DEV ADMIN PANEL
+## DEV TOOLING
 
 ### Access
 5-tap the INAT wordmark on the Welcome screen → opens `app/admin.tsx`.
 Only functional when `__DEV__ === true` (development builds only).
-Never ships: guarded by `if (!__DEV__) throw` at the top of the file.
-
-### Files
-- `app/admin.tsx` — admin panel (journey state, re-entry simulation, nav, reset)
-- `app/(auth)/welcome.tsx` — 5-tap handler on wordmark (2-second reset window)
-- `app/_layout.tsx` — `admin` Stack.Screen gated by `__DEV__`
+Never ships: guarded by `if (!__DEV__) throw` at module level + `return null` inside component.
 
 ### Admin Account (Supabase — FlowState project)
 | email | password |
 |---|---|
-| admin@inat.dev | Surge2026!#iNAT |
+| dev@inat.app | INATdev2026! |
+
+This is the only dev account. Never create additional test accounts.
+
+### Files
+- `app/admin.tsx` — admin panel (__DEV__ only)
+- `services/admin.service.ts` — all admin DB operations (never call Supabase from admin.tsx directly)
+- `app/(auth)/welcome.tsx` — 5-tap handler on wordmark (2-second reset window)
+- `app/_layout.tsx` — `admin` Stack.Screen gated by `__DEV__`
 
 ### Admin Controls
-- **SET JOURNEY STATE** — shows current user_id / journey_id / day; buttons set
-  `current_day` to [1,2,3,7,8,14,15,20,21] and backfills completions accordingly
+- **CURRENT STATE** — Day X/21, Journey ID (first 8 chars), Re-entry state, Completions count
+- **JUMP TO DAY** — grid of days 1–21; sets `current_day` and backfills completion history
 - **SIMULATE RE-ENTRY** — State A (yesterday), B (today), C (5 days ago), D (no completions)
   by updating the latest completion row's date then re-hydrating
 - **JUMP TO SCREEN** — direct nav to any screen without auth/journey preconditions
@@ -190,7 +196,7 @@ Migration applied: renamed from `completed_at` to align with service layer.
 - `handleResetJourney` stops and shows an error if deactivation fails; no longer navigates
   to onboarding while the active journey is still live in the DB.
 - Date offset in `handleSetDay` simplified: `day - 1 - (i - 1)` → `day - i`.
-- All 7 stale test accounts deleted; `admin@inat.dev` is the single dev account.
+- All stale test/dev accounts deleted; `dev@inat.app` is the single dev account.
 
 ---
 
@@ -231,7 +237,7 @@ Current work: Architecture Phase 1 verification, then Phase 2 onboarding polish.
   Props interface is stable; swap in real component with zero screen changes.
 - GhostNumber: importantForAccessibility="no-hide-descendants" + accessibilityElementsHidden
   (not aria-hidden — that's a web prop unsupported in React Native)
-- TrackCard: glow (effects.glowSurge) applied only on Pressable style, not Animated.View wrapper
+- TrackCard: glow (effects.glowVolt) applied only on Pressable style, not Animated.View wrapper
 
 ## SESSION DECISIONS (Level 2)
 - future-dot color: used colors.textFaint (0.18) — spec says 15% but no theme token

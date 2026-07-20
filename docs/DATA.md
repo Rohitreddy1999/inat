@@ -149,11 +149,11 @@ CREATE TABLE tracks (
 ```
 
 Seed data:
-  move     | Move     | #3DF5A6
-  rhythm   | Rhythm   | #82D4FF
+  move     | Move     | #4DBBFF
+  rhythm   | Rhythm   | #4DBBFF
   express  | Express  | #FF4FD8
-  calm     | Calm     | #82D4FF
-  mindful  | Mindful  | #3DF5A6
+  calm     | Calm     | #4DBBFF
+  mindful  | Mindful  | #4DBBFF
 
 Service functions:
   getAllTracks()
@@ -220,9 +220,9 @@ CREATE TABLE curriculum_days (
 phase values: 'foundation' | 'build' | 'commit'
 
 Phase color mapping (in theme/index.ts, not DB):
-  foundation → Glacial #82D4FF  (days 1-7)
-  build      → Surge #3DF5A6   (days 8-14)
-  commit     → Plasma #FF4FD8  (days 15-21)
+  foundation → Electric #4DBBFF  (days 1-7)
+  build      → Volt #DAFF00      (days 8-14)
+  commit     → Plasma #FF4FD8    (days 15-21)
 
 Service functions:
   getDayContent(subtractId, dayNumber)

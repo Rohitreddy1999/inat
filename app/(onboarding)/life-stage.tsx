@@ -37,15 +37,7 @@ export default function LifeStage() {
         color={colors.textHi}
         style={styles.heading}
       >
-        Before we begin — where are you in life right now?
-      </Text>
-
-      <Text
-        variant="body"
-        color={colors.textMid}
-        style={styles.subtext}
-      >
-        Just so we speak your language.
+        Where are you in life right now?
       </Text>
 
       <View style={styles.options}>
@@ -79,9 +71,6 @@ const styles = StyleSheet.create({
   },
   heading: {
     marginTop: spacing[8],
-  },
-  subtext: {
-    marginTop: spacing[2],
   },
   options: {
     marginTop: spacing[8],

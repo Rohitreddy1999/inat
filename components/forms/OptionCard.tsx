@@ -67,7 +67,7 @@ export function OptionCard({ label, selected, onPress, disabled = false, style }
     borderColor: interpolateColor(
       progress.value,
       [0, 1],
-      [colors.borderCard, colors.borderSurge],
+      [colors.borderCard, colors.borderElectric],
     ),
     transform: [{ translateX: shakeX.value }],
   }))
@@ -127,7 +127,7 @@ export function OptionCard({ label, selected, onPress, disabled = false, style }
           {label}
         </Animated.Text>
         <Animated.View style={[styles.check, checkAnimStyle]}>
-          <Ionicons name="checkmark-circle" size={22} color={colors.surge} />
+          <Ionicons name="checkmark-circle" size={22} color={colors.electric} />
         </Animated.View>
       </Pressable>
     </Animated.View>

@@ -40,7 +40,7 @@ export default function Channel() {
       <View style={styles.headingWrap}>
         <GhostNumber number={3} style={StyleSheet.absoluteFillObject} />
         <Text variant="heading" color={colors.textHi} style={styles.heading}>
-          If you had a free hour and no pressure, which sounds fun?
+          If you had a free hour and no pressure, what sounds fun?
         </Text>
       </View>
 

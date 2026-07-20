@@ -43,8 +43,8 @@ first, then reference it here.
 export const colors = {
   abyss:    '#07090D',
   fathom:   '#0F141A',
-  surge:    '#3DF5A6',
-  glacial:  '#82D4FF',
+  volt:     '#DAFF00',
+  electric: '#4DBBFF',
   plasma:   '#FF4FD8',
   arcLight: '#EAFFF5',
   error:    '#E24B4A',
@@ -62,23 +62,23 @@ export const colors = {
   bgNav:   'rgba(7,9,13,0.96)',
   bgScrim: 'rgba(7,9,13,0.80)',
 
-  border:       'rgba(255,255,255,0.08)',
-  borderSoft:   'rgba(255,255,255,0.06)',
-  borderCard:   'rgba(255,255,255,0.07)',
-  borderStrong: 'rgba(255,255,255,0.12)',
-  borderSurge:  'rgba(61,245,166,0.40)',
+  border:         'rgba(255,255,255,0.08)',
+  borderSoft:     'rgba(255,255,255,0.06)',
+  borderCard:     'rgba(255,255,255,0.07)',
+  borderStrong:   'rgba(255,255,255,0.12)',
+  borderElectric: 'rgba(77,187,255,0.40)',
 
-  surgeTint:   'rgba(61,245,166,0.12)',
-  glacialTint: 'rgba(130,212,255,0.12)',
-  plasmaTint:  'rgba(255,79,216,0.12)',
-  selectedBg:  'rgba(61,245,166,0.06)',
+  voltTint:     'rgba(218,255,0,0.12)',
+  electricTint: 'rgba(77,187,255,0.12)',
+  plasmaTint:   'rgba(255,79,216,0.12)',
+  selectedBg:   'rgba(77,187,255,0.06)',
 
-  ctaBg:   '#3DF5A6',
+  ctaBg:   '#4DBBFF',
   ctaText: '#07090D',
 
   phase: {
-    foundation: '#82D4FF',
-    build:      '#3DF5A6',
+    foundation: '#4DBBFF',
+    build:      '#DAFF00',
     commit:     '#FF4FD8',
   },
 } as const
@@ -137,21 +137,21 @@ export const radius = {
 
 export const effects = {
   glowCta: {
-    shadowColor: '#3DF5A6',
+    shadowColor: '#4DBBFF',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.25,
     shadowRadius: 20,
     elevation: 8,
   },
-  glowSurge: {
-    shadowColor: '#3DF5A6',
+  glowVolt: {
+    shadowColor: '#DAFF00',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.18,
     shadowRadius: 16,
     elevation: 6,
   },
-  glowGlacial: {
-    shadowColor: '#82D4FF',
+  glowElectric: {
+    shadowColor: '#4DBBFF',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.18,
     shadowRadius: 16,

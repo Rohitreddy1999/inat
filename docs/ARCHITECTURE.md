@@ -170,8 +170,7 @@ Routes to onboarding life-stage.
 
 **Life Stage — Q1** (single select)
 Progress: StepDots step 1 of 7.
-Question: "Before we begin — where are you in life right now?"
-Subtitle: "Just so we speak your language."
+Question: "Where are you in life right now?"
 Options (icon cards): Still studying / Building my career /
 Juggling family life / Reinventing myself
 CTA: "Continue" (enabled after selection).
@@ -197,17 +196,17 @@ GhostNumber: 02
 
 **Q — Channel** id:'channel' (single select)
 GhostNumber: 03
-"If you had a free hour and no pressure, which sounds fun?"
+"If you had a free hour and no pressure, what sounds fun?"
 5 options. Sourced from inat-brain.ts QUESTIONS[2].
 
 **Q — Identity** id:'identity' (multi, pick up to 2)
 GhostNumber: 04
-"There is a story you tell about why you are like this."
+"There's a story behind why you are the way you are. Which one is yours?"
 6 options. Sourced from inat-brain.ts QUESTIONS[3].
 
 **Q — Presence** id:'presence' (single select)
 GhostNumber: 05
-"When did you last really notice something good in a normal day?"
+"When did you last notice something good in an ordinary day?"
 4 options. Sourced from inat-brain.ts QUESTIONS[4].
 
 Scoring: vector-based engine in two files:
@@ -216,8 +215,7 @@ Never edit inat-engine.ts for tuning. Only edit inat-brain.ts.
 
 **Q6 — Free Text**
 GhostNumber: 05
-"What's the one thing you keep saying you'll start —
-when life calms down, when you're ready, when the time is right?"
+"What's the thing you keep saying you'll start when the time is right?"
 Large open textarea.
 Hint below: "Nobody else sees this. Just be honest."
 CTA: "Show my match →"
@@ -227,14 +225,14 @@ Writes open_answer to Supabase profiles.
 Label: "YOUR MATCH"
 Headline: "Here's what we think — but you know yourself best."
 All 5 tracks shown as TrackCard components.
-Highest scoring track: Surge glow + RECOMMENDED badge.
+Highest scoring track: glowVolt + RECOMMENDED badge.
 User can select any track regardless of recommendation.
 Track one-liners shown on each card.
 CTA: "Start this track →"
 If came from direct path: no recommendation, all tracks equal.
 
 **Focus — Subtrack Selection**
-Track name pill header (Surge bg, track icon).
+Track name pill header (Electric bg, track icon).
 "Pick your focus"
 "Choose what you want to work on for the next 21 days."
 Live subtracks: real SubtrackCard, selectable.

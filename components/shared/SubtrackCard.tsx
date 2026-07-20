@@ -33,7 +33,7 @@ export function SubtrackCard({ name, isLive, isFree, isSelected, onPress }: Prop
   const isPressable = isLive
 
   const cardBg     = isSelected ? colors.selectedBg : colors.fathom
-  const cardBorder = isSelected ? colors.borderSurge : colors.borderCard
+  const cardBorder = isSelected ? colors.borderElectric : colors.borderCard
   const textColor  = isNotLive ? colors.textLow : colors.textHi
 
   const inner = (

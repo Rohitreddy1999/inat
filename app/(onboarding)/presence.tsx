@@ -39,7 +39,7 @@ export default function Presence() {
       <View style={styles.headingWrap}>
         <GhostNumber number={5} style={StyleSheet.absoluteFillObject} />
         <Text variant="heading" color={colors.textHi} style={styles.heading}>
-          When did you last really notice something good in a normal day?
+          When did you last notice something good in an ordinary day?
         </Text>
       </View>
 

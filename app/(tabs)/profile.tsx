@@ -111,14 +111,14 @@ export default function ProfileScreen() {
             width:           60,
             height:          60,
             borderRadius:    30,
-            backgroundColor: colors.surgeTint,
+            backgroundColor: colors.voltTint,
             borderWidth:     2,
-            borderColor:     colors.borderSurge,
+            borderColor:     colors.borderElectric,
             alignItems:      'center',
             justifyContent:  'center',
           }}
         >
-          <Text variant="heading" color={colors.surge}>
+          <Text variant="heading" color={colors.electric}>
             {initials}
           </Text>
         </View>

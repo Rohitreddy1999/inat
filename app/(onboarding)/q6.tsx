@@ -32,8 +32,7 @@ export default function Q6() {
       <View style={styles.headingWrap}>
         <GhostNumber number={5} style={StyleSheet.absoluteFillObject} />
         <Text variant="heading" color={colors.textHi} style={styles.heading}>
-          What's the one thing you keep saying you'll start — when life calms
-          down, when you're ready, when the time is right?
+          What's the thing you keep saying you'll start when the time is right?
         </Text>
       </View>
 

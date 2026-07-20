@@ -1,5 +1,4 @@
 {
-  "description": "Impeccable design detector: runs after Edit/Write/MultiEdit on UI files and surfaces findings as system reminders.",
   "hooks": {
     "PostToolUse": [
       {
@@ -13,6 +12,12 @@
           }
         ]
       }
+    ]
+  },
+  "description": "Impeccable design detector: runs after Edit/Write/MultiEdit on UI files and surfaces findings as system reminders.",
+  "permissions": {
+    "allow": [
+      "mcp__fc9a7241-2ee3-4552-a421-72f62484f317__execute_sql"
     ]
   }
 }

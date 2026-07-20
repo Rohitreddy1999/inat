@@ -50,12 +50,12 @@ export default function Identity() {
       <View style={styles.headingWrap}>
         <GhostNumber number={4} style={StyleSheet.absoluteFillObject} />
         <Text variant="heading" color={colors.textHi} style={styles.heading}>
-          There is a story you tell about why you are like this.
+          There's a story behind why you are the way you are. Which one is yours?
         </Text>
       </View>
 
       <Text variant="caption" color={colors.textMid} style={styles.hint}>
-        Which ones sound like yours? Pick up to two.
+        Pick up to two.
       </Text>
 
       <View style={styles.options}>

@@ -143,8 +143,8 @@ export default function Ascent() {
         }}
       >
         {[
-          { label: 'FOUNDATION', color: colors.glacial, dayInPhase: Math.min(daysInFoundation, 7) },
-          { label: 'BUILD',      color: colors.surge,   dayInPhase: Math.min(daysInBuild, 7) },
+          { label: 'FOUNDATION', color: colors.electric, dayInPhase: Math.min(daysInFoundation, 7) },
+          { label: 'BUILD',      color: colors.volt,    dayInPhase: Math.min(daysInBuild, 7) },
           { label: 'COMMIT',     color: colors.plasma,  dayInPhase: Math.min(daysInCommit, 7) },
         ].map(({ label, color, dayInPhase }) => (
           <View key={label} style={{ flex: 1, alignItems: 'center', gap: spacing[2] }}>
