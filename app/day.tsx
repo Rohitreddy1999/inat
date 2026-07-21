@@ -29,7 +29,7 @@ import { getDayWithSteps } from '@/services/curriculum.service'
 import { getDayCompletion, completeDay } from '@/services/completion.service'
 import { getSession } from '@/services/auth.service'
 import { getPhaseColor, getPhaseName, colors, fontFamilies, radius, spacing, typography } from '@/theme'
-import { Day, DayStep } from '@/types'
+import type { Day as DayData, DayStep } from '@/types'
 
 const HOLD_PANEL_HEIGHT = 136
 
@@ -47,7 +47,7 @@ function getQuoteFontSize(quote: string): number {
 }
 
 // ── Placeholder data ─────────────────────────────────────────────────────────
-const PLACEHOLDER_DAY: Day = {
+const PLACEHOLDER_DAY: DayData = {
   id: '',
   arc: 'Move',
   focus: 'Muscle & Strength',
@@ -329,7 +329,7 @@ export default function Day() {
   const router = useRouter()
   const { activeJourney, currentDay, hydrate } = useJourneyStore()
 
-  const [dayData, setDayData]               = useState<Day | null>(null)
+  const [dayData, setDayData]               = useState<DayData | null>(null)
   const [daySteps, setDaySteps]             = useState<DayStep[]>([])
   const [isCompleted, setIsCompleted]       = useState(false)
   const [isLoading, setIsLoading]           = useState(true)
