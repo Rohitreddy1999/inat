@@ -1,14 +1,23 @@
 # INAT — Claude Code Context
-Last updated: July 2026 | Last session: Level 6D — Graduation screen, three beats with aura animation
+Last updated: July 2026 | Last session: Orientation screen + bridge rebuild + Arc/Focus language
 
 ---
 
 ## WHAT THIS APP IS
 A 21-day habit formation React Native app. Users answer
-discovery questions, pick a track and subtrack, complete
-one daily task for 21 days, then graduate. Five paths:
+discovery questions, pick an Arc and Focus, complete
+one daily task for 21 days, then graduate. Five Arcs:
 Move, Rhythm, Express, Calm, Mindful. By day 22 the user
 feels confident enough to explore the field independently.
+
+## TERMINOLOGY
+- **Arc** — the five main paths (Move, Rhythm, Express, Calm, Mindful).
+  User-facing name for what was previously called "track".
+- **Focus** — specific discipline within an Arc (e.g. "Running" within Move).
+  User-facing name for what was previously called "subtrack".
+- **Code variables keep old names** — subtrack_id, subtracks table,
+  getSubtracksByTrack(), selectedTrack, etc. Only string literals the user
+  sees have been updated. Never rename the DB columns or TS variables.
 
 ---
 
@@ -88,7 +97,7 @@ feels confident enough to explore the field independently.
 ---
 
 ## WHAT TO BUILD THIS SESSION
-Color system + Syne font + onboarding screen rebuild — COMPLETE (commit 90b6314)
+Orientation screen + bridge rebuild + Arc/Focus language — COMPLETE (commit b157a8a)
 
 ---
 
@@ -115,7 +124,8 @@ Color role rule:
 
 ## KEY FILES
 - theme/index.ts — all design tokens
-- app/(auth)/index.tsx — splash + auth routing
+- app/(auth)/index.tsx — splash + auth routing (checks life_stage to decide orientation vs life-stage)
+- app/(onboarding)/orientation.tsx — shows ONCE for new users (life_stage null); never shown to returning users
 - app/(tabs)/index.tsx — home screen
 - app/day.tsx — day screen (hold to complete)
 - services/ — all Supabase calls
