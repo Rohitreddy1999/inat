@@ -1,180 +1,280 @@
 import { useEffect, useState } from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View, Pressable, StyleSheet, Text as RNText } from 'react-native'
 import { router } from 'expo-router'
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  interpolate,
+  interpolateColor,
+  Easing,
+  ReduceMotion,
+} from 'react-native-reanimated'
 import { Ionicons } from '@expo/vector-icons'
-import { colors, spacing } from '@/theme'
+import { colors, spacing, fontFamilies, typography, radius } from '@/theme'
 import { ScreenWrapper } from '@/components/shared/ScreenWrapper'
 import { Text } from '@/components/core/Text'
+import { Badge } from '@/components/core/Badge'
 import { Button } from '@/components/core/Button'
 import { BackButton } from '@/components/navigation/BackButton'
-import { TrackCard } from '@/components/shared/TrackCard'
 import { useOnboardingStore } from '@/stores/onboarding.store'
-import { getAllTracks } from '@/services/curriculum.service'
-import { Track } from '@/types'
-import { TrackName } from '@/utils/inat-brain'
+import type { TrackName } from '@/utils/inat-brain'
 
-type IoniconsName = React.ComponentProps<typeof Ionicons>['name']
+// ─── Arc data ──────────────────────────────────────────────────────────────────
 
-const TRACK_ONELINERS: Record<string, string> = {
-  Move:    'Your body knows before your brain does. Start there.',
-  Rhythm:  "You don't need an instrument. Just 21 days and one ear.",
-  Express: "You've been seeing it for years. Now put it on paper.",
-  Calm:    "Not less. Just quieter. So you can finally hear yourself.",
-  Mindful: "You already know what's good. Learn to feel it again.",
+type ArcData = {
+  name: TrackName
+  icon: React.ComponentProps<typeof Ionicons>['name']
+  reason: string
 }
 
-type ConfidenceCopy = {
-  label: string
-  heading: string
-  subtext: string
+const ARCS: ArcData[] = [
+  {
+    name:   'Move',
+    icon:   'pulse-outline',
+    reason: "You process the world through your body first. Motion is how you think.",
+  },
+  {
+    name:   'Rhythm',
+    icon:   'musical-notes-outline',
+    reason: "You're drawn to patterns. Music is just patterns you can feel.",
+  },
+  {
+    name:   'Express',
+    icon:   'brush-outline',
+    reason: "You've been observing everything. It's time to put it somewhere.",
+  },
+  {
+    name:   'Calm',
+    icon:   'water-outline',
+    reason: "You're not looking for less. You're looking for quieter.",
+  },
+  {
+    name:   'Mindful',
+    icon:   'leaf-outline',
+    reason: "You already know what's good for you. You just need to feel it again.",
+  },
+]
+
+const IRIS_BORDER_REST   = 'rgba(139,92,246,0.35)'
+const IRIS_BORDER_ACTIVE = 'rgba(139,92,246,0.88)'
+const ANIM_IN  = { duration: 300, easing: Easing.out(Easing.cubic), reduceMotion: ReduceMotion.System }
+const ANIM_OUT = { duration: 200, easing: Easing.out(Easing.cubic), reduceMotion: ReduceMotion.System }
+
+// ─── ArcCard ───────────────────────────────────────────────────────────────────
+
+type ArcCardProps = {
+  arc: ArcData
+  isSelected: boolean
+  isRecommended: boolean
+  onPress: () => void
 }
 
-function getConfidenceCopy(
-  confidence: 'high' | 'medium' | 'low' | null,
-  healthMode: boolean,
-): ConfidenceCopy {
-  if (!confidence) {
-    return {
-      label:   'YOUR MATCH',
-      heading: "Here's what we think —\nbut you know yourself best.",
-      subtext: "We've highlighted what resonated most from your answers. Choose whatever calls to you.",
-    }
-  }
+function ArcCard({ arc, isSelected, isRecommended, onPress }: ArcCardProps) {
+  const sel = useSharedValue(0)
 
-  if (confidence === 'high') {
-    return {
-      label:   'YOUR MATCH',
-      heading: healthMode
-        ? "You're ready to build something."
-        : 'This is clearly you.',
-      subtext: 'Your answers pointed here consistently. Trust it.',
-    }
-  }
+  useEffect(() => {
+    sel.value = withTiming(isSelected ? 1 : 0, isSelected ? ANIM_IN : ANIM_OUT)
+  }, [isSelected]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (confidence === 'medium') {
-    return {
-      label:   'YOUR MATCH',
-      heading: healthMode ? "You're ready to build something." : 'We think it\'s this.',
-      subtext: "Here's what we saw in your answers.",
-    }
-  }
+  const cardStyle = useAnimatedStyle(() => ({
+    borderColor: interpolateColor(sel.value, [0, 1], [IRIS_BORDER_REST, IRIS_BORDER_ACTIVE]),
+  }))
 
-  // low
-  return {
-    label:   'CLOSE CALL',
-    heading: "It's between these two.",
-    subtext: "Both fit. Here's how to tell which one is right for you.",
-  }
+  const glowStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(sel.value, [0, 1], [0.025, 0.10]),
+  }))
+
+  return (
+    <Animated.View style={[styles.cardOuter, cardStyle]}>
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityState={{ selected: isSelected }}
+        accessibilityLabel={isRecommended ? `${arc.name}, recommended` : arc.name}
+        accessibilityHint="Double tap to select this Arc"
+        style={styles.cardInner}
+      >
+        {/* Iris inner glow — clipped by cardOuter overflow:hidden */}
+        <Animated.View
+          style={[StyleSheet.absoluteFillObject, styles.innerGlow, glowStyle]}
+          pointerEvents="none"
+        />
+
+        {/* Icon — always Iris */}
+        <Ionicons name={arc.icon} size={28} color={colors.iris} />
+
+        {/* Arc name — flex:1 pushes badge to far right */}
+        <Text style={styles.arcName}>{arc.name}</Text>
+
+        {/* RECOMMENDED badge — white pill, algorithm path only */}
+        {isRecommended && (
+          <Badge variant="phase" color={colors.arcLight}>RECOMMENDED</Badge>
+        )}
+      </Pressable>
+    </Animated.View>
+  )
 }
+
+// ─── Screen ────────────────────────────────────────────────────────────────────
 
 export default function Match() {
-  const [tracks, setTracks] = useState<Track[]>([])
+  const { setSelectedTrack, matchResult } = useOnboardingStore()
+  const entryMode: 'algorithm' | 'self-select' = matchResult.primary ? 'algorithm' : 'self-select'
 
-  const { selectedTrack, setSelectedTrack, matchResult } = useOnboardingStore()
+  // Starts null — no card pre-highlighted, user must choose
+  const [selected, setSelected] = useState<TrackName | null>(null)
 
-  useEffect(() => {
-    getAllTracks().then(({ tracks: t }) => setTracks(t))
-  }, [])
+  function handleSelect(name: TrackName) {
+    setSelected(name)
+    setSelectedTrack(name)
+  }
 
-  // Auto-select the engine's recommendation once tracks are loaded (quiz path only)
-  useEffect(() => {
-    if (matchResult.primary && !selectedTrack && tracks.length > 0) {
-      setSelectedTrack(matchResult.primary)
-    }
-  }, [matchResult.primary, selectedTrack, tracks])
+  const headline = entryMode === 'algorithm'
+    ? "Here's where to start."
+    : "Your call."
 
-  const copy = getConfidenceCopy(matchResult.confidence, matchResult.healthMode)
-
-  const reasons = matchResult.reasons
+  const primaryReason = entryMode === 'algorithm'
+    ? (ARCS.find(a => a.name === matchResult.primary)?.reason ?? '')
+    : null
 
   return (
     <ScreenWrapper padded scrollable>
       <BackButton onPress={() => router.back()} />
 
-      <Text
-        variant="micro"
-        color={colors.textLow}
-        uppercase
-        style={styles.label}
+      {/* ARC's — hero word: "ARC" in Iris, "'s" in Arc-Light */}
+      <RNText style={styles.arcsLabel} accessibilityRole="header">
+        {'ARC'}
+        <RNText style={styles.arcsLabelSuffix}>{"'s"}</RNText>
+      </RNText>
+
+      {/* One-line headline */}
+      <RNText
+        style={styles.headline}
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        accessibilityRole="header"
       >
-        {copy.label}
-      </Text>
+        {headline}
+      </RNText>
 
-      <Text variant="title" color={colors.textHi} style={styles.heading}>
-        {copy.heading}
-      </Text>
-
-      <Text variant="body" color={colors.textMid} style={styles.subtext}>
-        {copy.subtext}
-      </Text>
-
-      {reasons.length > 0 && (
-        <View style={styles.reasons}>
-          <Text variant="caption" color={colors.textMid}>
-            {`Because: ${reasons[0].text}`}
-          </Text>
-          {reasons[1] && (
-            <Text variant="caption" color={colors.textMid} style={styles.reason2}>
-              {`And: ${reasons[1].text}`}
-            </Text>
-          )}
-        </View>
+      {/* Algorithm path: white divider + reason text, between headline and cards */}
+      {entryMode === 'algorithm' && primaryReason && (
+        <>
+          <View style={styles.divider} />
+          <Text style={styles.reason}>{primaryReason}</Text>
+        </>
       )}
 
+      {/* Arc cards */}
       <View style={styles.list}>
-        {tracks.map((track) => (
-          <TrackCard
-            key={track.id}
-            name={track.name}
-            tagline={TRACK_ONELINERS[track.name] ?? track.tagline}
-            iconName={(track.icon_name ?? 'ellipse-outline') as IoniconsName}
-            isRecommended={track.name === matchResult.primary}
-            isSecondary={
-              matchResult.confidence === 'low' &&
-              track.name === matchResult.secondary
-            }
-            isSelected={track.name === selectedTrack}
-            onPress={() => setSelectedTrack(track.name as TrackName)}
+        {ARCS.map((arc) => (
+          <ArcCard
+            key={arc.name}
+            arc={arc}
+            isSelected={selected === arc.name}
+            isRecommended={entryMode === 'algorithm' && arc.name === matchResult.primary}
+            onPress={() => handleSelect(arc.name)}
           />
         ))}
       </View>
 
+      {/* CTA */}
       <View style={styles.cta}>
         <Button
           variant="primary"
           onPress={() => router.push('/(onboarding)/focus')}
-          disabled={!selectedTrack}
+          disabled={!selected}
         >
-          Start this Arc →
+          Start this Arc
         </Button>
       </View>
     </ScreenWrapper>
   )
 }
 
+// ─── Styles ────────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
-  label: {
-    marginTop: spacing[8],
-    letterSpacing: 1.5,
+  // Hero label — "ARC" portion (Iris color set here)
+  arcsLabel: {
+    marginTop:     spacing[10],
+    fontFamily:    fontFamilies.heading,
+    fontSize:      typography.size.display,
+    color:         colors.iris,
+    lineHeight:    typography.size.display * typography.leading.tight,
+    letterSpacing: typography.tracking.tight * typography.size.display,
   },
-  heading: {
-    marginTop: spacing[2],
+  // "'s" suffix — inherits size/font from parent, overrides color to white
+  arcsLabelSuffix: {
+    color: colors.arcLight,
   },
-  subtext: {
-    marginTop: spacing[2],
+
+  // Headline — matches onboarding question heading
+  headline: {
+    marginTop:  spacing[2],
+    fontFamily: fontFamilies.heading,
+    fontSize:   typography.size.question,
+    color:      colors.arcLight,
+    lineHeight: typography.size.question * 1.15,
   },
-  reasons: {
-    marginTop: spacing[4],
+
+  // Divider line (algorithm path only)
+  divider: {
+    height:          1,
+    backgroundColor: 'rgba(255,255,255,0.14)',
+    marginTop:       spacing[5],
   },
-  reason2: {
-    marginTop: spacing[1],
+
+  // Reason text (algorithm path only, below divider)
+  reason: {
+    marginTop:  spacing[3],
+    fontFamily: fontFamilies.regular,
+    fontSize:   typography.size.body,
+    color:      colors.arcLight,
+    lineHeight: typography.size.body * 1.55,
   },
+
+  // Card list
   list: {
-    marginTop: spacing[8],
-    gap: spacing[3],
+    marginTop: spacing[6],
+    gap:       spacing[3],
   },
+
+  // Card outer — animated border, overflow clips inner glow
+  cardOuter: {
+    borderRadius:    radius.card,
+    borderWidth:     1.5,
+    overflow:        'hidden',
+    backgroundColor: colors.fathom,
+  },
+
+  // Card inner — horizontal row: icon | name (flex) | badge?
+  cardInner: {
+    flexDirection:     'row',
+    alignItems:        'center',
+    gap:               spacing[4],
+    paddingVertical:   spacing[6],
+    paddingHorizontal: spacing[5],
+  },
+
+  // Iris inner glow overlay
+  innerGlow: {
+    backgroundColor: colors.iris,
+  },
+
+  // Arc name — hero size, flex:1 pushes badge to far right
+  arcName: {
+    flex:       1,
+    fontFamily: fontFamilies.heading,
+    fontSize:   typography.size.heading,
+    color:      colors.arcLight,
+    lineHeight: typography.size.heading * 1.15,
+  },
+
+  // CTA
   cta: {
-    marginTop: spacing[8],
+    marginTop:     spacing[6],
     paddingBottom: spacing[10],
   },
 })
