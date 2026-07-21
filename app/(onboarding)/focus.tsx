@@ -21,8 +21,6 @@ import { useJourneyStore } from '@/stores/journey.store'
 import { getSession } from '@/services/auth.service'
 import { saveOnboardingAnswers } from '@/services/profile.service'
 import { createJourney } from '@/services/journey.service'
-import { getAllTracks, getSubtracksByTrack } from '@/services/curriculum.service'
-import type { Subtrack, Track } from '@/types'
 import type { TrackName } from '@/utils/inat-brain'
 
 // ─── Arc identifier icons ──────────────────────────────────────────────────────
@@ -63,15 +61,15 @@ const FOCUS_DATA: Record<TrackName, FocusItem[]> = {
     { name: 'Songwriting',  icon: 'microphone',  status: 'soon'   },
   ],
   Express: [
-    { name: 'Color Theory',        icon: 'palette',        status: 'active' },
-    { name: 'Drawing & Sketching', icon: 'pencil',         status: 'soon'   },
+    { name: 'Drawing & Sketching', icon: 'pencil',         status: 'active' },
+    { name: 'Color Theory',        icon: 'palette',        status: 'soon'   },
     { name: 'Watercolor',          icon: 'water',          status: 'soon'   },
     { name: 'Digital Art',         icon: 'tablet',         status: 'soon'   },
     { name: 'Hand Lettering',      icon: 'format-size',    status: 'soon'   },
   ],
   Calm: [
-    { name: 'Meditation',    icon: 'brain',                 status: 'active' },
-    { name: 'Breathwork',    icon: 'lungs',                 status: 'soon'   },
+    { name: 'Breathwork',    icon: 'lungs',                 status: 'active' },
+    { name: 'Meditation',    icon: 'brain',                 status: 'soon'   },
     { name: 'Cold Exposure', icon: 'snowflake',             status: 'soon'   },
     { name: 'Sound Healing', icon: 'sine-wave',             status: 'soon'   },
     { name: 'Sleep Rituals', icon: 'moon-waning-crescent',  status: 'soon'   },
@@ -180,15 +178,11 @@ function FocusCard({ item, isSelected, onPress }: FocusCardProps) {
 // ─── Screen ────────────────────────────────────────────────────────────────────
 
 export default function Focus() {
-  const [tracks, setTracks] = useState<Track[]>([])
-  const [subtracks, setSubtracks] = useState<Subtrack[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isActiveSelected, setIsActiveSelected] = useState(false)
 
   const {
     selectedTrack,
-    selectedSubtractId,
-    setSelectedSubtractId,
     lifeStage,
     answers,
     matchResult,
@@ -198,33 +192,17 @@ export default function Focus() {
 
   const hydrate = useJourneyStore((s) => s.hydrate)
 
-  useEffect(() => {
-    getAllTracks().then(({ tracks: t }) => setTracks(t))
-  }, [])
-
-  useEffect(() => {
-    if (!selectedTrack || tracks.length === 0) return
-    const found = tracks.find(t => t.name === selectedTrack)
-    if (!found) return
-    getSubtracksByTrack(found.id).then(({ subtracks: s }) => setSubtracks(s))
-  }, [selectedTrack, tracks])
-
-  // Auto-set ID when subtracks load after user has already tapped the active card
-  useEffect(() => {
-    if (!isActiveSelected || subtracks.length === 0 || selectedSubtractId) return
-    const live = subtracks.find(s => s.is_live)
-    if (live) setSelectedSubtractId(live.id)
-  }, [isActiveSelected, subtracks, selectedSubtractId, setSelectedSubtractId])
-
   function handleSelectFocus() {
     setIsActiveSelected(true)
-    const live = subtracks.find(s => s.is_live)
-    if (live) setSelectedSubtractId(live.id)
   }
 
   async function handleBegin() {
-    if (!selectedSubtractId) return
+    if (!isActiveSelected) return
     setIsLoading(true)
+
+    const arc = selectedTrack ?? 'Move'
+    const activeFocus = FOCUS_DATA[arc].find(f => f.status === 'active')
+    const focusName = activeFocus?.name ?? ''
 
     const { session } = await getSession()
     if (!session?.user) {
@@ -260,7 +238,7 @@ export default function Focus() {
       return
     }
 
-    const { error: journeyError } = await createJourney(userId, selectedSubtractId)
+    const { error: journeyError } = await createJourney(userId, arc, focusName)
 
     if (journeyError) {
       setIsLoading(false)
@@ -321,7 +299,7 @@ export default function Focus() {
         <Button
           variant="primary"
           onPress={handleBegin}
-          disabled={!selectedSubtractId}
+          disabled={!isActiveSelected}
           loading={isLoading}
         >
           Begin my 21 days →

@@ -5,14 +5,23 @@ export async function setJourneyDay(
   userId: string,
   targetDay: number,
 ): Promise<{ error: string | null }> {
+  // Look up arc + focus so synthetic logs have the right values
+  const { data: journey, error: journeyError } = await supabase
+    .from('user_journeys')
+    .select('arc, focus')
+    .eq('id', journeyId)
+    .single()
+
+  if (journeyError || !journey) return { error: journeyError?.message ?? 'Journey not found' }
+
   const { error: updateError } = await supabase
     .from('user_journeys')
-    .update({ current_day: targetDay, last_active_at: new Date().toISOString() })
+    .update({ current_day: targetDay })
     .eq('id', journeyId)
   if (updateError) return { error: updateError.message }
 
   const { error: deleteError } = await supabase
-    .from('daily_completions')
+    .from('user_day_logs')
     .delete()
     .eq('journey_id', journeyId)
   if (deleteError) return { error: deleteError.message }
@@ -21,14 +30,13 @@ export async function setJourneyDay(
     const rows = Array.from({ length: targetDay - 1 }, (_, i) => ({
       journey_id: journeyId,
       user_id: userId,
+      arc: journey.arc,
+      focus: journey.focus,
       day_number: i + 1,
-      completed_date: new Date(Date.now() - (targetDay - 1 - i) * 86400000)
-        .toISOString()
-        .split('T')[0],
-      feeling: 'good',
-      reflection_note: '',
+      feeling: 'Felt right',
+      completed_at: new Date(Date.now() - (targetDay - 1 - i) * 86400000).toISOString(),
     }))
-    const { error: insertError } = await supabase.from('daily_completions').insert(rows)
+    const { error: insertError } = await supabase.from('user_day_logs').insert(rows)
     if (insertError) return { error: insertError.message }
   }
 
@@ -40,7 +48,7 @@ export async function resetJourney(
   journeyId: string,
 ): Promise<{ error: string | null }> {
   const { error: deleteError } = await supabase
-    .from('daily_completions')
+    .from('user_day_logs')
     .delete()
     .eq('journey_id', journeyId)
   if (deleteError) return { error: deleteError.message }
@@ -60,12 +68,10 @@ export async function setLastCompletionDate(
   when: 'today' | 'yesterday' | '5daysago',
 ): Promise<{ error: string | null }> {
   const offsets = { today: 0, yesterday: 1, '5daysago': 5 }
-  const targetDate = new Date(Date.now() - offsets[when] * 86400000)
-    .toISOString()
-    .split('T')[0]
+  const targetTs = new Date(Date.now() - offsets[when] * 86400000).toISOString()
 
   const { data, error: selectError } = await supabase
-    .from('daily_completions')
+    .from('user_day_logs')
     .select('id')
     .eq('journey_id', journeyId)
     .order('day_number', { ascending: false })
@@ -76,8 +82,8 @@ export async function setLastCompletionDate(
   if (!data) return { error: 'No completions to update' }
 
   const { error: updateError } = await supabase
-    .from('daily_completions')
-    .update({ completed_date: targetDate })
+    .from('user_day_logs')
+    .update({ completed_at: targetTs })
     .eq('id', (data as { id: string }).id)
 
   if (updateError) return { error: updateError.message }
@@ -88,7 +94,7 @@ export async function clearCompletions(
   journeyId: string,
 ): Promise<{ error: string | null }> {
   const { error: deleteError } = await supabase
-    .from('daily_completions')
+    .from('user_day_logs')
     .delete()
     .eq('journey_id', journeyId)
   if (deleteError) return { error: deleteError.message }

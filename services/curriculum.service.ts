@@ -1,54 +1,54 @@
 import { supabase } from '@/lib/supabase'
-import { Track, Subtrack, CurriculumDay } from '@/types'
+import { Arc, Focus, Day, DayStep } from '@/types'
 import { PostgrestError } from '@supabase/supabase-js'
 
-export async function getDayContent(
-  subtrackId: string,
-  dayNumber: number,
-): Promise<{ day: CurriculumDay | null; error: PostgrestError | null }> {
+export async function getAllArcs(): Promise<{
+  arcs: Arc[]
+  error: PostgrestError | null
+}> {
   const { data, error } = await supabase
-    .from('curriculum_days')
+    .from('arcs')
     .select('*')
-    .eq('subtrack_id', subtrackId)
+    .order('name')
+
+  return { arcs: (data as Arc[]) ?? [], error }
+}
+
+export async function getFocusesByArc(arc: string): Promise<{
+  focuses: Focus[]
+  error: PostgrestError | null
+}> {
+  const { data, error } = await supabase
+    .from('focuses')
+    .select('*')
+    .eq('arc', arc)
+    .order('name')
+
+  return { focuses: (data as Focus[]) ?? [], error }
+}
+
+export async function getDayWithSteps(
+  arc: string,
+  focus: string,
+  dayNumber: number,
+): Promise<{ day: Day | null; steps: DayStep[]; error: PostgrestError | null }> {
+  const { data: dayData, error: dayError } = await supabase
+    .from('days')
+    .select('*')
+    .eq('arc', arc)
+    .eq('focus', focus)
     .eq('day_number', dayNumber)
     .maybeSingle()
 
-  return { day: data as CurriculumDay | null, error }
-}
+  if (dayError || !dayData) return { day: null, steps: [], error: dayError }
 
-export async function getSubtrackById(
-  subtrackId: string,
-): Promise<{ subtrack: Subtrack | null; error: PostgrestError | null }> {
-  const { data, error } = await supabase
-    .from('subtracks')
+  const { data: stepsData, error: stepsError } = await supabase
+    .from('day_steps')
     .select('*')
-    .eq('id', subtrackId)
-    .maybeSingle()
+    .eq('day_id', dayData.id)
+    .order('step_number')
 
-  return { subtrack: data as Subtrack | null, error }
-}
+  if (stepsError) return { day: dayData as Day, steps: [], error: stepsError }
 
-export async function getAllTracks(): Promise<{
-  tracks: Track[]
-  error: PostgrestError | null
-}> {
-  const { data, error } = await supabase
-    .from('tracks')
-    .select('*')
-    .order('sort_order')
-
-  return { tracks: (data as Track[]) ?? [], error }
-}
-
-export async function getSubtracksByTrack(trackId: string): Promise<{
-  subtracks: Subtrack[]
-  error: PostgrestError | null
-}> {
-  const { data, error } = await supabase
-    .from('subtracks')
-    .select('*')
-    .eq('track_id', trackId)
-    .order('sort_order')
-
-  return { subtracks: (data as Subtrack[]) ?? [], error }
+  return { day: dayData as Day, steps: (stepsData as DayStep[]) ?? [], error: null }
 }

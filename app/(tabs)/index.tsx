@@ -6,16 +6,15 @@ import { DayCard } from '@/components/shared/DayCard'
 import { ReentryCard } from '@/components/shared/ReentryCard'
 import { Button } from '@/components/core/Button'
 import { useJourneyStore } from '@/stores/journey.store'
-import { getDayContent, getSubtrackById } from '@/services/curriculum.service'
+import { getDayWithSteps } from '@/services/curriculum.service'
 import { getPhaseColor, getPhaseName, spacing } from '@/theme'
-import { CurriculumDay, Subtrack } from '@/types'
+import { Day } from '@/types'
 
 export default function Home() {
   const router = useRouter()
   const { activeJourney, currentDay, reentryState } = useJourneyStore()
 
-  const [dayContent, setDayContent]     = useState<CurriculumDay | null>(null)
-  const [subtrack, setSubtrack]         = useState<Subtrack | null>(null)
+  const [dayData, setDayData] = useState<Day | null>(null)
 
   // In State B, currentDay is already incremented to the NEXT day.
   // Display and fetch the day that was actually completed (currentDay - 1).
@@ -25,13 +24,8 @@ export default function Home() {
 
   useEffect(() => {
     if (!activeJourney) return
-    getDayContent(activeJourney.subtrack_id, displayDay).then(({ day }) => setDayContent(day))
+    getDayWithSteps(activeJourney.arc, activeJourney.focus, displayDay).then(({ day }) => setDayData(day))
   }, [activeJourney, reentryState])
-
-  useEffect(() => {
-    if (!activeJourney) return
-    getSubtrackById(activeJourney.subtrack_id).then(({ subtrack: s }) => setSubtrack(s))
-  }, [activeJourney?.subtrack_id])
 
   if (!activeJourney) {
     return (
@@ -62,10 +56,10 @@ export default function Home() {
       <View style={{ marginTop: reentryState === 'D' ? 0 : spacing[4] }}>
         <DayCard
           dayNumber={displayDay}
-          title={dayContent?.task_title ?? ''}
+          title={dayData?.title ?? ''}
           phase={phaseName}
-          subtractName={subtrack?.name ?? ''}
-          durationMinutes={dayContent?.duration_minutes ?? 0}
+          subtractName={activeJourney.focus}
+          durationMinutes={dayData?.duration_mins ?? 0}
           phaseColor={phaseColor}
           isCompleted={isCompleted}
           onBegin={() => router.push('/day')}

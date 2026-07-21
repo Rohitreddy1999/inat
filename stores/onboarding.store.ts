@@ -26,13 +26,11 @@ interface OnboardingState {
   openAnswer: string
   matchResult: StoredMatchResult
   selectedTrack: TrackName | null
-  selectedSubtractId: string | null
 
   setLifeStage: (value: string) => void
   setAnswer: (question: string, selections: string[]) => void
   runMatch: () => void
   setSelectedTrack: (track: TrackName) => void
-  setSelectedSubtractId: (id: string) => void
   setOpenAnswer: (text: string) => void
   clear: () => void
 }
@@ -43,7 +41,6 @@ const initialState = {
   openAnswer: '',
   matchResult: { ...INITIAL_MATCH },
   selectedTrack: null,
-  selectedSubtractId: null,
 }
 
 export const useOnboardingStore = create<OnboardingState>((set, get) => ({
@@ -65,8 +62,6 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => ({
   },
 
   setSelectedTrack: (track) => set({ selectedTrack: track }),
-
-  setSelectedSubtractId: (id) => set({ selectedSubtractId: id }),
 
   setOpenAnswer: (text) => set({ openAnswer: text }),
 

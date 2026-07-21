@@ -10,76 +10,88 @@ export interface Profile {
   created_at: string
 }
 
-export interface Journey {
+export interface Arc {
   id: string
-  user_id: string
-  subtrack_id: string
-  current_day: number
-  is_active: boolean
-  is_completed: boolean
-  started_at: string
-  completed_at: string | null
-  last_active_at: string | null
-  graduation_seen: boolean
-  reflections: Record<string, unknown> | null
-  created_at: string
-}
-
-export interface DayCompletion {
-  id: string
-  journey_id: string
-  day_number: number
-  completed_date: string
-  feeling: string | null
-  reflection_note: string | null
-  duration_actual: number | null
-  created_at: string
-}
-
-export interface Track {
-  id: string
-  slug: string
-  name: string
-  tagline: string
-  icon_name: string
-  color: string
-  sort_order: number
-}
-
-export interface Subtrack {
-  id: string
-  track_id: string
-  slug: string
   name: string
   description: string | null
-  is_live: boolean
-  is_free: boolean
-  sort_order: number
+  icon_key: string | null
+  created_at: string
 }
 
-export interface CurriculumDay {
+export interface Focus {
   id: string
-  subtrack_id: string
+  arc: string
+  name: string
+  description: string | null
+  icon_key: string | null
+  is_active: boolean
+  created_at: string
+}
+
+export interface Day {
+  id: string
+  arc: string
+  focus: string
   day_number: number
+  title: string
+  subtitle: string | null
+  duration_mins: number | null
   phase: string
-  task_title: string
-  task_description: string | null
-  duration_minutes: number
-  difficulty: string | null
-  steps: string[] | Array<{ order: number; instruction: string }>
-  why_text: string | null
-  quote_text: string | null
+  quote: string | null
   quote_author: string | null
-  youtube_url: string | null
-  must_watch_label: string | null
-  reference_url_1: string | null
-  reference_url_2: string | null
-  reference_url_3: string | null
-  ref_label_1: string | null
-  ref_label_2: string | null
-  ref_label_3: string | null
-  source_credits: string | null
-  equipment?: string[]
+  why_this_matters: string | null
+  created_at: string
+}
+
+export interface DayStep {
+  id: string
+  day_id: string
+  step_number: number
+  title: string
+  instruction: string
+  has_video: boolean
+  video_url: string | null
+  video_label: string | null
+  created_at: string
+}
+
+export interface UserJourney {
+  id: string
+  user_id: string
+  arc: string
+  focus: string
+  current_day: number
+  is_active: boolean
+  started_at: string
+  completed_at: string | null
+  created_at: string
+}
+
+export interface UserDayLog {
+  id: string
+  user_id: string
+  journey_id: string
+  arc: string
+  focus: string
+  day_number: number
+  feeling: string | null
+  completed_at: string
+  created_at: string
+}
+
+export interface UserOnboarding {
+  id: string
+  user_id: string
+  energy_response: string | null
+  barrier_response: string | null
+  channel_response: string | null
+  identity_response: string | null
+  presence_response: string | null
+  matched_arc: string | null
+  matched_focus: string | null
+  confidence_score: number | null
+  completed_at: string | null
+  created_at: string
 }
 
 export type ReentryState = 'A' | 'B' | 'C' | 'D'

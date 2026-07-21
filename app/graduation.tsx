@@ -18,7 +18,7 @@ import { Card } from '@/components/core/Card'
 import { Button } from '@/components/core/Button'
 import { Badge } from '@/components/core/Badge'
 import { useJourneyStore } from '@/stores/journey.store'
-import { markGraduationSeen } from '@/services/journey.service'
+import { markJourneyComplete } from '@/services/journey.service'
 import { getProfile } from '@/services/profile.service'
 import { getSession } from '@/services/auth.service'
 import { colors, spacing } from '@/theme'
@@ -402,7 +402,7 @@ export default function Graduation() {
 
       const [{ profile: p }] = await Promise.all([
         getProfile(userId),
-        activeJourney ? markGraduationSeen(activeJourney.id) : Promise.resolve({ error: null }),
+        activeJourney ? markJourneyComplete(activeJourney.id) : Promise.resolve(null),
       ])
 
       setProfile(p)

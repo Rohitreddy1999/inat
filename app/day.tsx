@@ -25,11 +25,11 @@ import { Text } from '@/components/core/Text'
 import { StepCard, StepItem } from '@/components/tasks/StepCard'
 import { HoldButton } from '@/components/tasks/HoldButton'
 import { useJourneyStore } from '@/stores/journey.store'
-import { getDayContent, getSubtrackById } from '@/services/curriculum.service'
+import { getDayWithSteps } from '@/services/curriculum.service'
 import { getDayCompletion, completeDay } from '@/services/completion.service'
 import { getSession } from '@/services/auth.service'
 import { getPhaseColor, getPhaseName, colors, fontFamilies, radius, spacing, typography } from '@/theme'
-import { CurriculumDay } from '@/types'
+import { Day, DayStep } from '@/types'
 
 const HOLD_PANEL_HEIGHT = 136
 
@@ -47,34 +47,26 @@ function getQuoteFontSize(quote: string): number {
 }
 
 // ── Placeholder data ─────────────────────────────────────────────────────────
-const PLACEHOLDER: CurriculumDay = {
+const PLACEHOLDER_DAY: Day = {
   id: '',
-  subtrack_id: '',
+  arc: 'Move',
+  focus: 'Muscle & Strength',
   day_number: 1,
-  phase: 'foundation',
-  task_title: 'Define Your Single Most Important Task',
-  task_description: null,
-  duration_minutes: 20,
-  difficulty: null,
-  steps: [
-    'Open a blank document or notebook. Write "My MIT today is:" at the top.',
-    'Scan your task list. Ask: if I could only finish one thing today, what would matter most in 90 days?',
-    'Write that one task. Underline it. Close everything else and start it first.',
-  ],
-  why_text: 'Research on cognitive load consistently shows that choosing one clear priority before the day begins reduces decision fatigue by up to 40%. When your brain knows exactly what success looks like, it stops burning energy on re-evaluation.',
-  quote_text: 'It is not enough to be busy. The question is: what are we busy about?',
+  title: 'Define Your Single Most Important Task',
+  subtitle: null,
+  duration_mins: 20,
+  phase: 'Foundation',
+  quote: 'It is not enough to be busy. The question is: what are we busy about?',
   quote_author: 'Henry David Thoreau',
-  youtube_url: null,
-  must_watch_label: null,
-  reference_url_1: null,
-  reference_url_2: null,
-  reference_url_3: null,
-  ref_label_1: null,
-  ref_label_2: null,
-  ref_label_3: null,
-  source_credits: null,
-  equipment: ['A notebook or open document', 'Your task list'],
+  why_this_matters: 'Research on cognitive load consistently shows that choosing one clear priority before the day begins reduces decision fatigue by up to 40%. When your brain knows exactly what success looks like, it stops burning energy on re-evaluation.',
+  created_at: '',
 }
+
+const PLACEHOLDER_STEPS: DayStep[] = [
+  { id: '1', day_id: '', step_number: 1, title: 'Open a blank document', instruction: 'Open a blank document or notebook. Write "My MIT today is:" at the top.', has_video: false, video_url: null, video_label: null, created_at: '' },
+  { id: '2', day_id: '', step_number: 2, title: 'Scan your task list', instruction: 'Scan your task list. Ask: if I could only finish one thing today, what would matter most in 90 days?', has_video: false, video_url: null, video_label: null, created_at: '' },
+  { id: '3', day_id: '', step_number: 3, title: 'Write that one task', instruction: 'Write that one task. Underline it. Close everything else and start it first.', has_video: false, video_url: null, video_label: null, created_at: '' },
+]
 
 // ── Fix 3: Done pill — shows expanded state when active ──────────────────────
 function DonePill({
@@ -337,12 +329,12 @@ export default function Day() {
   const router = useRouter()
   const { activeJourney, currentDay, hydrate } = useJourneyStore()
 
-  const [dayContent, setDayContent]         = useState<CurriculumDay | null>(null)
-  const [subtrackName, setSubtrackName]     = useState('')
+  const [dayData, setDayData]               = useState<Day | null>(null)
+  const [daySteps, setDaySteps]             = useState<DayStep[]>([])
   const [isCompleted, setIsCompleted]       = useState(false)
   const [isLoading, setIsLoading]           = useState(true)
   const [currentStep, setCurrentStep]       = useState(0)
-  const [expandedDoneStep, setExpandedDoneStep] = useState<number | null>(null)  // Fix 3
+  const [expandedDoneStep, setExpandedDoneStep] = useState<number | null>(null)
   const [showCompletion, setShowCompletion] = useState(false)
   const [isSaving, setIsSaving]             = useState(false)
 
@@ -351,41 +343,32 @@ export default function Day() {
 
   useEffect(() => {
     if (!activeJourney) {
-      setDayContent(PLACEHOLDER)
-      setSubtrackName('Morning Clarity')
+      setDayData(PLACEHOLDER_DAY)
+      setDaySteps(PLACEHOLDER_STEPS)
       setIsLoading(false)
       return
     }
 
     Promise.all([
-      getDayContent(activeJourney.subtrack_id, activeJourney.current_day),
+      getDayWithSteps(activeJourney.arc, activeJourney.focus, activeJourney.current_day),
       getDayCompletion(activeJourney.id, activeJourney.current_day),
-      getSubtrackById(activeJourney.subtrack_id),
-    ]).then(([{ day }, { completion }, { subtrack }]) => {
-      setDayContent(day)
-      setSubtrackName(subtrack?.name ?? '')
+    ]).then(([{ day, steps }, { completion }]) => {
+      setDayData(day)
+      setDaySteps(steps)
       if (completion) setIsCompleted(true)
       setIsLoading(false)
     })
   }, [activeJourney])
 
-  const steps: StepItem[] = React.useMemo(() => {
-    const raw = dayContent?.steps ?? []
-    const base: StepItem[] = raw.map((item) => ({
-      instruction: typeof item === 'string' ? item : (item as { instruction: string }).instruction,
-    }))
-    if (base.length > 0 && dayContent?.youtube_url) {
-      base[base.length - 1] = {
-        ...base[base.length - 1],
-        videoUrl:   dayContent.youtube_url,
-        videoLabel: dayContent.must_watch_label ?? 'Watch video',
-      }
-    }
-    return base
-  }, [dayContent])
+  const steps: StepItem[] = React.useMemo(() =>
+    daySteps.map((s) => ({
+      instruction: s.instruction,
+      videoUrl:    s.has_video ? (s.video_url ?? undefined) : undefined,
+      videoLabel:  s.has_video ? (s.video_label ?? undefined) : undefined,
+    })),
+  [daySteps])
 
-  const equipment = dayContent?.equipment ?? []
-  const allDone   = currentStep >= steps.length && steps.length > 0
+  const allDone = currentStep >= steps.length && steps.length > 0
 
   function advanceStep() {
     setExpandedDoneStep(null)
@@ -405,7 +388,7 @@ export default function Day() {
     if (!activeJourney || isSaving) return
     setIsSaving(true)
 
-    const { error } = await completeDay(activeJourney.id, currentDay, feeling, '')
+    const { error } = await completeDay(activeJourney.id, activeJourney.arc, activeJourney.focus, currentDay, feeling)
 
     if (error) {
       setIsSaving(false)
@@ -423,9 +406,10 @@ export default function Day() {
     }
   }
 
+  const focusLabel  = activeJourney?.focus ?? PLACEHOLDER_DAY.focus
   const displayDay  = activeJourney ? currentDay : 1
   const displayName = `DAY ${displayDay} · ${phaseName}`
-  const titleText   = isLoading ? '' : (dayContent?.task_title ?? '')
+  const titleText   = isLoading ? '' : (dayData?.title ?? '')
 
   // Fix 1: dynamic title font size
   const titleFontSize = getTitleFontSize(titleText)
@@ -459,31 +443,19 @@ export default function Day() {
           </Animated.Text>
           <Text variant="caption" color={colors.textMid} style={styles.daySubtitle}>
             {[
-              subtrackName,
-              dayContent?.duration_minutes ? `${dayContent.duration_minutes} min` : null,
+              focusLabel,
+              dayData?.duration_mins ? `${dayData.duration_mins} min` : null,
             ]
               .filter(Boolean)
               .join(' · ')}
           </Text>
         </View>
 
-        {/* Before You Start */}
-        {equipment.length > 0 ? (
-          <View style={styles.section}>
-            <Animated.Text style={styles.sectionLabel}>BEFORE YOU START</Animated.Text>
-            {equipment.map((item, i) => (
-              <View key={i} style={styles.equipRow}>
-                <Animated.Text style={[styles.equipChevron, { color: phaseColor }]}>▸</Animated.Text>
-                <Animated.Text style={styles.equipText}>{item}</Animated.Text>
-              </View>
-            ))}
-          </View>
-        ) : null}
 
         {/* Why does this matter */}
-        {dayContent?.why_text ? (
+        {dayData?.why_this_matters ? (
           <View style={styles.section}>
-            <WhySection text={dayContent.why_text} phaseColor={phaseColor} />
+            <WhySection text={dayData.why_this_matters} phaseColor={phaseColor} />
           </View>
         ) : null}
 
@@ -576,8 +548,8 @@ export default function Day() {
       {/* Completion moment overlay */}
       {showCompletion ? (
         <CompletionMoment
-          quote={dayContent?.quote_text ?? 'You showed up. That matters.'}
-          author={dayContent?.quote_author ?? null}
+          quote={dayData?.quote ?? 'You showed up. That matters.'}
+          author={dayData?.quote_author ?? null}
           phaseColor={phaseColor}
           dayNumber={displayDay}
           onFeelingSelect={handleFeelingSelect}

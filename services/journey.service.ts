@@ -1,30 +1,21 @@
 import { supabase } from '@/lib/supabase'
-import { Journey } from '@/types'
+import { UserJourney } from '@/types'
 import { PostgrestError } from '@supabase/supabase-js'
 
 export async function createJourney(
   userId: string,
-  subtractId: string,
-): Promise<{ journey: Journey | null; error: PostgrestError | null }> {
-  // Upsert first — if this fails, no existing journeys are touched
+  arc: string,
+  focus: string,
+): Promise<{ journey: UserJourney | null; error: PostgrestError | null }> {
   const { data, error } = await supabase
     .from('user_journeys')
-    .upsert(
-      {
-        user_id: userId,
-        subtrack_id: subtractId,
-        current_day: 1,
-        is_active: true,
-        is_completed: false,
-      },
-      { onConflict: 'user_id,subtrack_id' },
-    )
+    .insert({ user_id: userId, arc, focus, current_day: 1, is_active: true })
     .select()
     .single()
 
   if (error) return { journey: null, error }
 
-  // Upsert succeeded — deactivate every other active journey for this user
+  // Deactivate every other active journey for this user
   await supabase
     .from('user_journeys')
     .update({ is_active: false })
@@ -32,7 +23,7 @@ export async function createJourney(
     .eq('is_active', true)
     .neq('id', data.id)
 
-  return { journey: data as Journey | null, error: null }
+  return { journey: data as UserJourney, error: null }
 }
 
 export async function deactivateJourney(userId: string): Promise<PostgrestError | null> {
@@ -52,34 +43,17 @@ export async function setJourneyDay(journeyId: string, day: number): Promise<Pos
   return error
 }
 
-export async function updateLastActive(
-  journeyId: string,
-): Promise<void> {
-  await supabase
-    .from('user_journeys')
-    .update({ last_active_at: new Date().toISOString() })
-    .eq('id', journeyId)
-}
-
-export async function markGraduationSeen(
-  journeyId: string,
-): Promise<{ error: PostgrestError | null }> {
+export async function markJourneyComplete(journeyId: string): Promise<PostgrestError | null> {
   const { error } = await supabase
     .from('user_journeys')
-    .update({
-      graduation_seen: true,
-      is_completed: true,
-      completed_at: new Date().toISOString(),
-    })
+    .update({ is_active: false, completed_at: new Date().toISOString() })
     .eq('id', journeyId)
-
-  return { error }
+  return error
 }
 
 export async function getActiveJourney(
   userId: string,
-): Promise<{ journey: Journey | null; error: PostgrestError | null }> {
-  // Use order + limit + maybeSingle so multiple rows never cause a PGRST116 misread
+): Promise<{ journey: UserJourney | null; error: PostgrestError | null }> {
   const { data, error } = await supabase
     .from('user_journeys')
     .select('*')
@@ -89,5 +63,5 @@ export async function getActiveJourney(
     .limit(1)
     .maybeSingle()
 
-  return { journey: data as Journey | null, error }
+  return { journey: data as UserJourney | null, error }
 }

@@ -1,11 +1,11 @@
 import { create } from 'zustand'
-import { Journey } from '@/types'
-import { getActiveJourney, updateLastActive } from '@/services/journey.service'
+import { UserJourney } from '@/types'
+import { getActiveJourney } from '@/services/journey.service'
 import { getAllCompletions } from '@/services/completion.service'
 import { getReentryState } from '@/utils/dayUnlock'
 
 interface JourneyState {
-  activeJourney: Journey | null
+  activeJourney: UserJourney | null
   currentDay: number
   completedDays: number[]
   lastCompletionDate: Date | null
@@ -42,13 +42,10 @@ export const useJourneyStore = create<JourneyState>((set) => ({
       getAllCompletions(journey.id),
     ])
 
-    // fire and forget — do not block hydration
-    updateLastActive(journey.id)
-
     const completedDays = completions.map((c) => c.day_number)
     const lastCompletion = completions[completions.length - 1]
     const lastCompletionDate = lastCompletion
-      ? new Date(lastCompletion.completed_date)
+      ? new Date(lastCompletion.completed_at)
       : null
 
     set({

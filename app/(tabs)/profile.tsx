@@ -9,10 +9,9 @@ import { Card } from '@/components/core/Card'
 import { PhaseProgressRing } from '@/components/shared/PhaseProgressRing'
 import { useJourneyStore } from '@/stores/journey.store'
 import { getProfile } from '@/services/profile.service'
-import { getSubtrackById } from '@/services/curriculum.service'
 import { getSession, signOut } from '@/services/auth.service'
 import { colors, getPhaseColor, spacing, radius } from '@/theme'
-import { Profile, Subtrack } from '@/types'
+import { Profile } from '@/types'
 
 const LIFE_STAGE_LABELS: Record<string, string> = {
   still_studying:   'Still studying',
@@ -59,8 +58,7 @@ export default function ProfileScreen() {
   const router = useRouter()
   const { activeJourney, currentDay, reset } = useJourneyStore()
 
-  const [profile, setProfile]   = useState<Profile | null>(null)
-  const [subtrack, setSubtrack] = useState<Subtrack | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
 
   const phaseColor  = currentDay > 0 ? getPhaseColor(currentDay) : getPhaseColor(1)
   const dayInPhase  = currentDay > 0 ? ((currentDay - 1) % 7) + 1 : 1
@@ -71,9 +69,6 @@ export default function ProfileScreen() {
       getProfile(session.user.id).then(({ profile: p }) => setProfile(p))
     })
 
-    if (activeJourney) {
-      getSubtrackById(activeJourney.subtrack_id).then(({ subtrack: s }) => setSubtrack(s))
-    }
   }, [activeJourney])
 
   async function handleSignOut() {
@@ -140,7 +135,7 @@ export default function ProfileScreen() {
           <SectionLabel>ACTIVE CIRCUIT</SectionLabel>
           <Card accent={phaseColor} style={{ marginTop: spacing[3] }}>
             <Text variant="base" color={colors.textHi} style={{ fontWeight: '700' }}>
-              {subtrack?.name ?? ''}
+              {activeJourney.focus}
             </Text>
             <Text variant="body" color={colors.textMid} style={{ marginTop: spacing[1] }}>
               Day {currentDay} of 21
