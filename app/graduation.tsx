@@ -338,7 +338,7 @@ function Beat3({ onNewCircuit, onGoDeeper, onDone }: Beat3Props) {
                     Start a new circuit
                   </Text>
                   <Text variant="caption" color={colors.textMid} style={{ marginTop: spacing[1] }}>
-                    Pick a different track. Keep the momentum.
+                    Pick a different Arc. Keep the momentum.
                   </Text>
                 </View>
                 <Ionicons name="arrow-forward" color={colors.iris} size={20} />
@@ -354,7 +354,7 @@ function Beat3({ onNewCircuit, onGoDeeper, onDone }: Beat3Props) {
                     Go deeper
                   </Text>
                   <Text variant="caption" color={colors.textMid} style={{ marginTop: spacing[1] }}>
-                    More subtracks coming soon.
+                    More Focuses coming soon.
                   </Text>
                 </View>
                 <Badge variant="comingSoon">COMING SOON</Badge>
@@ -422,7 +422,7 @@ export default function Graduation() {
   }
 
   function handleGoDeeper() {
-    Alert.alert('More subtracks coming soon!')
+    Alert.alert('More Focuses coming soon!')
   }
 
   function handleDone() {

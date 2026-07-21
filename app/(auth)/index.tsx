@@ -13,6 +13,7 @@ import { ScreenWrapper } from '@/components/shared/ScreenWrapper'
 import { Text } from '@/components/core/Text'
 import { Button } from '@/components/core/Button'
 import { getSession } from '@/services/auth.service'
+import { getProfile } from '@/services/profile.service'
 import { useJourneyStore } from '@/stores/journey.store'
 
 export default function Splash() {
@@ -20,6 +21,7 @@ export default function Splash() {
   const taglineOpacity  = useSharedValue(0)
   const [offlineError, setOfflineError] = useState(false)
   const hasRouted = useRef(false)
+  const userIdRef = useRef<string | null>(null)
 
   const hydrate       = useJourneyStore((s) => s.hydrate)
   const activeJourney = useJourneyStore((s) => s.activeJourney)
@@ -41,6 +43,7 @@ export default function Splash() {
       return
     }
 
+    userIdRef.current = session.user.id
     await hydrate(session.user.id)
   }
 
@@ -62,13 +65,25 @@ export default function Splash() {
   // Route once hydration completes (triggered by hydrate() resolving)
   useEffect(() => {
     if (!isHydrated || hasRouted.current) return
-    hasRouted.current = true
 
     if (activeJourney) {
+      hasRouted.current = true
       router.replace('/(tabs)/')
-    } else {
-      router.replace('/(onboarding)/life-stage')
+      return
     }
+
+    const userId = userIdRef.current
+    if (!userId) return
+    hasRouted.current = true
+
+    void (async () => {
+      const { profile } = await getProfile(userId)
+      if (profile?.life_stage) {
+        router.replace('/(onboarding)/life-stage')
+      } else {
+        router.replace('/(onboarding)/orientation')
+      }
+    })()
   }, [isHydrated, activeJourney])
 
   return (

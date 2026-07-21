@@ -43,6 +43,9 @@ export default function RootLayout() {
       <Stack.Screen name="(auth)/login"   options={{ gestureEnabled: false }} />
       <Stack.Screen name="(auth)/signup"  options={{ gestureEnabled: false }} />
 
+      {/* Orientation — shows once for new users (life_stage null), no back gesture */}
+      <Stack.Screen name="(onboarding)/orientation" options={{ gestureEnabled: false }} />
+
       {/* Main tabs — no back gesture */}
       <Stack.Screen name="(tabs)" options={{ gestureEnabled: false }} />
 

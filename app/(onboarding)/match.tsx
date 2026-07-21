@@ -145,7 +145,7 @@ export default function Match() {
           onPress={() => router.push('/(onboarding)/focus')}
           disabled={!selectedTrack}
         >
-          Start this track →
+          Start this Arc →
         </Button>
       </View>
     </ScreenWrapper>
