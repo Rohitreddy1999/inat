@@ -1,12 +1,20 @@
 import { useEffect, useState } from 'react'
-import { View, StyleSheet, Alert } from 'react-native'
+import { View, Pressable, StyleSheet, Alert, Text as RNText, Platform } from 'react-native'
 import { router } from 'expo-router'
-import { colors, spacing } from '@/theme'
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  interpolate,
+  interpolateColor,
+  Easing,
+  ReduceMotion,
+} from 'react-native-reanimated'
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
+import { colors, spacing, fontFamilies, typography, radius } from '@/theme'
 import { ScreenWrapper } from '@/components/shared/ScreenWrapper'
-import { Text } from '@/components/core/Text'
 import { Button } from '@/components/core/Button'
-import { Badge } from '@/components/core/Badge'
-import { SubtrackCard } from '@/components/shared/SubtrackCard'
 import { BackButton } from '@/components/navigation/BackButton'
 import { useOnboardingStore } from '@/stores/onboarding.store'
 import { useJourneyStore } from '@/stores/journey.store'
@@ -14,13 +22,168 @@ import { getSession } from '@/services/auth.service'
 import { saveOnboardingAnswers } from '@/services/profile.service'
 import { createJourney } from '@/services/journey.service'
 import { getAllTracks, getSubtracksByTrack } from '@/services/curriculum.service'
-import { Subtrack, Track } from '@/types'
-import { TrackName } from '@/utils/inat-brain'
+import type { Subtrack, Track } from '@/types'
+import type { TrackName } from '@/utils/inat-brain'
+
+// ─── Arc identifier icons ──────────────────────────────────────────────────────
+
+type IonIconName = React.ComponentProps<typeof Ionicons>['name']
+
+const ARC_ICONS: Record<TrackName, IonIconName> = {
+  Move:    'pulse-outline',
+  Rhythm:  'musical-notes-outline',
+  Express: 'brush-outline',
+  Calm:    'water-outline',
+  Mindful: 'leaf-outline',
+}
+
+// ─── Focus data ────────────────────────────────────────────────────────────────
+
+type MCIconName = React.ComponentProps<typeof MaterialCommunityIcons>['name']
+
+type FocusItem = {
+  name: string
+  icon: MCIconName
+  status: 'active' | 'soon'
+}
+
+const FOCUS_DATA: Record<TrackName, FocusItem[]> = {
+  Move: [
+    { name: 'Muscle & Strength', icon: 'dumbbell',     status: 'active' },
+    { name: 'Tennis',            icon: 'tennis-ball',  status: 'soon'   },
+    { name: 'Yoga',              icon: 'yin-yang',     status: 'soon'   },
+    { name: 'Boxing',            icon: 'boxing-glove', status: 'soon'   },
+    { name: 'Hiking',            icon: 'hiking',       status: 'soon'   },
+  ],
+  Rhythm: [
+    { name: 'Music Theory', icon: 'music',       status: 'active' },
+    { name: 'Guitar',       icon: 'guitar-acoustic', status: 'soon' },
+    { name: 'Piano',        icon: 'piano',       status: 'soon'   },
+    { name: 'Beat Making',  icon: 'headphones',  status: 'soon'   },
+    { name: 'Songwriting',  icon: 'microphone',  status: 'soon'   },
+  ],
+  Express: [
+    { name: 'Color Theory',        icon: 'palette',        status: 'active' },
+    { name: 'Drawing & Sketching', icon: 'pencil',         status: 'soon'   },
+    { name: 'Watercolor',          icon: 'water',          status: 'soon'   },
+    { name: 'Digital Art',         icon: 'tablet',         status: 'soon'   },
+    { name: 'Hand Lettering',      icon: 'format-size',    status: 'soon'   },
+  ],
+  Calm: [
+    { name: 'Meditation',    icon: 'brain',                 status: 'active' },
+    { name: 'Breathwork',    icon: 'lungs',                 status: 'soon'   },
+    { name: 'Cold Exposure', icon: 'snowflake',             status: 'soon'   },
+    { name: 'Sound Healing', icon: 'sine-wave',             status: 'soon'   },
+    { name: 'Sleep Rituals', icon: 'moon-waning-crescent',  status: 'soon'   },
+  ],
+  Mindful: [
+    { name: 'Gratitude & Reflection', icon: 'notebook-outline', status: 'active' },
+    { name: 'Journaling',             icon: 'feather',           status: 'soon'   },
+    { name: 'Stoicism',               icon: 'book-open-variant', status: 'soon'   },
+    { name: 'Digital Detox',          icon: 'cellphone-off',     status: 'soon'   },
+    { name: 'Morning Rituals',        icon: 'weather-sunset-up', status: 'soon'   },
+  ],
+}
+
+// ─── Animation constants ───────────────────────────────────────────────────────
+
+const IRIS_BORDER_REST   = 'rgba(139,92,246,0.35)'
+const IRIS_BORDER_ACTIVE = 'rgba(139,92,246,0.88)'
+const ANIM_IN    = { duration: 300, easing: Easing.out(Easing.cubic), reduceMotion: ReduceMotion.System }
+const ANIM_OUT   = { duration: 200, easing: Easing.out(Easing.cubic), reduceMotion: ReduceMotion.System }
+const SPRING_CFG = { stiffness: 400, damping: 20, reduceMotion: ReduceMotion.System }
+
+// ─── FocusCard ────────────────────────────────────────────────────────────────
+
+type FocusCardProps = {
+  item: FocusItem
+  isSelected: boolean
+  onPress?: () => void
+}
+
+function FocusCard({ item, isSelected, onPress }: FocusCardProps) {
+  const progress = useSharedValue(0)
+  const scale    = useSharedValue(1)
+  const isSoon   = item.status === 'soon'
+
+  useEffect(() => {
+    progress.value = withTiming(
+      isSelected ? 1 : 0,
+      isSelected ? ANIM_IN : ANIM_OUT,
+    )
+  }, [isSelected]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const cardStyle = useAnimatedStyle(() => ({
+    borderColor: interpolateColor(
+      progress.value,
+      [0, 1],
+      [IRIS_BORDER_REST, IRIS_BORDER_ACTIVE],
+    ),
+  }))
+
+  const glowStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(progress.value, [0, 1], [0.025, 0.10]),
+  }))
+
+  const scaleStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }))
+
+  const cardContent = (
+    <View style={isSoon ? { opacity: 0.3 } : undefined}>
+      <Animated.View style={[styles.cardOuter, cardStyle]}>
+        {!isSoon && (
+          <Animated.View
+            style={[StyleSheet.absoluteFillObject, styles.innerGlow, glowStyle]}
+            pointerEvents="none"
+          />
+        )}
+        <View style={styles.cardInner}>
+          <MaterialCommunityIcons name={item.icon} size={32} color={colors.iris} />
+          <RNText style={styles.focusName}>{item.name}</RNText>
+          {isSoon && <RNText style={styles.soonText}>Soon</RNText>}
+        </View>
+      </Animated.View>
+    </View>
+  )
+
+  if (isSoon) {
+    return (
+      <View
+        accessible
+        accessibilityState={{ disabled: true }}
+        accessibilityLabel={`${item.name}, coming soon`}
+      >
+        {cardContent}
+      </View>
+    )
+  }
+
+  return (
+    <Animated.View style={scaleStyle}>
+      <Pressable
+        onPress={onPress}
+        onPressIn={() => { scale.value = withSpring(0.97, SPRING_CFG) }}
+        onPressOut={() => { scale.value = withSpring(1,    SPRING_CFG) }}
+        android_ripple={{ color: 'rgba(139,92,246,0.15)', borderless: false }}
+        accessibilityRole="button"
+        accessibilityState={{ selected: isSelected }}
+        accessibilityLabel={item.name}
+        accessibilityHint="Double tap to select this Focus"
+      >
+        {cardContent}
+      </Pressable>
+    </Animated.View>
+  )
+}
+
+// ─── Screen ────────────────────────────────────────────────────────────────────
 
 export default function Focus() {
   const [tracks, setTracks] = useState<Track[]>([])
   const [subtracks, setSubtracks] = useState<Subtrack[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isActiveSelected, setIsActiveSelected] = useState(false)
 
   const {
     selectedTrack,
@@ -35,18 +198,29 @@ export default function Focus() {
 
   const hydrate = useJourneyStore((s) => s.hydrate)
 
-  // Load all tracks once so we can look up the selected track's DB id
   useEffect(() => {
     getAllTracks().then(({ tracks: t }) => setTracks(t))
   }, [])
 
-  // Load subtracks whenever we know which track was selected
   useEffect(() => {
     if (!selectedTrack || tracks.length === 0) return
     const found = tracks.find(t => t.name === selectedTrack)
     if (!found) return
     getSubtracksByTrack(found.id).then(({ subtracks: s }) => setSubtracks(s))
   }, [selectedTrack, tracks])
+
+  // Auto-set ID when subtracks load after user has already tapped the active card
+  useEffect(() => {
+    if (!isActiveSelected || subtracks.length === 0 || selectedSubtractId) return
+    const live = subtracks.find(s => s.is_live)
+    if (live) setSelectedSubtractId(live.id)
+  }, [isActiveSelected, subtracks, selectedSubtractId, setSelectedSubtractId])
+
+  function handleSelectFocus() {
+    setIsActiveSelected(true)
+    const live = subtracks.find(s => s.is_live)
+    if (live) setSelectedSubtractId(live.id)
+  }
 
   async function handleBegin() {
     if (!selectedSubtractId) return
@@ -100,39 +274,49 @@ export default function Focus() {
     router.replace('/(tabs)/')
   }
 
+  const arc = selectedTrack ?? 'Move'
+  const arcIcon = ARC_ICONS[arc]
+  const focusItems = FOCUS_DATA[arc]
+
   return (
     <ScreenWrapper padded scrollable>
       <BackButton onPress={() => router.back()} />
 
-      {selectedTrack ? (
-        <View style={styles.pill}>
-          <Badge variant="phase" color={colors.iris}>
-            {selectedTrack.toUpperCase()}
-          </Badge>
-        </View>
-      ) : null}
+      {/* Arc breadcrumb — summarised for screen readers as a single label */}
+      <View
+        style={styles.arcRow}
+        accessible
+        accessibilityLabel={`Arc: ${arc}`}
+      >
+        <Ionicons
+          name={arcIcon}
+          size={16}
+          color={colors.iris}
+          accessible={false}
+        />
+        <RNText style={styles.arcLabel} accessible={false}>{arc}</RNText>
+      </View>
 
-      <Text variant="title" color={colors.textHi} style={styles.heading}>
-        Pick your focus
-      </Text>
+      {/* Heading — "focus" in Plasma, rest in Arc-Light */}
+      <RNText style={styles.heading} accessibilityRole="header">
+        {'Pick your '}
+        <RNText style={styles.headingAccent}>focus</RNText>
+        {'.'}
+      </RNText>
 
-      <Text variant="body" color={colors.textMid} style={styles.subtext}>
-        Choose what you want to work on for the next 21 days.
-      </Text>
-
+      {/* Focus cards */}
       <View style={styles.list}>
-        {subtracks.map((sub) => (
-          <SubtrackCard
-            key={sub.id}
-            name={sub.name}
-            isLive={sub.is_live}
-            isFree={sub.is_free}
-            isSelected={sub.id === selectedSubtractId}
-            onPress={() => setSelectedSubtractId(sub.id)}
+        {focusItems.map((item) => (
+          <FocusCard
+            key={item.name}
+            item={item}
+            isSelected={isActiveSelected && item.status === 'active'}
+            onPress={item.status === 'active' ? handleSelectFocus : undefined}
           />
         ))}
       </View>
 
+      {/* CTA */}
       <View style={styles.cta}>
         <Button
           variant="primary"
@@ -147,23 +331,66 @@ export default function Focus() {
   )
 }
 
+// ─── Styles ────────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
-  pill: {
-    marginTop: spacing[8],
-    alignSelf: 'flex-start',
+  arcRow: {
+    marginTop:     spacing[6],
+    flexDirection: 'row',
+    alignItems:    'center',
+    gap:           spacing[2],
+  },
+  arcLabel: {
+    fontFamily: fontFamilies.display,
+    fontSize:   typography.size.base,
+    color:      colors.iris,
+    lineHeight: typography.size.base * 1.2,
   },
   heading: {
-    marginTop: spacing[4],
+    marginTop:  spacing[3],
+    fontFamily: fontFamilies.heading,
+    fontSize:   typography.size.question,
+    color:      colors.arcLight,
+    lineHeight: typography.size.question * 1.15,
   },
-  subtext: {
-    marginTop: spacing[2],
+  headingAccent: {
+    color: colors.plasma,
   },
   list: {
-    marginTop: spacing[8],
-    gap: spacing[3],
+    marginTop: spacing[6],
+    gap:       spacing[3],
+  },
+  cardOuter: {
+    borderRadius:    radius.card,
+    borderWidth:     1,
+    overflow:        'hidden',
+    backgroundColor: colors.fathom,
+  },
+  cardInner: {
+    flexDirection:     'row',
+    alignItems:        'center',
+    gap:               spacing[4],
+    paddingVertical:   spacing[6],
+    paddingHorizontal: spacing[5],
+  },
+  innerGlow: {
+    backgroundColor: colors.iris,
+  },
+  focusName: {
+    flex:       1,
+    fontFamily: fontFamilies.heading,
+    fontSize:   typography.size.quote,
+    color:      colors.arcLight,
+    lineHeight: typography.size.quote * 1.3,
+  },
+  soonText: {
+    fontFamily: fontFamilies.regular,
+    fontSize:   typography.size.caption,
+    color:      colors.iris,
+    lineHeight: typography.size.caption * 1.4,
   },
   cta: {
-    marginTop: 'auto',
+    marginTop:     spacing[6],
     paddingBottom: spacing[10],
   },
 })
