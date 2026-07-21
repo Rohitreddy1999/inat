@@ -274,19 +274,34 @@ Below re-entry state: DayCard component.
 BottomNav fixed at bottom.
 
 **Day Screen** (pushed, no BottomNav)
-Fixed header: phase label + day counter.
-Radial accent bloom top-right (decorative).
-Scrollable content area (fixed height container):
-  "WHAT TO DO" section label
-  StepCards (checkable)
-  "WHY THIS MATTERS" section label
-  Card with why_text
-  Quote if present
-  Video reference if present
+Guided sequential session model. No free-toggle steps.
+Fixed header: back arrow (left) + phase badge (right). No decorative bloom.
+Title: day title in Syne-ExtraBold, dynamic font size (40/32/26px by char count,
+  max 3 lines). Subtitle: focus name · duration in Hanken Grotesk caption.
+Scrollable body sections (in order):
+  Before You Start — only if day data includes equipment[]. Phase-color ▸ list.
+  Why does this matter? — collapsible. maxHeight Reanimated animation. Collapsed by default.
+  Done pills row — completed steps stack here as small pills (step number + check).
+    Each pill is tappable to re-expand that step for re-reading.
+  Step cards — one active card (full opacity, spring entrance). Steps below at 40% opacity.
+    Active card: STEP X OF Y label, instruction text, optional inline video link,
+    Done button (60% width / 44px / 22px radius / Hanken medium / phaseColor).
+    Tapping Done collapses current step to pill, next step rises up as active.
 Fixed bottom (NEVER scrolls):
-  Protection gradient (linear, abyss to transparent)
-  HoldButton OR completed Button state
-  BottomNav NOT shown on this screen.
+  LinearGradient fade (transparent → abyss).
+  HoldButton: disabled (Fathom bg, muted label) until all steps done.
+  When all done: solid phaseColor bg, arcLight label, full hold interaction.
+  On hold complete: CompletionMoment overlay appears (not a new screen).
+CompletionMoment overlay (absolute fill, zIndex 100):
+  Phase color pulse animation on enter.
+  "DAY X COMPLETE" anchor header (12px spaced caps, phaseColor).
+  Thin phase-color rule (40% width, 20% opacity).
+  Day quote — large Syne-ExtraBold, centered, Arc-Light. 28px / 24px by length.
+  Attribution — 14px Hanken, arcLight 50%.
+  "HOW DID TODAY FEEL?" — 4 feeling pills in 2×2 grid.
+    Default border: 1.5px phaseColor 60% opacity. Selected: 2px full + 15% bg tint.
+    Scale tap animation. 600ms delay then calls completeDay() + navigates.
+BottomNav NOT shown on this screen.
 
 **Ascent — Progress**
 Silhouette system:

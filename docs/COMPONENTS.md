@@ -434,28 +434,34 @@ Animations:
 ---
 
 ### StepCard — components/tasks/StepCard.tsx
-Individual step in "WHAT TO DO" section.
+Sequential guided step. One active at a time.
 
 Props:
-  index: number         1, 2, 3...
-  text: string
-  done: boolean
+  step: StepItem        { instruction, videoUrl?, videoLabel? }
+  stepIndex: number     0-indexed
+  totalSteps: number
   phaseColor: string
-  onToggle: () => void
+  isActive: boolean
+  onDone: () => void
 
 States:
-  undone:
-    Step number in phaseColor (left)
-    textMid text
-    Empty circle indicator (right)
+  active (isActive=true):
+    Full opacity (1.0). Spring entrance: translateY 18→0 + opacity 0.4→1.
+    Shows: "STEP X OF Y" muted label, instruction text, optional video link card,
+    Done button (60% width / 44px / 22px radius / Hanken medium / phaseColor bg).
+    Video link: Fathom bg, phaseColor play icon, title + "Tap to open".
 
-  done:
-    Strikethrough text, 50% opacity
-    Filled phaseColor circle with checkmark (right)
+  pending (isActive=false):
+    40% opacity. No Done button.
+
+  done (managed by Day screen — card hidden; pill rendered instead):
+    When re-read (expandedDoneStep = this index): isActive=true,
+    onDone collapses back to pill.
 
 Animations:
-  Toggle: checkmark springs in/out (SELECTION_SPRING)
-  Text: opacity + strikethrough 200ms ease
+  Becoming active: withTiming opacity 0.4→1 (350ms) +
+                   withSpring translateY 18→0 (stiffness 280, damping 26)
+  Becoming pending: withTiming opacity 1→0.4 (200ms)
 
 ---
 
@@ -466,6 +472,7 @@ Hold 1 second to complete the day.
 Props:
   phaseColor: string
   onComplete: () => void
+  disabled?: boolean     default: false — true until all steps done
   label?: string         default: 'Hold to Complete'
   holdingLabel?: string  default: 'Completing...'
   holdMs?: number        default: 1000
@@ -477,23 +484,22 @@ It is NEVER inside a ScrollView.
 This is enforced by the Day screen layout.
 
 States:
-  idle:
-    Heartbeat pulse: scale 1→1.012→1→1.008→1
-    Duration: 2.6s, infinite loop
-    No glow in idle state
+  disabled (not all steps done):
+    Fathom background, borderCard border, textLow label.
+    pointerEvents none — no heartbeat, no interaction.
+
+  idle (all steps done, not holding):
+    phaseColor solid background, arcLight label (abyss on Volt).
+    Heartbeat pulse: scale 1→1.012→1→1.008→1, 2.6s infinite loop.
 
   holding:
-    Heartbeat stops
-    Inner glow activates: phaseColor 42%
-    Outer glow activates: phaseColor 30%
-    Phase bar fills from left along bottom edge
-    Width: 0% → 100% over holdMs (RAF-based)
-    Phase bar has its own glow: phaseColor 60%
+    Heartbeat stops.
+    Inner glow: phaseColor 42%. Outer glow: phaseColor 30%.
+    Progress bar fills from left (arcLight color) over holdMs (RAF-based).
 
   complete:
-    Fires onComplete
-    Resets progress to 0
-    Glow fades out
+    Fires onComplete (shows CompletionMoment overlay in Day screen).
+    Resets progress to 0, glow fades out.
 
 Touch handling:
   onPressIn → start RAF fill
@@ -777,20 +783,26 @@ ScreenWrapper (padded=true)
 ### Day screen layout pattern
 ```
 ScreenWrapper (scrollable=false, padded=false)
-  ├── View (fixed header, padding 24 22 0)
-  │   ├── Row: phase label | day counter badge
-  │   └── Radial bloom View (absolute, decorative)
-  ├── ScrollView (flex 1, contentPadding bottom 130)
-  │   ├── display day number + title Text
-  │   ├── caption metadata row
-  │   ├── SectionLabel "WHAT TO DO"
-  │   ├── StepCard × N
-  │   ├── SectionLabel "WHY THIS MATTERS"
-  │   ├── Card (accent=phaseColor) with why_text
-  │   └── Quote + video ref (if present)
-  └── View (absolute bottom 0, left 0, right 0 — FIXED)
-      ├── LinearGradient (protection, abyss→transparent)
-      └── HoldButton OR Button variant="completed"
+  ├── View (fixed header)
+  │   ├── BackButton (left)
+  │   └── Badge variant="phase" (right)
+  ├── ScrollView (flex 1, contentPadding bottom 160)
+  │   ├── Title block: Animated.Text Syne-ExtraBold (dynamic 40/32/26px), caption subtitle
+  │   ├── BeforeYouStart section (if day data has equipment[])
+  │   ├── WhySection (collapsible, maxHeight + opacity Reanimated)
+  │   ├── Done pills row (flexWrap, completed steps as phaseColor pills)
+  │   └── StepCards: active card full opacity + spring entrance;
+  │       pending cards 40% opacity; done cards hidden unless re-reading
+  ├── View (absolute bottom 0 — FIXED, pointerEvents box-none)
+  │   ├── LinearGradient (transparent → abyss)
+  │   └── HoldButton (disabled=true until allDone; active=solid phaseColor)
+  │       OR completed pill when isCompleted
+  └── CompletionMoment (absoluteFill overlay, zIndex 100)
+      ├── Phase color pulse (scale+opacity Reanimated)
+      ├── "DAY X COMPLETE" anchor + thin rule
+      ├── Quote (Syne-ExtraBold 28/24px, lineHeight 1.3, arcLight, centered)
+      ├── Attribution (14px Hanken, arcLight 50%)
+      └── 4× FeelingPill (scale tap animation, 600ms delay → completeDay → navigate)
       (BottomNav NOT rendered on this screen)
 ```
 

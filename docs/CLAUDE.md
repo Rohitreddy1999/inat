@@ -1,5 +1,5 @@
 # INAT — Claude Code Context
-Last updated: July 2026 | Last session: Orientation screen + bridge rebuild + Arc/Focus language
+Last updated: July 2026 | Last session: Day screen guided-session redesign + 6 polish fixes
 
 ---
 
@@ -97,7 +97,7 @@ feels confident enough to explore the field independently.
 ---
 
 ## WHAT TO BUILD THIS SESSION
-Orientation screen + bridge rebuild + Arc/Focus language — COMPLETE (commit b157a8a)
+Day screen guided-session redesign + 6 polish fixes — COMPLETE (commit 06e2c7a)
 
 ---
 
@@ -274,6 +274,29 @@ Current work: Architecture Phase 1 verification, then Phase 2 onboarding polish.
 - Button disabled primary opacity: 0.2 → 0.3 (matches spec, more clearly inactive)
 - Global rename across 18 files: electric→iris, borderElectric→borderIris,
   electricTint→irisTint, glowElectric→glowIris
+
+## SESSION DECISIONS (Day screen redesign)
+- Day screen rebuilt as a guided sequential session — no more free-toggle step list.
+- StepCard fully rewritten: one card active at a time, others at 40% opacity.
+  Active card rises in via Reanimated spring (translateY 18→0 + opacity). Done button
+  is 60% width / 44px / 22px radius / Hanken medium — not full-width dominant CTA.
+- HoldButton: new `disabled` prop. When disabled (not all steps done): Fathom bg,
+  textLow label, pointerEvents none. When active: solid phaseColor bg, arcLight text.
+- Done pills: tapping a completed pill re-expands that step card for re-reading.
+  `expandedDoneStep: number | null` state. Active step dims to 40% while a done card
+  is open. Pill shows isExpanded highlight (phaseColor border + 15% tint).
+- CompletionMoment overlay: "DAY X COMPLETE" anchor (12px spaced caps, phaseColor)
+  + 1px phase-color rule (40% width, 20% opacity) at top before the quote.
+- Quote: dynamic font size — 28px if ≤120 chars, 24px if longer. Syne-ExtraBold,
+  lineHeight ×1.3, centered Arc-Light. Attribution: 14px Hanken, arcLight+'80' (50% opacity).
+- Feeling pills: FeelingPill sub-component with per-pill scale shared value.
+  Scale tap: withSequence(0.97 80ms, 1 150ms). Default border: 1.5px phaseColor+'99'.
+  Selected: 2px full phaseColor border, phaseColor+'26' bg, arcLight text.
+  600ms delay via setTimeout before onFeelingSelect fires (lets animation land).
+- Title font scaling: getTitleFontSize() — 40px <20 chars, 32px 20-35, 26px >35.
+  numberOfLines=3 hard cap. fontSize + lineHeight (×1.12) injected inline on Animated.Text.
+- types/index.ts: optional `equipment?: string[]` added to CurriculumDay (no schema change).
+- PLACEHOLDER constant in day.tsx renders when no activeJourney — all sections visible in dev.
 
 ## SESSION DECISIONS (Level 2)
 - future-dot color: used colors.textFaint (0.18) — spec says 15% but no theme token
