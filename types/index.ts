@@ -79,6 +79,7 @@ export interface CurriculumDay {
   ref_label_2: string | null
   ref_label_3: string | null
   source_credits: string | null
+  equipment?: string[]
 }
 
 export type ReentryState = 'A' | 'B' | 'C' | 'D'

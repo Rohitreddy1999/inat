@@ -1,10 +1,7 @@
 /**
  * HoldButton — LAYOUT CONSTRAINT
- * This component must ALWAYS be rendered inside a
- * fixed-position View anchored to the bottom of the screen.
- * It must NEVER be placed inside a ScrollView.
- * This constraint is enforced by the Day screen layout.
- * Violating this breaks the core daily interaction.
+ * Must always be rendered inside a fixed-position View anchored to the bottom.
+ * Never place inside a ScrollView.
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
@@ -24,6 +21,7 @@ import { colors, fontFamilies, radius, typography } from '@/theme'
 type Props = {
   phaseColor: string
   onComplete: () => void
+  disabled?: boolean
   label?: string
   holdingLabel?: string
   holdMs?: number
@@ -32,25 +30,24 @@ type Props = {
 export function HoldButton({
   phaseColor,
   onComplete,
+  disabled = false,
   label = 'Hold to Complete',
   holdingLabel = 'Completing...',
   holdMs = 1000,
 }: Props) {
   const isReducedMotion = useReducedMotion()
-  const [isHolding, setIsHolding]   = useState(false)
-  const [progress, setProgress]     = useState(0)
+  const [isHolding, setIsHolding] = useState(false)
+  const [progress, setProgress] = useState(0)
 
   const rafRef       = useRef<number | null>(null)
   const startTimeRef = useRef<number | null>(null)
   const completedRef = useRef(false)
 
-  // Reanimated shared values
   const heartbeatScale = useSharedValue(1)
-  const glowOpacity    = useSharedValue(0) // 0=idle, 1=holding
+  const glowOpacity    = useSharedValue(0)
 
-  // ── Heartbeat ──────────────────────────────────────────────────
   const startHeartbeat = useCallback(() => {
-    if (isReducedMotion) return
+    if (isReducedMotion || disabled) return
     heartbeatScale.value = withRepeat(
       withSequence(
         withTiming(1.012, { duration: 650 }),
@@ -61,7 +58,7 @@ export function HoldButton({
       -1,
       false,
     )
-  }, [isReducedMotion, heartbeatScale])
+  }, [isReducedMotion, disabled, heartbeatScale])
 
   const stopHeartbeat = useCallback(() => {
     cancelAnimation(heartbeatScale)
@@ -69,18 +66,20 @@ export function HoldButton({
   }, [heartbeatScale])
 
   useEffect(() => {
-    startHeartbeat()
+    if (!disabled) {
+      startHeartbeat()
+    } else {
+      stopHeartbeat()
+    }
     return () => {
       cancelAnimation(heartbeatScale)
-      // Cancel any in-flight RAF on unmount to prevent setState after unmount
       if (rafRef.current !== null) {
         cancelAnimationFrame(rafRef.current)
         rafRef.current = null
       }
     }
-  }, [startHeartbeat, heartbeatScale])
+  }, [disabled, startHeartbeat, stopHeartbeat, heartbeatScale])
 
-  // ── RAF progress fill ──────────────────────────────────────────
   const cancelHold = useCallback(() => {
     if (rafRef.current !== null) {
       cancelAnimationFrame(rafRef.current)
@@ -92,7 +91,7 @@ export function HoldButton({
   }, [])
 
   const startHold = useCallback(() => {
-    if (rafRef.current !== null) return // already running
+    if (rafRef.current !== null) return
     startTimeRef.current = Date.now()
     completedRef.current = false
 
@@ -107,7 +106,6 @@ export function HoldButton({
         rafRef.current = null
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
         onComplete()
-        // Reset to idle
         setProgress(0)
         setIsHolding(false)
         glowOpacity.value = withTiming(0, { duration: 300 })
@@ -123,38 +121,40 @@ export function HoldButton({
     rafRef.current = requestAnimationFrame(tick)
   }, [holdMs, onComplete, glowOpacity, startHeartbeat])
 
-  // ── Touch handlers ─────────────────────────────────────────────
   const handlePressIn = useCallback(() => {
+    if (disabled) return
     stopHeartbeat()
     setIsHolding(true)
     glowOpacity.value = withTiming(1, { duration: 200 })
     startHold()
-  }, [stopHeartbeat, glowOpacity, startHold])
+  }, [disabled, stopHeartbeat, glowOpacity, startHold])
 
   const handleRelease = useCallback(() => {
-    if (completedRef.current) return // let completion handle reset
+    if (completedRef.current) return
     cancelHold()
     setIsHolding(false)
     glowOpacity.value = withTiming(0, { duration: 300 })
     startHeartbeat()
   }, [cancelHold, glowOpacity, startHeartbeat])
 
-  // ── Animated styles ────────────────────────────────────────────
   const containerAnimStyle = useAnimatedStyle(() => ({
     transform: [{ scale: heartbeatScale.value }],
     shadowColor: phaseColor,
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: glowOpacity.value * 0.30,
+    shadowOpacity: disabled ? 0 : glowOpacity.value * 0.30,
     shadowRadius: 24,
-    elevation: glowOpacity.value * 6,
+    elevation: disabled ? 0 : glowOpacity.value * 6,
   }))
 
   const buttonAnimStyle = useAnimatedStyle(() => ({
     shadowColor: phaseColor,
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: glowOpacity.value * 0.42,
+    shadowOpacity: disabled ? 0 : glowOpacity.value * 0.42,
     shadowRadius: 14,
   }))
+
+  const isVolt = phaseColor === colors.volt
+  const activeTextColor = isVolt ? colors.abyss : colors.arcLight
 
   return (
     <Animated.View style={[styles.outerGlow, containerAnimStyle]}>
@@ -163,33 +163,41 @@ export function HoldButton({
         onPressIn={handlePressIn}
         onPressOut={handleRelease}
         onTouchEnd={handleRelease}
-        pointerEvents="box-only"
+        pointerEvents={disabled ? 'none' : 'box-only'}
         accessibilityRole="button"
         accessibilityLabel={label}
         accessibilityHint="Hold for one second to complete today's task"
-        accessibilityState={{ busy: isHolding }}
+        accessibilityState={{ busy: isHolding, disabled }}
       >
-        <Animated.View style={[styles.button, buttonAnimStyle]}>
-          {/* Label */}
-          <Animated.Text style={styles.label}>
+        <Animated.View
+          style={[
+            styles.button,
+            buttonAnimStyle,
+            disabled
+              ? styles.buttonDisabled
+              : { backgroundColor: phaseColor, borderColor: phaseColor },
+          ]}
+        >
+          <Animated.Text
+            style={[
+              styles.label,
+              { color: disabled ? colors.textLow : activeTextColor },
+            ]}
+          >
             {isHolding ? holdingLabel : label}
           </Animated.Text>
 
-          {/* Progress bar at bottom of button */}
           {isHolding && (
-            <View
-              pointerEvents="none"
-              style={[styles.barTrack]}
-            >
+            <View pointerEvents="none" style={styles.barTrack}>
               <View
                 style={[
                   styles.barFill,
                   {
                     width: `${progress * 100}%`,
-                    backgroundColor: phaseColor,
-                    shadowColor: phaseColor,
+                    backgroundColor: activeTextColor,
+                    shadowColor: activeTextColor,
                     shadowOffset: { width: 0, height: 0 },
-                    shadowOpacity: 0.6,
+                    shadowOpacity: 0.5,
                     shadowRadius: 4,
                     elevation: 2,
                   },
@@ -211,24 +219,23 @@ const styles = StyleSheet.create({
   pressable: {
     width: '100%',
     borderRadius: radius.pill,
-    // No overflow:hidden here — that would clip the inner glow shadow on iOS.
-    // The inner button already clips the progress bar with its own overflow:hidden.
   },
   button: {
     height: 64,
     width: '100%',
     borderRadius: radius.pill,
-    backgroundColor: colors.fathom,
     borderWidth: 1,
-    borderColor: colors.borderCard,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
+  buttonDisabled: {
+    backgroundColor: colors.fathom,
+    borderColor: colors.borderCard,
+  },
   label: {
     fontFamily: fontFamilies.bold,
     fontSize: typography.size.base,
-    color: colors.textHi,
   },
   barTrack: {
     position: 'absolute',

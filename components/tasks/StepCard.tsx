@@ -1,166 +1,161 @@
-import React, { useEffect, useMemo } from 'react'
-import { Pressable, StyleSheet, View } from 'react-native'
+import React, { useEffect } from 'react'
+import { Pressable, StyleSheet, View, Linking } from 'react-native'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
   withTiming,
+  withSpring,
   ReduceMotion,
 } from 'react-native-reanimated'
 import { Ionicons } from '@expo/vector-icons'
 import { colors, fontFamilies, radius, spacing, typography } from '@/theme'
 
+export type StepItem = {
+  instruction: string
+  videoUrl?: string
+  videoLabel?: string
+}
+
 type Props = {
-  index: number
-  text: string
-  done: boolean
+  step: StepItem
+  stepIndex: number   // 0-indexed
+  totalSteps: number
   phaseColor: string
-  onToggle: () => void
-  isLast?: boolean
+  isActive: boolean
+  onDone: () => void
 }
 
-const SPRING_CHECK = {
-  stiffness: 400,
-  damping: 20,
-  reduceMotion: ReduceMotion.System,
-}
-
-export function StepCard({ index, text, done, phaseColor, onToggle, isLast = false }: Props) {
-  const checkScale   = useSharedValue(done ? 1 : 0)
-  const checkOpacity = useSharedValue(done ? 1 : 0)
-  const textOpacity  = useSharedValue(done ? 0.5 : 1)
-  const rightOpacity = useSharedValue(done ? 0 : 1)
-  const leftBgScale  = useSharedValue(done ? 1 : 0)
+export function StepCard({ step, stepIndex, totalSteps, phaseColor, isActive, onDone }: Props) {
+  const opacity = useSharedValue(isActive ? 1 : 0.4)
+  const translateY = useSharedValue(0)
 
   useEffect(() => {
-    if (done) {
-      checkScale.value   = withSpring(1, SPRING_CHECK)
-      checkOpacity.value = withSpring(1, SPRING_CHECK)
-      leftBgScale.value  = withSpring(1, SPRING_CHECK)
-      textOpacity.value  = withTiming(0.5, { duration: 200, reduceMotion: ReduceMotion.System })
-      rightOpacity.value = withTiming(0, { duration: 150, reduceMotion: ReduceMotion.System })
+    if (isActive) {
+      translateY.value = 18
+      opacity.value = withTiming(1, { duration: 350, reduceMotion: ReduceMotion.System })
+      translateY.value = withSpring(0, {
+        stiffness: 280,
+        damping: 26,
+        reduceMotion: ReduceMotion.System,
+      })
     } else {
-      checkScale.value   = withSpring(0, SPRING_CHECK)
-      checkOpacity.value = withSpring(0, SPRING_CHECK)
-      leftBgScale.value  = withSpring(0, SPRING_CHECK)
-      textOpacity.value  = withTiming(1, { duration: 200, reduceMotion: ReduceMotion.System })
-      rightOpacity.value = withTiming(1, { duration: 150, reduceMotion: ReduceMotion.System })
+      opacity.value = withTiming(0.4, { duration: 200, reduceMotion: ReduceMotion.System })
     }
-  }, [done])
+  }, [isActive])
 
-  const checkAnimStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: checkScale.value }],
-    opacity: checkOpacity.value,
+  const animStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ translateY: translateY.value }],
   }))
 
-  const textAnimStyle = useAnimatedStyle(() => ({
-    opacity: textOpacity.value,
-  }))
-
-  const rightAnimStyle = useAnimatedStyle(() => ({
-    opacity: rightOpacity.value,
-  }))
-
-  const leftBgAnimStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: leftBgScale.value }],
-    opacity: leftBgScale.value,
-  }))
-
-  const circleBorderColor = useMemo(() => phaseColor + '66', [phaseColor])
+  const cardBorderColor = phaseColor + '4D'
+  const doneLabelColor = phaseColor === colors.volt ? colors.abyss : colors.arcLight
 
   return (
-    <Pressable
-      onPress={onToggle}
-      style={[styles.row, !isLast && styles.borderBottom]}
-      accessibilityRole="checkbox"
-      accessibilityState={{ checked: done }}
-      accessibilityLabel={`Step ${index}: ${text}`}
-    >
-      {/* Left: step number (undone) or filled circle+check (done) */}
-      <View style={styles.leftSlot}>
-        {/* Filled circle with checkmark — springs in when done */}
-        <Animated.View
-          style={[styles.filledCircle, { backgroundColor: phaseColor }, leftBgAnimStyle]}
-          pointerEvents="none"
-        >
-          <Animated.View style={checkAnimStyle}>
-            <Ionicons name="checkmark" size={16} color={colors.abyss} />
-          </Animated.View>
-        </Animated.View>
-
-        {/* Step number — visible when undone */}
-        {!done && (
-          <Animated.Text style={[styles.indexText, { color: phaseColor }]}>
-            {index}
-          </Animated.Text>
-        )}
-      </View>
-
-      {/* Step text */}
-      <Animated.Text
-        style={[styles.text, textAnimStyle, done && styles.strikethrough]}
-        numberOfLines={0}
-      >
-        {text}
+    <Animated.View style={[styles.card, { borderColor: cardBorderColor }, animStyle]}>
+      <Animated.Text style={styles.stepLabel}>
+        {`STEP ${stepIndex + 1} OF ${totalSteps}`}
       </Animated.Text>
 
-      {/* Right: empty circle indicator — visible when undone */}
-      <Animated.View
-        style={[styles.rightCircle, { borderColor: circleBorderColor }, rightAnimStyle]}
-      />
-    </Pressable>
+      <Animated.Text style={styles.instruction}>
+        {step.instruction}
+      </Animated.Text>
+
+      {step.videoUrl ? (
+        <Pressable
+          onPress={() => Linking.openURL(step.videoUrl!)}
+          accessibilityRole="link"
+          accessibilityLabel={step.videoLabel ?? 'Watch video'}
+          style={[styles.videoCard, { borderColor: phaseColor + '33' }]}
+        >
+          <View style={[styles.videoIconWrap, { backgroundColor: phaseColor + '1A' }]}>
+            <Ionicons name="play" size={16} color={phaseColor} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Animated.Text style={styles.videoTitle}>
+              {step.videoLabel ?? 'Watch video'}
+            </Animated.Text>
+            <Animated.Text style={styles.videoSub}>Tap to open</Animated.Text>
+          </View>
+        </Pressable>
+      ) : null}
+
+      {isActive ? (
+        <Pressable
+          onPress={onDone}
+          style={[styles.doneBtn, { backgroundColor: phaseColor }]}
+          accessibilityRole="button"
+          accessibilityLabel="Mark step as done"
+        >
+          <Animated.Text style={[styles.doneBtnText, { color: doneLabelColor }]}>
+            Done
+          </Animated.Text>
+        </Pressable>
+      ) : null}
+    </Animated.View>
   )
 }
 
 const styles = StyleSheet.create({
-  row: {
+  card: {
+    backgroundColor: colors.fathom,
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: spacing[6],
+    marginBottom: spacing[3],
+  },
+  stepLabel: {
+    fontFamily: fontFamilies.medium,
+    fontSize: 11,
+    letterSpacing: 0.8,
+    color: colors.textLow,
+    marginBottom: spacing[3],
+  },
+  instruction: {
+    fontFamily: fontFamilies.regular,
+    fontSize: typography.size.body,
+    lineHeight: typography.size.body * typography.leading.body,
+    color: colors.textHi,
+  },
+  videoCard: {
+    marginTop: spacing[4],
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: spacing.stepRow,
-    paddingHorizontal: 0,
     gap: spacing[3],
-    minHeight: spacing.touchMin,
+    backgroundColor: colors.abyss,
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: spacing[3],
   },
-  borderBottom: {
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderSoft,
-  },
-  leftSlot: {
-    width: 32,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  filledCircle: {
-    position: 'absolute',
-    width: 32,
-    height: 32,
-    borderRadius: radius.full,
+  videoIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  indexText: {
+  videoTitle: {
     fontFamily: fontFamilies.medium,
-    fontSize: typography.size.step,
-    lineHeight: typography.size.step * typography.leading.step,
+    fontSize: typography.size.base,
+    color: colors.textHi,
   },
-  text: {
-    flex: 1,
-    fontFamily: fontFamilies.medium,
-    fontSize: typography.size.step,
-    lineHeight: typography.size.step * typography.leading.step,
+  videoSub: {
+    fontFamily: fontFamilies.regular,
+    fontSize: typography.size.caption,
     color: colors.textMid,
+    marginTop: 2,
   },
-  strikethrough: {
-    textDecorationLine: 'line-through',
+  doneBtn: {
+    marginTop: spacing[5],
+    height: 44,
+    width: '60%',
+    borderRadius: 22,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  rightCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: radius.full,
-    borderWidth: 1.5,
-    backgroundColor: 'transparent',
-    flexShrink: 0,
+  doneBtnText: {
+    fontFamily: fontFamilies.medium,
+    fontSize: typography.size.base,
   },
 })
