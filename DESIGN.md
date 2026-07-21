@@ -37,70 +37,72 @@ colors:
   border-electric: "#4DBBFF66"
 typography:
   display:
-    fontFamily: "HankenGrotesk, system-ui, sans-serif"
+    fontFamily: "DM Sans, system-ui, sans-serif"
     fontSize: "52sp"
     fontWeight: 900
     lineHeight: 1.12
     letterSpacing: "-0.02em"
   title:
-    fontFamily: "HankenGrotesk, system-ui, sans-serif"
+    fontFamily: "DM Sans, system-ui, sans-serif"
     fontSize: "34sp"
     fontWeight: 700
     lineHeight: 1.12
     letterSpacing: "-0.02em"
   heading:
-    fontFamily: "HankenGrotesk, system-ui, sans-serif"
+    fontFamily: "DM Sans, system-ui, sans-serif"
     fontSize: "26sp"
     fontWeight: 700
     lineHeight: 1.25
     letterSpacing: "-0.02em"
   quote:
-    fontFamily: "HankenGrotesk, system-ui, sans-serif"
+    fontFamily: "DM Sans, system-ui, sans-serif"
     fontSize: "20sp"
     fontWeight: 500
   base:
-    fontFamily: "HankenGrotesk, system-ui, sans-serif"
+    fontFamily: "DM Sans, system-ui, sans-serif"
     fontSize: "15sp"
     fontWeight: 400
   body:
-    fontFamily: "HankenGrotesk, system-ui, sans-serif"
+    fontFamily: "DM Sans, system-ui, sans-serif"
     fontSize: "13.5sp"
     fontWeight: 400
     lineHeight: 1.55
   step:
-    fontFamily: "HankenGrotesk, system-ui, sans-serif"
+    fontFamily: "DM Sans, system-ui, sans-serif"
     fontSize: "14.5sp"
     fontWeight: 500
     lineHeight: 1.5
   caption:
-    fontFamily: "HankenGrotesk, system-ui, sans-serif"
+    fontFamily: "DM Sans, system-ui, sans-serif"
     fontSize: "12sp"
     fontWeight: 400
   micro:
-    fontFamily: "HankenGrotesk, system-ui, sans-serif"
+    fontFamily: "DM Sans, system-ui, sans-serif"
     fontSize: "11sp"
     fontWeight: 500
     letterSpacing: "0.10em"
   label:
-    fontFamily: "HankenGrotesk, system-ui, sans-serif"
+    fontFamily: "DM Sans, system-ui, sans-serif"
     fontSize: "10sp"
     fontWeight: 500
     letterSpacing: "0.10em"
   badge:
-    fontFamily: "HankenGrotesk, system-ui, sans-serif"
+    fontFamily: "DM Sans, system-ui, sans-serif"
     fontSize: "9sp"
     fontWeight: 700
     lineHeight: "11dp"
   button:
-    fontFamily: "HankenGrotesk, system-ui, sans-serif"
+    fontFamily: "DM Sans, system-ui, sans-serif"
     fontSize: "16sp"
     fontWeight: 700
 font-families:
-  regular:  "HankenGrotesk-Regular"
-  medium:   "HankenGrotesk-Medium"
-  semibold: "HankenGrotesk-SemiBold"
-  bold:     "HankenGrotesk-Bold"
-  black:    "HankenGrotesk-Black"
+  display:  "Syne-ExtraBold"
+  heading:  "Syne-Bold"
+  regular:  "DMSans-Regular"
+  medium:   "DMSans-Medium"
+  semibold: "DMSans-SemiBold"
+  bold:     "DMSans-Bold"
+  black:    "DMSans-Black"
 rounded:
   sm: "10dp"
   md: "14dp"
@@ -241,7 +243,7 @@ components:
 
 **Creative North Star: "The Proving Ground"**
 
-INAT is where commitment becomes physical. The interface does not welcome or comfort — it witnesses. Every screen is built for a specific moment: the 5am moment when the alarm goes off, when inspiration has left the building, and what remains is the system. Hanken Grotesk rendered black-weight on near-total-dark communicates one thing: *this is not decorative*. The three phase colors — Glacial, Surge, Plasma — are not branding choices. They are a progress arc. When the user reaches Plasma, they earned it by living through Glacial and Surge first.
+INAT is where commitment becomes physical. The interface does not welcome or comfort — it witnesses. Every screen is built for a specific moment: the 5am moment when the alarm goes off, when inspiration has left the building, and what remains is the system. DM Sans rendered black-weight on near-total-dark communicates one thing: *this is not decorative*. The three phase colors — Foundation, Build, Commit — are not branding choices. They are a progress arc. When the user reaches Plasma, they earned it by living through Iris and Volt first.
 
 The design carries the INAT philosophy structurally. The HoldButton cannot be tapped — it must be held. The graduation moment requires three beats before the user can leave. Day unlocks are calendar-gated, not timer-gated. These are not UX patterns; they are the design asserting that things worth doing require more than a tap.
 
@@ -252,7 +254,7 @@ The palette is closed. No new colors are added. The accents are in limited suppl
 **Key Characteristics:**
 - Near-total dark surface — Abyss (`#07090D`) everywhere except elevated cards (Fathom, `#0F141A`).
 - Three phase accents a user earns sequentially, not decoratively.
-- Single typeface (Hanken Grotesk), enormous weight range — Black (900) for display, Regular (400) for body. Contrast through weight, not typeface variety.
+- Two typefaces with distinct roles: Syne (onboarding headings + logo only) and DM Sans (all app UI). Contrast through weight within DM Sans — Black (900) for display, Regular (400) for body.
 - Glow, not shadow — elevation communicated by phase-colored glow on selected and active states only. Static cards are silent.
 - Motion is ritual, not decoration — holds, springs, staggered lists, silhouette lighting — each animation has one reason.
 - Minimum 44pt touch targets (iOS) / 48dp (Android). HoldButton centered for ambidextrous access.
@@ -285,11 +287,12 @@ A closed four-role system: two near-black surfaces carry depth, three phase acce
 
 **The No Pure White Rule.** Pure `#FFFFFF` is prohibited. Body text uses `text-hi` (rgba(255,255,255,0.95), hex `#FFFFFFF2`). Near-white moments use `arc-light` (`#EAFFF5`). Prevents harshness on near-black and keeps the palette disciplined across the full 21-day arc.
 
-## 3. Typography: One Voice, Full Range
+## 3. Typography: Two Roles, One System
 
-**Display Font:** Hanken Grotesk (only font — never add a second)
+**App UI Font:** DM Sans (all screens except onboarding)
+**Onboarding / Logo Font:** Syne (ExtraBold for display headings, Bold for section headings; onboarding screens and wordmark only)
 
-**Character:** Hanken Grotesk at Black (900) is severe and certain. At Regular (400) it is quiet and readable. The same family carries both extremes — the headline that commands and the body that explains. No pairing needed because weight contrast is already built in. Add a second face and the system loses its identity.
+**Character:** DM Sans is geometric and neutral — legible at any weight, never calling attention to itself. The interface recedes so the content leads. Syne is wide and certain — it carries the brand's defiant personality in the onboarding arc and the wordmark, then steps aside. The two families never appear together on the same screen outside the onboarding flow.
 
 ### Hierarchy
 - **Display** (900, 52sp, leading 1.12, tracking −0.02em): Day numbers on the Home DayCard, INAT wordmark, graduation headlines. One instance per screen.
@@ -304,7 +307,7 @@ A closed four-role system: two near-black surfaces carry depth, three phase acce
 - **Label** (500, 10sp, tracking 0.10em, uppercase enforced): SectionLabels ("WHAT TO DO", "WHY THIS MATTERS"), badge pill text. Always uppercase at the variant level — never lowercase.
 - **Badge** (700, 9sp, lineHeight 11dp): Streak badge number only — diamond badge center text. Never used elsewhere; the smallest rendered text in the system.
 
-**The One Font Rule.** Hanken Grotesk is the only typeface in this system. Never add a second family. Weight, size, and letter-spacing provide all necessary variation.
+**The Two-Role Rule.** Syne is used in exactly two places: the onboarding question screens and the wordmark. Everywhere else is DM Sans. Never use Syne on tabs, day screens, auth screens, graduation, or any component. Never add a third typeface.
 
 **The Weight-First Rule.** Hierarchy is established by weight before size. Never reach for a larger size when a heavier weight conveys hierarchy more efficiently.
 

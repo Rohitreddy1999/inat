@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   // Reason text (algorithm path only, below divider)
   reason: {
     marginTop:  spacing[3],
-    fontFamily: fontFamilies.regular,
+    fontFamily: 'HankenGrotesk-Regular',
     fontSize:   typography.size.body,
     color:      colors.arcLight,
     lineHeight: typography.size.body * 1.55,

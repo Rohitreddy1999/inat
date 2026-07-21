@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     padding:          spacing[4],
     minHeight:        120,
     color:            colors.textHi,
-    fontFamily:       fontFamilies.regular,
+    fontFamily:       'HankenGrotesk-Regular',
     fontSize:         typography.size.base,
     lineHeight:       typography.size.base * typography.leading.body,
   },

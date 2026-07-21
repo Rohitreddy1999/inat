@@ -105,15 +105,15 @@ export const typography = {
 } as const
 
 export const fontFamilies = {
-  // Display / headings — Syne
+  // Display / headings — Syne (onboarding + logo only)
   display:  'Syne-ExtraBold',
   heading:  'Syne-Bold',
-  // Body — Hanken Grotesk
-  regular:  'HankenGrotesk-Regular',
-  medium:   'HankenGrotesk-Medium',
-  semibold: 'HankenGrotesk-SemiBold',
-  bold:     'HankenGrotesk-Bold',
-  black:    'HankenGrotesk-Black',
+  // Body — DM Sans
+  regular:  'DMSans-Regular',
+  medium:   'DMSans-Medium',
+  semibold: 'DMSans-SemiBold',
+  bold:     'DMSans-Bold',
+  black:    'DMSans-Black',
 } as const
 
 export const spacing = {

@@ -65,6 +65,8 @@ export function ReentryCard({
             </>
           )}
 
+          {/* LAUNCH FEATURE — RE-ENABLE BEFORE RELEASE (state 'B' is no longer reached */}
+          {/* with the day-lock removed; kept here so restoring the lock is a 1-line change) */}
           {state === 'B' && (
             <>
               <Badge variant="phase" color={phaseColor}>
@@ -72,9 +74,6 @@ export function ReentryCard({
               </Badge>
               <Text variant="heading" color={colors.textHi}>
                 That's the one that counts.
-              </Text>
-              <Text variant="body" color={colors.textMid}>
-                Day {dayNumber + 1} opens tonight at midnight.
               </Text>
             </>
           )}

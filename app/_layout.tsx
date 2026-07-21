@@ -16,9 +16,16 @@ export default function RootLayout() {
     'HankenGrotesk-Black':    require('../assets/fonts/HankenGrotesk-Black.ttf'),
     'Syne-Bold':              require('../assets/fonts/Syne-Bold.ttf'),
     'Syne-ExtraBold':         require('../assets/fonts/Syne-ExtraBold.ttf'),
+    'DMSans-Regular':  require('../assets/fonts/DMSans-Regular.ttf'),
+    'DMSans-Medium':   require('../assets/fonts/DMSans-Medium.ttf'),
+    'DMSans-SemiBold': require('../assets/fonts/DMSans-SemiBold.ttf'),
+    'DMSans-Bold':     require('../assets/fonts/DMSans-Bold.ttf'),
+    'DMSans-Black':    require('../assets/fonts/DMSans-Black.ttf'),
   })
 
   useEffect(() => {
+    if (error) console.error('[fonts] load error:', error)
+    if (loaded) console.log('[fonts] all loaded ok')
     if (loaded || error) {
       SplashScreen.hideAsync()
     }

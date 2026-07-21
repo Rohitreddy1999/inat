@@ -1,5 +1,5 @@
 # INAT — Claude Code Context
-Last updated: July 2026 | Last session: Day screen guided-session redesign + 6 polish fixes
+Last updated: July 2026 | Last session: Day screen immersive redesign + DM Sans font migration
 
 ---
 
@@ -48,10 +48,12 @@ feels confident enough to explore the field independently.
 - lib/supabase.ts — single Supabase client
 - Folder structure matches ARCHITECTURE.md exactly
 - All 18 placeholder screens created and navigable
-- Root layout (app/_layout.tsx) with Stack navigator + Hanken Grotesk font loading
+- Root layout (app/_layout.tsx) with Stack navigator + font loading
 - Tab layout (app/(tabs)/_layout.tsx) with 4 tabs
-- Hanken Grotesk loaded locally (5 weights: Regular/Medium/SemiBold/Bold/Black)
-  from assets/fonts/ via expo-font useFonts hook + SplashScreen.preventAutoHideAsync
+- Fonts loaded locally from assets/fonts/ via expo-font useFonts hook + SplashScreen.preventAutoHideAsync:
+  - Hanken Grotesk (5 weights: Regular/Medium/SemiBold/Bold/Black) — onboarding body text only
+  - Syne (Bold + ExtraBold) — onboarding headings + logo/wordmark only
+  - DM Sans (5 weights: Regular/Medium/SemiBold/Bold/Black) — all other screens
 - Level 1 primitives complete (components/core/):
   Text (10 variants) · Button (primary/secondary/completed) · Card (accent left/top, pressable)
   Input (focus glow, shake on error) · Badge (streak/phase/recommended/comingSoon/pro)
@@ -102,9 +104,10 @@ Day screen guided-session redesign + 6 polish fixes — COMPLETE (commit 06e2c7a
 ---
 
 ## DESIGN SYSTEM
-Display/Headings: Syne (ExtraBold for display, Bold for title/heading)
-Body: Hanken Grotesk (Regular/Medium/SemiBold/Bold/Black)
-Never swap fonts — Syne for display+heading variants only, Hanken for everything else.
+Display/Headings: Syne (ExtraBold for display, Bold for heading) — onboarding screens + logo/wordmark ONLY
+Body everywhere else: DM Sans (Regular/Medium/SemiBold/Bold/Black)
+Onboarding body text: HankenGrotesk-Regular (hardcoded in focus.tsx, match.tsx, q6.tsx)
+Font rule: fontFamilies.regular/medium/semibold/bold/black → DM Sans; fontFamilies.display/heading → Syne.
 
 Abyss:    #07090D  page background
 Fathom:   #0F141A  card background
@@ -260,7 +263,7 @@ Current work: Architecture Phase 1 verification, then Phase 2 onboarding polish.
 - Volt value changed: #DAFF00 → #62EE10 (brighter, more legible green)
 - Syne-Bold.ttf + Syne-ExtraBold.ttf added to assets/fonts/; loaded in _layout.tsx
 - fontFamilies.display = 'Syne-ExtraBold', fontFamilies.heading = 'Syne-Bold'
-- Text component: display/title/heading variants now use Syne; all others stay Hanken
+- Text component: display/title/heading variants use Syne; all others use DM Sans (was Hanken)
 - OptionCard rebuilt: two-layer (outer shadow, inner overflow:hidden), LinearGradient
   surface, iris glow + left bar + filled circle checkmark on selected state
 - OptionCard shadow on outer Animated.View (not inner) to avoid overflow:hidden clipping
@@ -279,7 +282,7 @@ Current work: Architecture Phase 1 verification, then Phase 2 onboarding polish.
 - Day screen rebuilt as a guided sequential session — no more free-toggle step list.
 - StepCard fully rewritten: one card active at a time, others at 40% opacity.
   Active card rises in via Reanimated spring (translateY 18→0 + opacity). Done button
-  is 60% width / 44px / 22px radius / Hanken medium — not full-width dominant CTA.
+  is 60% width / 44px / 22px radius / DM Sans medium — not full-width dominant CTA.
 - HoldButton: new `disabled` prop. When disabled (not all steps done): Fathom bg,
   textLow label, pointerEvents none. When active: solid phaseColor bg, arcLight text.
 - Done pills: tapping a completed pill re-expands that step card for re-reading.
@@ -287,16 +290,36 @@ Current work: Architecture Phase 1 verification, then Phase 2 onboarding polish.
   is open. Pill shows isExpanded highlight (phaseColor border + 15% tint).
 - CompletionMoment overlay: "DAY X COMPLETE" anchor (12px spaced caps, phaseColor)
   + 1px phase-color rule (40% width, 20% opacity) at top before the quote.
-- Quote: dynamic font size — 28px if ≤120 chars, 24px if longer. Syne-ExtraBold,
-  lineHeight ×1.3, centered Arc-Light. Attribution: 14px Hanken, arcLight+'80' (50% opacity).
+- Quote: dynamic font size — 24px if ≤80 chars, 20px if longer. DM Sans Bold,
+  lineHeight ×1.4, centered Arc-Light. Attribution: 12px DM Sans Regular, arcLight+'61'.
 - Feeling pills: FeelingPill sub-component with per-pill scale shared value.
-  Scale tap: withSequence(0.97 80ms, 1 150ms). Default border: 1.5px phaseColor+'99'.
-  Selected: 2px full phaseColor border, phaseColor+'26' bg, arcLight text.
-  600ms delay via setTimeout before onFeelingSelect fires (lets animation land).
-- Title font scaling: getTitleFontSize() — 40px <20 chars, 32px 20-35, 26px >35.
-  numberOfLines=3 hard cap. fontSize + lineHeight (×1.12) injected inline on Animated.Text.
+  Scale tap: withSequence(0.97 80ms, 1 150ms). Default border: 1.5px phaseColor+'66'.
+  Selected: 2px full phaseColor border, phaseColor+'29' bg, arcLight text.
+- Title font scaling: getSessionTitleFontSize() — 28px <20 chars, 23px 20-35, 19px >35.
+  lineHeight ×1.2 inline on Animated.Text. DM Sans Bold.
 - types/index.ts: optional `equipment?: string[]` added to CurriculumDay (no schema change).
 - PLACEHOLDER constant in day.tsx renders when no activeJourney — all sections visible in dev.
+
+## SESSION DECISIONS (Day screen immersive redesign + DM Sans migration)
+- Day screen fully rebuilt: StarfieldBackground (180 stars + 3 galaxy clusters + shooting streaks,
+  RAF-driven at 30fps) always behind all content. Uses colors.arcLight + colors.abyss tokens only.
+- Phase color: days 1–7 = Iris #8B5CF6, days 8–14 = Volt #62EE10, days 15–21 = Plasma #FF4FD8.
+- Session header: TODAY'S SESSION label + day title (DM Sans Bold, dynamic size) + focus·duration.
+- Progress bar: 2px, phase color, Reanimated 3 withTiming.
+- Step dots: 8px current (pulse), 6px done/remaining. Opacity: done=0.5, current=1.0, remaining=0.2.
+- Step card: BlurView (intensity 20, tint dark) glassmorphism card. backgroundColor: colors.fathom+'8C'.
+  borderColor: phaseColor+'26'. borderRadius 24, padding 24, marginHorizontal 20. Step label/title/
+  instruction/video link inside. Next arrow (circle button) absolute bottom-right outside BlurView.
+- Why section: collapsible border-top row (not left-bordered card). Chevron rotates 90° on expand.
+- HoldButton: always-visible dimmed placeholder during steps → active button slides up (translateY 60→0)
+  on final step completion. New props: buttonHeight, buttonRadius, labelFontFamily, labelFontSize.
+- Back nav: goToPrevStep when currentStep > 0 and !showHoldButton, else router.back().
+- Completion moment: full-screen overlay with StarfieldBackground (brighterStars=true). Quote in DM Sans
+  Bold, feeling pills, Continue button slides up after selection → completeDay() → hydrate() → navigate.
+- DM Sans migration: fontFamilies.regular/medium/semibold/bold/black updated to DM Sans in theme/index.ts.
+  DM Sans loaded as local TTFs (5 weights) from assets/fonts/. Onboarding body text pinned to literal
+  'HankenGrotesk-Regular' in focus.tsx, match.tsx, q6.tsx to preserve onboarding look.
+- @expo-google-fonts/dm-sans package installed (for future reference) but fonts loaded via local TTFs.
 
 ## SESSION DECISIONS (Level 2)
 - future-dot color: used colors.textFaint (0.18) — spec says 15% but no theme token
@@ -319,7 +342,7 @@ Current work: Architecture Phase 1 verification, then Phase 2 onboarding polish.
 - Show BottomNav on Day screen or Graduation screen
 - Create a second Supabase client
 - Add new colors to the palette
-- Use glassmorphism on cards
+- Use glassmorphism on cards (exception: Day screen step card uses BlurView — intentional, one instance only)
 - Build a screen not in docs/ARCHITECTURE.md
 - Edit inat-engine.ts to change scoring behavior — only inat-brain.ts vectors and weights are tunable
 - Add scoring logic to inat-engine.ts — all intelligence lives in inat-brain.ts

@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
     lineHeight: typography.size.quote * 1.3,
   },
   soonText: {
-    fontFamily: fontFamilies.regular,
+    fontFamily: 'HankenGrotesk-Regular',
     fontSize:   typography.size.caption,
     color:      colors.iris,
     lineHeight: typography.size.caption * 1.4,

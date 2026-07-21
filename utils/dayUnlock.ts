@@ -12,7 +12,12 @@ export async function getReentryState(
   const today = new Date().toISOString().split('T')[0]
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
 
-  if (lastDate === today) return 'B'
-  if (lastDate === yesterday) return 'A'
+  // LAUNCH FEATURE — RE-ENABLE BEFORE RELEASE
+  // After a day is marked complete, immediately unlock the next day.
+  // Removing the 24-hour gate so current_day (already incremented) is
+  // available on the Home screen straight away.
+  // if (lastDate === today) return 'B'
+  if (lastDate === today || lastDate === yesterday) return 'A'
+  // Original: if (lastDate === yesterday) return 'A'
   return 'C'
 }

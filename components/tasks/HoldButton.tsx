@@ -25,6 +25,10 @@ type Props = {
   label?: string
   holdingLabel?: string
   holdMs?: number
+  buttonHeight?: number
+  buttonRadius?: number
+  labelFontFamily?: string
+  labelFontSize?: number
 }
 
 export function HoldButton({
@@ -34,6 +38,10 @@ export function HoldButton({
   label = 'Hold to Complete',
   holdingLabel = 'Completing...',
   holdMs = 1000,
+  buttonHeight = 64,
+  buttonRadius = radius.pill,
+  labelFontFamily = fontFamilies.bold,
+  labelFontSize = typography.size.base,
 }: Props) {
   const isReducedMotion = useReducedMotion()
   const [isHolding, setIsHolding] = useState(false)
@@ -172,6 +180,7 @@ export function HoldButton({
         <Animated.View
           style={[
             styles.button,
+            { height: buttonHeight, borderRadius: buttonRadius },
             buttonAnimStyle,
             disabled
               ? styles.buttonDisabled
@@ -181,7 +190,7 @@ export function HoldButton({
           <Animated.Text
             style={[
               styles.label,
-              { color: disabled ? colors.textLow : activeTextColor },
+              { fontFamily: labelFontFamily, fontSize: labelFontSize, color: disabled ? colors.textLow : activeTextColor },
             ]}
           >
             {isHolding ? holdingLabel : label}
