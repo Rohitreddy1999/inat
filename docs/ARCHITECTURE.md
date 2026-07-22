@@ -339,26 +339,29 @@ BottomNav fixed.
 
 ### Special screens (pushed)
 
-**Graduation** (full screen, no nav, 3 beats)
+**Graduation** (full screen, no BottomNav, continuous two-act experience)
 
-Beat 1 — The Close (3-4 seconds, no text):
-  Silhouette fully lit.
-  Single surge — all phase colors radiate outward.
-  Super saint aura effect.
-  Settles into steady glow.
-  Tap anywhere to advance.
+Act 1 — Transcendence:
+  Reuses the Home Three.js meditation scene in Graduation mode.
+  The completed figure emerges in continuous Abyss space while energy releases
+  from the figure and cycles Iris → Volt → Plasma with shader-level blending.
+  No text interrupts the opening transformation. Once it settles, reveal:
+  “You stopped waiting for the right time. You made it.”
+  Primary action: “What’s next →”.
 
-Beat 2 — The Mirror:
-  "21 days ago you wrote:"
-  [user's Q6 open_answer from profiles]
-  "You showed up anyway."
-  Tap to advance.
+Act 2 — The handoff:
+  The same scene pulls back and becomes a quiet witness while decision content
+  rises into view. Heading: “The next move is yours.”
+  Primary action: “Begin another circuit” → Arc then Focus selection, without
+  returning through Life Stage or discovery onboarding.
+  Secondary action: “See my journey” → completed Ascent record.
+  “Go deeper” is an honest non-interactive Coming Soon row until a real deeper
+  experience exists. “Share the proof” opens the native share sheet with only
+  the completed Focus name. “Return home” is the quiet explicit exit.
 
-Beat 3 — The Choice:
-  "Start a new circuit" → Focus screen (new journey)
-  "Go deeper" → Coming soon / subscription paywall
-  "I'm good for now" → Home
-  Back navigation disabled on this screen.
+Back navigation and gestures are disabled on Graduation. Reduced-motion and
+screen-reader users receive the completed figure and controls immediately.
+WebGL loading or failure never blocks the copy or actions.
 
 ---
 
@@ -381,7 +384,10 @@ Beat 3 — The Choice:
    Deep links route to Home, not Day.
 
 6. Graduation is pushed after hold-complete fires on Day 21.
-   After Beat 3 choice, user lands on Home or Focus.
+   Day 21 completion sets `current_day` to 22 and records `completed_at` while
+   retaining the completed journey as the current record until another circuit
+   is created. Graduation does not repeat that mutation when it remounts.
+   The handoff routes to Arc/Focus selection, Ascent, or Home.
    Back navigation is disabled on Graduation.
 
 7. BottomNav is NEVER shown on Day screen or Graduation screen.
@@ -433,8 +439,8 @@ if last_completion_date === yesterday:
 if last_completion_date < yesterday:
   → State C (gap return, calculate daysSince)
 
-if current_day > 21 AND is_completed = true:
-  → graduation_seen ? Home special state : Graduation screen
+if current_day > 21 AND completed_at is set:
+  → Home completed state, with an explicit route back to Graduation
 ```
 
 Phase-based messages for State A:
@@ -518,9 +524,10 @@ Phase-based messages for State A:
 - [ ] Float animation runs smoothly
 - [ ] Day grid shows correct completion states
 - [ ] Three truths populated from real data
-- [ ] Beat 1 graduation animation runs completely
-- [ ] Beat 2 shows real open_answer from profiles
-- [ ] Beat 3 choices route to correct screens
+- [ ] Transcendence opening runs completely and settles into its energy loop
+- [ ] Handoff keeps the figure present and exposes the ordered action hierarchy
+- [ ] New circuit, Ascent, native sharing, and Home actions route correctly
+- [ ] Reduced motion, screen reader, and WebGL failure paths remain usable
 - [ ] Back navigation disabled on graduation
 
 ### Phase 6 — Profile and settings

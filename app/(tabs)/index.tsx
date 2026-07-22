@@ -102,7 +102,7 @@ export default function Home() {
     displayDay <= 14 ? 0.60 : 0.85
 
   const webViewHtml = useMemo(
-    () => getMeditationFigureHtml(phaseColor),
+    () => getMeditationFigureHtml({ mode: 'home', glowColor: phaseColor }),
     [phaseColor],
   )
 

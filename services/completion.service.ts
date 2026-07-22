@@ -25,9 +25,16 @@ export async function completeDay(
 
   if (insertError) return { error: insertError }
 
+  const journeyUpdate = dayNumber >= 21
+    ? {
+        current_day: 22,
+        completed_at: new Date().toISOString(),
+      }
+    : { current_day: dayNumber + 1 }
+
   const { error: updateError } = await supabase
     .from('user_journeys')
-    .update({ current_day: dayNumber + 1 })
+    .update(journeyUpdate)
     .eq('id', journeyId)
 
   return { error: updateError }

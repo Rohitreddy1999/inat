@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { View, Pressable, StyleSheet, Alert, Text as RNText, Platform } from 'react-native'
-import { router } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -21,6 +21,7 @@ import { useJourneyStore } from '@/stores/journey.store'
 import { getSession } from '@/services/auth.service'
 import { saveOnboardingAnswers } from '@/services/profile.service'
 import { createJourney } from '@/services/journey.service'
+import { getFocusesByArc } from '@/services/curriculum.service'
 import type { TrackName } from '@/utils/inat-brain'
 
 // ─── Arc identifier icons ──────────────────────────────────────────────────────
@@ -178,8 +179,10 @@ function FocusCard({ item, isSelected, onPress }: FocusCardProps) {
 // ─── Screen ────────────────────────────────────────────────────────────────────
 
 export default function Focus() {
+  const { mode } = useLocalSearchParams<{ mode?: string }>()
+  const isNewCircuit = mode === 'new-circuit'
   const [isLoading, setIsLoading] = useState(false)
-  const [isActiveSelected, setIsActiveSelected] = useState(false)
+  const [selectedFocus, setSelectedFocus] = useState<string | null>(null)
 
   const {
     selectedTrack,
@@ -191,18 +194,32 @@ export default function Focus() {
   } = useOnboardingStore()
 
   const hydrate = useJourneyStore((s) => s.hydrate)
+  const arc = selectedTrack ?? 'Move'
+  const [focusItems, setFocusItems] = useState<FocusItem[]>(FOCUS_DATA[arc])
 
-  function handleSelectFocus() {
-    setIsActiveSelected(true)
+  useEffect(() => {
+    let mounted = true
+    setSelectedFocus(null)
+    void getFocusesByArc(arc).then(({ focuses }) => {
+      if (!mounted || focuses.length === 0) return
+      setFocusItems(focuses.map((focus) => ({
+        name: focus.name,
+        icon: FOCUS_DATA[arc].find((item) => item.name === focus.name)?.icon ?? 'compass-outline',
+        status: focus.is_active ? 'active' : 'soon',
+      })))
+    })
+    return () => { mounted = false }
+  }, [arc])
+
+  function handleSelectFocus(name: string) {
+    setSelectedFocus(name)
   }
 
   async function handleBegin() {
-    if (!isActiveSelected) return
+    if (!selectedFocus) return
     setIsLoading(true)
 
-    const arc = selectedTrack ?? 'Move'
-    const activeFocus = FOCUS_DATA[arc].find(f => f.status === 'active')
-    const focusName = activeFocus?.name ?? ''
+    const focusName = selectedFocus
 
     const { session } = await getSession()
     if (!session?.user) {
@@ -213,29 +230,31 @@ export default function Focus() {
 
     const userId = session.user.id
 
-    const fullMatchResult = matchResult.primary
-      ? {
-          primary:    matchResult.primary,
-          secondary:  matchResult.secondary!,
-          confidence: matchResult.confidence!,
-          scores:     matchResult.scores!,
-          reasons:    matchResult.reasons,
-          healthMode: matchResult.healthMode,
-        }
-      : null
+    if (!isNewCircuit) {
+      const fullMatchResult = matchResult.primary
+        ? {
+            primary:    matchResult.primary,
+            secondary:  matchResult.secondary!,
+            confidence: matchResult.confidence!,
+            scores:     matchResult.scores!,
+            reasons:    matchResult.reasons,
+            healthMode: matchResult.healthMode,
+          }
+        : null
 
-    const { error: profileError } = await saveOnboardingAnswers(
-      userId,
-      lifeStage ?? '',
-      answers,
-      openAnswer,
-      fullMatchResult,
-    )
+      const { error: profileError } = await saveOnboardingAnswers(
+        userId,
+        lifeStage ?? '',
+        answers,
+        openAnswer,
+        fullMatchResult,
+      )
 
-    if (profileError) {
-      setIsLoading(false)
-      Alert.alert('Error', 'Could not save your answers. Please try again.')
-      return
+      if (profileError) {
+        setIsLoading(false)
+        Alert.alert('Error', 'Could not save your answers. Please try again.')
+        return
+      }
     }
 
     const { error: journeyError } = await createJourney(userId, arc, focusName)
@@ -252,9 +271,7 @@ export default function Focus() {
     router.replace('/(tabs)/')
   }
 
-  const arc = selectedTrack ?? 'Move'
   const arcIcon = ARC_ICONS[arc]
-  const focusItems = FOCUS_DATA[arc]
 
   return (
     <ScreenWrapper padded scrollable>
@@ -288,8 +305,8 @@ export default function Focus() {
           <FocusCard
             key={item.name}
             item={item}
-            isSelected={isActiveSelected && item.status === 'active'}
-            onPress={item.status === 'active' ? handleSelectFocus : undefined}
+            isSelected={selectedFocus === item.name}
+            onPress={item.status === 'active' ? () => handleSelectFocus(item.name) : undefined}
           />
         ))}
       </View>
@@ -299,10 +316,10 @@ export default function Focus() {
         <Button
           variant="primary"
           onPress={handleBegin}
-          disabled={!isActiveSelected}
+          disabled={!selectedFocus}
           loading={isLoading}
         >
-          Begin my 21 days →
+          {isNewCircuit ? 'Begin this circuit →' : 'Begin my 21 days →'}
         </Button>
       </View>
     </ScreenWrapper>

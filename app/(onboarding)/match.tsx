@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { View, Pressable, StyleSheet, Text as RNText } from 'react-native'
-import { router } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -119,8 +119,12 @@ function ArcCard({ arc, isSelected, isRecommended, onPress }: ArcCardProps) {
 // ─── Screen ────────────────────────────────────────────────────────────────────
 
 export default function Match() {
+  const { mode } = useLocalSearchParams<{ mode?: string }>()
   const { setSelectedTrack, matchResult } = useOnboardingStore()
-  const entryMode: 'algorithm' | 'self-select' = matchResult.primary ? 'algorithm' : 'self-select'
+  const isNewCircuit = mode === 'new-circuit'
+  const entryMode: 'algorithm' | 'self-select' = !isNewCircuit && matchResult.primary
+    ? 'algorithm'
+    : 'self-select'
 
   // Starts null — no card pre-highlighted, user must choose
   const [selected, setSelected] = useState<TrackName | null>(null)
@@ -183,7 +187,10 @@ export default function Match() {
       <View style={styles.cta}>
         <Button
           variant="primary"
-          onPress={() => router.push('/(onboarding)/focus')}
+          onPress={() => router.push({
+            pathname: '/(onboarding)/focus',
+            params: isNewCircuit ? { mode: 'new-circuit' } : undefined,
+          })}
           disabled={!selected}
         >
           Start this Arc

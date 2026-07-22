@@ -173,6 +173,21 @@ export const effects = {
   },
 } as const
 
+export const graduation = {
+  openingQuoteDelay: 3600,
+  openingActionDelay: 4000,
+  openingFadeDuration: 480,
+  handoffDuration: 560,
+  sceneReadyTimeout: 8000,
+  maxContentWidth: 620,
+  handoffContentTopRatio: 0.38,
+  handoffContentTopMin: 260,
+  actionRowMinHeight: 68,
+  fallbackFigureWidth: 156,
+  fallbackFigureHeight: 248,
+  fallbackJointSize: 10,
+} as const
+
 export function getPhaseColor(day: number): string {
   if (day <= 7)  return colors.phase.foundation
   if (day <= 14) return colors.phase.build

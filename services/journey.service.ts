@@ -43,14 +43,6 @@ export async function setJourneyDay(journeyId: string, day: number): Promise<Pos
   return error
 }
 
-export async function markJourneyComplete(journeyId: string): Promise<PostgrestError | null> {
-  const { error } = await supabase
-    .from('user_journeys')
-    .update({ is_active: false, completed_at: new Date().toISOString() })
-    .eq('id', journeyId)
-  return error
-}
-
 export async function getActiveJourney(
   userId: string,
 ): Promise<{ journey: UserJourney | null; error: PostgrestError | null }> {

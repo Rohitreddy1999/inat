@@ -2,51 +2,30 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Transcend — Wireframe Meditation</title>
 <script type="importmap">
-{
-  "imports": {
-    "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
-    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js"
-  },
-  "integrity": {
-    "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
-    "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
-    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9"
-  }
-}
+{"imports":{"three":"https://unpkg.com/three@0.184.0/build/three.module.js","three/addons/controls/OrbitControls.js":"https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js"}}
 </script>
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<style>
-  html,body{margin:0;height:100%;background:transparent;overflow:hidden}
-  #c{position:fixed;inset:0;width:100%;height:100%;display:block}
-  a{color:#82D4FF}a:hover{color:#3DF5A6}
-</style>
+<style>html,body{margin:0;padding:0;width:100%;height:100%;background:#07090D!important;overflow:hidden}canvas{width:100%!important;height:100%!important;background:transparent!important}#c{position:fixed;inset:0;width:100%;height:100%;display:block}</style>
 </head>
-<body data-screen-label="Wireframe Meditation">
+<body>
 <canvas id="c"></canvas>
-<div id="ui"></div>
-
-<script>
-window.TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
-  "energy": 100,
-  "transcend": true,
-  "rotation": true
-}/*EDITMODE-END*/;
-window.__pendingTweaks = Object.assign({}, window.TWEAK_DEFAULTS);
-window.__applyTweak = function(k, v){ window.__pendingTweaks[k] = v; };
-</script>
-
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+const MODE = 'graduation';
+const IS_GRADUATION = MODE === 'graduation';
+const REDUCED_MOTION = false;
 let glowColor = '#8B5CF6';
 // Iris purple has lower inherent luminosity — boost glow 25% to match Volt and Plasma
-const irisBoost = (glowColor === '#8B5CF6' || glowColor === '#8b5cf6') ? 1.35 : 1.0;
+const irisBoost = !IS_GRADUATION && (glowColor === '#8B5CF6' || glowColor === '#8b5cf6') ? 1.35 : 1.0;
 const SURGE = new THREE.Color(glowColor);
 const GLACIAL = new THREE.Color(glowColor).offsetHSL(0, 0, 0.18);
+const IRIS = new THREE.Color('#8B5CF6');
+const VOLT = new THREE.Color('#62EE10');
+const PLASMA = new THREE.Color('#FF4FD8');
+const ARC_LIGHT = new THREE.Color('#EAFFF5');
+const cycleColor = new THREE.Color();
 
 const canvas = document.getElementById('c');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
@@ -54,14 +33,14 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 const scene = new THREE.Scene();
 scene.background = null;
 const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
-camera.position.set(0, 1.2, 3.7);
+camera.position.set(0, IS_GRADUATION ? 1.22 : 1.2, IS_GRADUATION ? 3.25 : 3.7);
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, 1.05, 0);
 controls.enableDamping = true;
+controls.enabled = false;
 controls.minDistance = 1.6; controls.maxDistance = 12;
 controls.maxPolarAngle = Math.PI * 0.55;
 
-// ---------- figure skeleton (lotus pose, meters, y-up, floating above water y=0) ----------
 const J = {
   hips:[0,.78,0], spine1:[0,.96,.02], spine2:[0,1.12,.03], chest:[0,1.26,.02],
   neck:[0,1.36,.01], head:[0,1.52,0],
@@ -95,7 +74,6 @@ for (const [a,b,r,n] of BONES){
     pts.push(p);
   }
 }
-// head as sphere shell
 {
   const H = v3(J.head);
   for(let i=0;i<40;i++){
@@ -108,7 +86,6 @@ const jKeys = Object.keys(J);
 const anchorPts = jKeys.map(k=>v3(J[k]));
 const sampleSourcePts = pts.concat(anchorPts);
 
-// ---------- shared shader chunks ----------
 const uniformsBase = () => ({
   uTime:{value:0}, uEnergy:{value:.7}, uBright:{value:1}, uPulse:{value:1},
   uReflect:{value:0}, uPrimary:{value:0}, uSurge:{value:SURGE}, uGlacial:{value:GLACIAL}
@@ -134,7 +111,6 @@ const VERT_COMMON = `
   }
 `;
 
-// ---------- lines ----------
 function makeLineMat(reflect, primary){
   return new THREE.ShaderMaterial({
     uniforms: Object.assign(uniformsBase(), {uReflect:{value:reflect?1:0}, uPrimary:{value:primary?1:0}}),
@@ -151,7 +127,6 @@ function makeLineMat(reflect, primary){
   });
 }
 
-// ---------- organic filament bundles: soft curved threads guided by the skeleton, never straight lines ----------
 function jitterVec(r){ return new THREE.Vector3((rng()-0.5)*2*r,(rng()-0.5)*2*r,(rng()-0.5)*2*r); }
 function bonePerp(A,B){
   const axis = B.clone().sub(A).normalize();
@@ -160,7 +135,6 @@ function bonePerp(A,B){
   const v = new THREE.Vector3().crossVectors(axis, u).normalize();
   return [u,v];
 }
-// tube strand: curved filament offset around the bone axis, tapering toward the joints — reads as a bundle of light, not a contour
 function tubeStrand(A,B,radius,angle,segs){
   const [u,v] = bonePerp(A,B);
   const off = u.clone().multiplyScalar(Math.cos(angle)).addScaledVector(v, Math.sin(angle)).multiplyScalar(radius);
@@ -208,7 +182,6 @@ for(const [a,b] of PRIMARY){
     pushPoly(poly, s<baseN ? basePos : secPos, s<baseN ? null : secRank);
   }
 }
-// anchor tufts: short organic strands radiating outward from every joint, so each anchor reads as a soft cluster
 const BASE_TUFTS=4, EXTRA_TUFTS=6, TUFT_LEN=0.075;
 for(const p of anchorPts){
   for(let s=0;s<BASE_TUFTS;s++){
@@ -227,7 +200,6 @@ const filamentSecGeo = new THREE.BufferGeometry();
 filamentSecGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(secPos),3));
 filamentSecGeo.setAttribute('aRank', new THREE.BufferAttribute(new Float32Array(secRank),1));
 
-// ---------- points ----------
 function makePointMat(reflect, primary){
   return new THREE.ShaderMaterial({
     uniforms: Object.assign(uniformsBase(), {uReflect:{value:reflect?1:0}, uPrimary:{value:primary?1:0}}),
@@ -262,7 +234,6 @@ pGeo.setAttribute('position', new THREE.BufferAttribute(pPos,3));
 pGeo.setAttribute('aRank', new THREE.BufferAttribute(pRank,1));
 pGeo.setAttribute('aSize', new THREE.BufferAttribute(pSize,1));
 
-// anchor nodes: fixed joints, always visible, brighter/bigger
 const aPos = new Float32Array(anchorPts.length*3), aRank = new Float32Array(anchorPts.length), aSize = new Float32Array(anchorPts.length);
 anchorPts.forEach((p,i)=>{ aPos.set([p.x,p.y,p.z], i*3); aRank[i]=rng(); aSize[i]=8.5+rng()*2.0; });
 const anchorGeo = new THREE.BufferGeometry();
@@ -286,9 +257,8 @@ const refFilBase = new THREE.LineSegments(primaryLineGeo, makeLineMat(true,true)
 const refAnchors = new THREE.Points(anchorGeo, makePointMat(true,true));
 reflection.add(refPts, refFilSec, refFilBase, refAnchors);
 reflection.scale.y = -1;
-// scene.add(reflection);
+// scene.add(reflection); // disabled: no water surface on Home screen
 
-// ---------- aura glow sprite (fake bloom core) ----------
 function radialTexture(stops, size=256){
   const cv = document.createElement('canvas'); cv.width=cv.height=size;
   const ctx = cv.getContext('2d');
@@ -298,14 +268,15 @@ function radialTexture(stops, size=256){
   return new THREE.CanvasTexture(cv);
 }
 const auraMat = new THREE.SpriteMaterial({
-  map: radialTexture([[0,'rgba(120,215,255,0.32)'],[0.35,'rgba(80,200,220,0.10)'],[1,'rgba(0,0,0,0)']]),
+  map: radialTexture(IS_GRADUATION
+    ? [[0,'rgba(255,255,255,0.30)'],[0.35,'rgba(255,255,255,0.09)'],[1,'rgba(0,0,0,0)']]
+    : [[0,'rgba(120,215,255,0.32)'],[0.35,'rgba(80,200,220,0.10)'],[1,'rgba(0,0,0,0)']]),
   blending:THREE.AdditiveBlending, depthWrite:false, transparent:true, opacity:0.35
 });
 const aura = new THREE.Sprite(auraMat);
 aura.position.set(0,1.05,0); aura.scale.set(2.4,2.4,1);
 scene.add(aura);
 
-// ---------- stars ----------
 {
   const NS=1600, sp=new Float32Array(NS*3), ss=new Float32Array(NS), sr=new Float32Array(NS);
   for(let i=0;i<NS;i++){
@@ -318,7 +289,7 @@ scene.add(aura);
   g.setAttribute('aSize',new THREE.BufferAttribute(ss,1));
   g.setAttribute('aRank',new THREE.BufferAttribute(sr,1));
   const m=new THREE.ShaderMaterial({
-    uniforms:{uTime:{value:0}},
+    uniforms:{uTime:{value:0},uColor:{value:IS_GRADUATION?ARC_LIGHT:new THREE.Color(0.75,0.85,1.0)}},
     vertexShader:`attribute float aSize; attribute float aRank; uniform float uTime;
       varying float vA;
       void main(){
@@ -327,11 +298,11 @@ scene.add(aura);
         gl_PointSize = aSize * (260.0 / -mv.z);
         gl_Position = projectionMatrix * mv;
       }`,
-    fragmentShader:`varying float vA;
+    fragmentShader:`varying float vA; uniform vec3 uColor;
       void main(){
         float d=length(gl_PointCoord-0.5);
         float a=pow(max(0.0,1.0-d*2.0),3.0)*vA;
-        gl_FragColor=vec4(vec3(0.75,0.85,1.0)*a, a);
+        gl_FragColor=vec4(uColor*a, a);
       }`,
     transparent:true, blending:THREE.AdditiveBlending, depthWrite:false
   });
@@ -339,7 +310,6 @@ scene.add(aura);
   window.__starsMat = m;
 }
 
-// ---------- nebula ----------
 function nebula(color1,color2,x,y,z,s,op){
   const mat = new THREE.SpriteMaterial({
     map: radialTexture([[0,color1],[0.5,color2],[1,'rgba(0,0,0,0)']], 512),
@@ -349,11 +319,12 @@ function nebula(color1,color2,x,y,z,s,op){
   sp.position.set(x,y,z); sp.scale.set(s,s*0.65,1);
   scene.add(sp);
 }
-nebula('rgba(70,140,220,0.30)','rgba(40,80,160,0.10)', -18, 16, -55, 70, 0.5);
-nebula('rgba(61,245,166,0.16)','rgba(30,120,110,0.06)', 22, 22, -60, 55, 0.4);
-nebula('rgba(130,212,255,0.20)','rgba(60,90,180,0.07)', 4, 30, -70, 90, 0.35);
+if(!IS_GRADUATION){
+  nebula('rgba(70,140,220,0.30)','rgba(40,80,160,0.10)', -18, 16, -55, 70, 0.5);
+  nebula('rgba(61,245,166,0.16)','rgba(30,120,110,0.06)', 22, 22, -60, 55, 0.4);
+  nebula('rgba(130,212,255,0.20)','rgba(60,90,180,0.07)', 4, 30, -70, 90, 0.35);
+}
 
-// ---------- water ----------
 const waterMat = new THREE.ShaderMaterial({
   uniforms:{ uTime:{value:0}, uGlacial:{value:GLACIAL}, uPulse:{value:1}, uEnergy:{value:.7}, uMix:{value:0} },
   vertexShader:`varying vec2 vUv; varying vec3 vWp;
@@ -362,8 +333,6 @@ const waterMat = new THREE.ShaderMaterial({
   fragmentShader:`
     uniform float uTime, uPulse, uEnergy, uMix; uniform vec3 uGlacial;
     varying vec2 vUv; varying vec3 vWp;
-    // one expanding concentric ripple: fast tight ring near impact, widening/flattening as it spreads,
-    // with a trailing surface-tension ripple riding just behind the wavefront
     float ripple(vec2 p, vec2 origin, float period, float phase, float speed, float amp){
       float age = mod(uTime + phase, period);
       float r = length(p - origin);
@@ -387,23 +356,15 @@ const waterMat = new THREE.ShaderMaterial({
       float r = length(p);
       float fade = smoothstep(14.0, 4.0, r);
       float glint = pow(max(0.0, w*0.42+0.5), 9.0)*0.035*fade*fade;
-
-      // concentric ripples pulsing from beneath the figure, in sync with the breathing pulse; energy/transcend add layered emitters
       float amp = (0.16 + 0.22*uEnergy) * (0.5 + 0.5*uMix);
       float rings = ripple(p, vec2(0.0,0.0), 6.98, 0.0, 1.9, amp);
       rings += ripple(p, vec2(0.12,-0.06), 6.98, 2.3, 1.6, amp*0.6) * step(0.15, uEnergy);
       rings += ripple(p, vec2(-0.09,0.08), 6.98, 4.6, 2.2, amp*0.45) * step(0.4, uEnergy);
-
       float rip = sin(r*10.0 - uTime*1.8)*exp(-r*1.3);
       float halo = exp(-r*1.9)*(0.10+0.06*rip)*uPulse*(0.3+uEnergy);
-
-      // caustic shimmer: extra glint riding the ripple crests
       float caustic = pow(clamp(rings,0.0,1.0), 1.6) * 0.9;
-
-      // soft diffused shadow beneath the figure, offset to suggest depth/light direction
       vec2 shadowP = p - vec2(0.08, 0.14);
       float shadow = exp(-dot(shadowP,shadowP)*1.1) * 0.4;
-
       vec3 col = base * (1.0 - shadow);
       col += uGlacial*(glint + halo + rings*0.5 + caustic);
       col = mix(vec3(0.004,0.012,0.039)*(1.0-shadow*0.6), col, fade);
@@ -412,10 +373,9 @@ const waterMat = new THREE.ShaderMaterial({
 });
 const water = new THREE.Mesh(new THREE.PlaneGeometry(40,40,1,1), waterMat);
 water.rotation.x = -Math.PI/2;
-// scene.add(water);
+// scene.add(water); // ripple disabled for Home screen — keep for Graduation
 
-// ---------- transcend particles ----------
-const NT = 1100;
+const NT = IS_GRADUATION ? 1020 : 1100;
 const tStart = new Float32Array(NT*3), tSeed = new Float32Array(NT);
 for(let i=0;i<NT;i++){
   const p = sampleSourcePts[Math.floor(rng()*sampleSourcePts.length)];
@@ -425,32 +385,47 @@ const tGeo = new THREE.BufferGeometry();
 tGeo.setAttribute('position', new THREE.BufferAttribute(tStart,3));
 tGeo.setAttribute('aSeed', new THREE.BufferAttribute(tSeed,1));
 const tMat = new THREE.ShaderMaterial({
-  uniforms:{ uTime:{value:0}, uMix:{value:0}, uSurge:{value:SURGE}, uGlacial:{value:GLACIAL} },
+  uniforms:{
+    uTime:{value:0}, uMix:{value:0}, uReduced:{value:REDUCED_MOTION?1:0},
+    uGraduation:{value:IS_GRADUATION?1:0}, uSurge:{value:SURGE}, uGlacial:{value:GLACIAL},
+    uIris:{value:IRIS}, uVolt:{value:VOLT}, uPlasma:{value:PLASMA}
+  },
   vertexShader:`
-    attribute float aSeed; uniform float uTime, uMix;
-    varying float vA; varying vec3 vColor; uniform vec3 uSurge, uGlacial;
+    attribute float aSeed; uniform float uTime, uMix, uReduced, uGraduation;
+    varying float vA; varying vec3 vColor;
+    uniform vec3 uSurge, uGlacial, uIris, uVolt, uPlasma;
     void main(){
       float life = 4.5;
-      float age = mod(uTime*(0.7+aSeed*0.5) + aSeed*life, life);
+      float loopAge = mod(uTime*(0.7+aSeed*0.5) + aSeed*life, life);
+      float openingAge = clamp((uTime-1.55-aSeed*0.9)*(0.72+aSeed*0.30), 0.0, life);
+      float openingToLoop = smoothstep(4.1,4.7,uTime);
+      float graduationAge = mix(openingAge, loopAge, openingToLoop);
+      float age = mix(loopAge, graduationAge, uGraduation);
       float rise = age*age*0.22 + age*0.25;
-      vec3 pos = position + vec3(
+      vec3 motion = vec3(
         sin(age*2.1 + aSeed*40.0)*0.12*age,
         rise,
         cos(age*1.7 + aSeed*31.0)*0.12*age);
+      vec3 pos = position + mix(motion, vec3((aSeed-0.5)*0.08, aSeed*0.12, 0.0), uReduced);
       vec4 wp = modelMatrix * vec4(pos,1.0);
       float g = clamp((wp.y-0.6)/2.2, 0.0, 1.0);
-      vColor = mix(uSurge, uGlacial, g);
-      vA = uMix * smoothstep(0.0,0.35,age) * (1.0-age/life);
+      vec3 phaseColor = mix(uSurge, uGlacial, g);
+      vec3 earnedColor = aSeed < 0.333 ? uIris : (aSeed < 0.666 ? uVolt : uPlasma);
+      vColor = mix(phaseColor, earnedColor, uGraduation);
+      float birth = mix(1.0, smoothstep(0.0,0.28,openingAge), uGraduation);
+      vA = uMix * birth * smoothstep(0.0,0.35,age) * (1.0-age/life);
       vec4 mv = viewMatrix * wp;
-      gl_PointSize = (1.2+aSeed*1.8) * (16.0 / -mv.z);
+      gl_PointSize = (2.1+aSeed*3.4) * (17.0 / -mv.z);
       gl_Position = projectionMatrix * mv;
     }`,
   fragmentShader:`
     varying float vA; varying vec3 vColor;
     void main(){
       float d=length(gl_PointCoord-0.5);
-      float a=pow(max(0.0,1.0-d*2.0),2.5)*vA;
-      gl_FragColor=vec4(vColor*a + vec3(1.0)*pow(max(0.0,1.0-d*5.0),2.0)*a*0.6, a);
+      float a=pow(max(0.0,1.0-d*2.0),2.15)*vA;
+      float visible=min(1.35,a*1.75);
+      float core=pow(max(0.0,1.0-d*5.0),2.0)*visible;
+      gl_FragColor=vec4(vColor*visible + vec3(1.0)*core*0.82, min(1.0,visible));
     }`,
   transparent:true, blending:THREE.AdditiveBlending, depthWrite:false
 });
@@ -458,17 +433,17 @@ const transcendPts = new THREE.Points(tGeo, tMat);
 transcendPts.frustumCulled = false;
 figure.add(transcendPts);
 
-// ---------- state & tweaks bridge ----------
-const state = { energy:.9, transcend:false, rotation:true, transcendMix:0 };
-function applyTweak(k,v){
-  if(k==='energy') state.energy = v/100;
-  else if(k==='transcend') state.transcend = !!v;
-  else if(k==='rotation') state.rotation = !!v;
-}
-for(const k in window.__pendingTweaks) applyTweak(k, window.__pendingTweaks[k]);
-window.__applyTweak = applyTweak;
+const state = {
+  energy: IS_GRADUATION ? 1 : .9,
+  transcend: IS_GRADUATION,
+  rotation: !REDUCED_MOTION,
+  transcendMix: REDUCED_MOTION && IS_GRADUATION ? .22 : 0,
+  handoff: false,
+  handoffMix: 0,
+  paused: false,
+  readySent: false
+};
 
-// ---------- loop ----------
 const clock = new THREE.Clock();
 const secondaryMats = [figPts.material, refPts.material, figFilSec.material, refFilSec.material];
 const primaryMats = [figFilBase.material, figAnchors.material, refFilBase.material, refAnchors.material];
@@ -479,84 +454,97 @@ function resize(){
   camera.aspect=w/h; camera.updateProjectionMatrix();
 }
 addEventListener('resize', resize); resize();
-new ResizeObserver(resize).observe(document.body);
+
+let rafId = 0;
+function smoothstep01(v){ v=Math.max(0,Math.min(1,v)); return v*v*(3-2*v); }
+function graduationColor(t){
+  if(t < 0.5) return cycleColor.copy(IRIS);
+  if(t < 1.85) return cycleColor.copy(IRIS).lerp(VOLT, smoothstep01((t-0.5)/1.35));
+  if(t < 3.2) return cycleColor.copy(VOLT).lerp(PLASMA, smoothstep01((t-1.85)/1.35));
+  const phase = ((t-3.2)/3.2)%3;
+  const segment = Math.floor(phase);
+  const mix = smoothstep01(phase-segment);
+  const palette = [PLASMA,IRIS,VOLT,PLASMA];
+  return cycleColor.copy(palette[segment]).lerp(palette[segment+1],mix);
+}
+function postNative(type){
+  if(window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify({type}));
+}
+function handleNativeMessage(event){
+  try{
+    const message = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+    if(message.type === 'pause'){ state.paused=true; cancelAnimationFrame(rafId); }
+    if(message.type === 'resume' && state.paused){ state.paused=false; tick(); }
+    if(message.type === 'handoff'){
+      state.handoff=true;
+      if(state.paused){ state.paused=false; tick(); }
+      else if(REDUCED_MOTION){ tick(); }
+    }
+  }catch(_error){}
+}
+window.addEventListener('message',handleNativeMessage);
+document.addEventListener('message',handleNativeMessage);
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){ state.paused=true; cancelAnimationFrame(rafId); }
+  else if(state.paused){ state.paused=false; tick(); }
+});
+window.addEventListener('error',()=>postNative('scene-error'));
 
 function tick(){
-  requestAnimationFrame(tick);
+  if(state.paused) return;
   const t = clock.getElapsedTime();
-  const breath = 1 + 0.014*Math.sin(t*0.9);
+  const motionTime = REDUCED_MOTION ? 0.7 : t;
+  const breath = REDUCED_MOTION ? 1 : 1 + 0.014*Math.sin(t*0.9);
   const pulse = 0.85 + 0.15*Math.sin(t*0.9);
-  const bright = (0.40 + state.energy*1.05 + state.transcendMix*0.35) * 1.5 * irisBoost;
-  const primBright = (0.63 + 0.5*state.energy + state.transcendMix*0.25) * 1.5 * irisBoost;
+  const entranceRaw = IS_GRADUATION && !REDUCED_MOTION ? Math.min(1,t/2.8) : 1;
+  const entrance = smoothstep01(entranceRaw);
+  const entranceScale = 0.015 + entrance*0.985;
+  const releasePulse = IS_GRADUATION && !REDUCED_MOTION
+    ? Math.exp(-Math.pow((t-3.0)/0.72,2))*0.72
+    : 0;
+  const bright = (0.40 + state.energy*1.05 + state.transcendMix*0.35) * 1.5 * irisBoost * entrance;
+  const primBright = (0.63 + 0.5*state.energy + state.transcendMix*0.25) * 1.5 * irisBoost * entrance;
   state.transcendMix += ((state.transcend?1:0) - state.transcendMix) * 0.04;
+  state.handoffMix += ((state.handoff?1:0) - state.handoffMix) * (REDUCED_MOTION?1:0.035);
 
-  figure.scale.setScalar(breath);
+  if(IS_GRADUATION){
+    const activeColor = graduationColor(motionTime);
+    const highColor = activeColor.clone().lerp(ARC_LIGHT,0.16);
+    for(const m of allFigureMats){ m.uniforms.uSurge.value.copy(activeColor); m.uniforms.uGlacial.value.copy(highColor); }
+    tMat.uniforms.uSurge.value.copy(activeColor); tMat.uniforms.uGlacial.value.copy(highColor);
+    auraMat.color.copy(activeColor);
+    camera.position.z = (7.1-entrance*3.85) + state.handoffMix*1.0;
+    controls.target.y = 1.05 + state.handoffMix*0.22;
+    figure.position.y = 0.25 + state.handoffMix*0.32;
+  }
+
+  figure.scale.setScalar(breath*entranceScale);
   // reflection.scale.set(breath,-breath,breath);
   if(state.rotation){
     const maxRotation = 0.31;
-    figure.rotation.y = Math.sin(t * 0.25) * maxRotation;
+    figure.rotation.y = Math.sin(t * (IS_GRADUATION?0.18:0.25)) * maxRotation;
     // reflection.rotation.y = figure.rotation.y;
   }
 
   for(const m of allFigureMats){ m.uniforms.uTime.value=t; m.uniforms.uEnergy.value=state.energy; m.uniforms.uPulse.value=pulse; }
   for(const m of secondaryMats) m.uniforms.uBright.value=bright;
   for(const m of primaryMats) m.uniforms.uBright.value=primBright;
-  auraMat.opacity = (0.10 + 0.26*state.energy) * pulse * 1.35 * irisBoost + state.transcendMix*0.13;
-  aura.scale.setScalar(2.4*breath + state.transcendMix*0.5);
+  auraMat.opacity = ((0.10 + 0.26*state.energy) * pulse * 1.35 * irisBoost + state.transcendMix*0.13 + releasePulse*0.22) * entrance;
+  aura.scale.setScalar((2.4*breath + state.transcendMix*0.5)*entranceScale + releasePulse);
   waterMat.uniforms.uTime.value=t; waterMat.uniforms.uPulse.value=pulse;
   waterMat.uniforms.uEnergy.value=state.energy; waterMat.uniforms.uMix.value=state.transcendMix;
-  window.__starsMat.uniforms.uTime.value=t;
-  tMat.uniforms.uTime.value=t; tMat.uniforms.uMix.value=state.transcendMix;
+  if(window.__starsMat) window.__starsMat.uniforms.uTime.value=t;
+  tMat.uniforms.uTime.value=motionTime;
+  tMat.uniforms.uMix.value=IS_GRADUATION
+    ? (REDUCED_MOTION ? 0.2 : state.transcendMix*1.35*(1-state.handoffMix*0.72))
+    : state.transcendMix;
 
   controls.update();
   renderer.render(scene, camera);
+  if(!state.readySent){ state.readySent=true; postNative('scene-ready'); }
+  if(!REDUCED_MOTION || (state.handoff && state.handoffMix < 0.99)) rafId=requestAnimationFrame(tick);
 }
 tick();
 </script>
-
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script>
-window.__tweaksPanelReady = (async () => {
-  const src = await (await fetch('tweaks-panel.jsx')).text();
-  const code = window.Babel.transform(src, { presets: [['react', { runtime: 'classic' }]] }).code;
-  (0, eval)(code);
-})();
-</script>
-<script type="text/plain" id="app-src">
-function App(){
-  const [t, setTweak] = window.useTweaks(window.TWEAK_DEFAULTS);
-  React.useEffect(()=>{ window.__applyTweak('energy', t.energy); }, [t.energy]);
-  React.useEffect(()=>{ window.__applyTweak('transcend', t.transcend); }, [t.transcend]);
-  React.useEffect(()=>{ window.__applyTweak('rotation', t.rotation); }, [t.rotation]);
-  return (
-    <window.TweaksPanel>
-      <window.TweakSection label="Energy state" />
-      <window.TweakSlider label="Energy" value={t.energy} min={0} max={100} step={1} unit="%"
-        onChange={(v)=>setTweak('energy', v)} />
-      <window.TweakToggle label="Transcend" value={t.transcend}
-        onChange={(v)=>setTweak('transcend', v)} />
-      <window.TweakSection label="Motion" />
-      <window.TweakToggle label="Ambient rotation" value={t.rotation}
-        onChange={(v)=>setTweak('rotation', v)} />
-    </window.TweaksPanel>
-  );
-}
-</script>
-<script>
-window.__tweaksPanelReady.then(() => {
-  const appSrc = document.getElementById('app-src').textContent;
-  const appCode = window.Babel.transform(appSrc, { presets: [['react', { runtime: 'classic' }]] }).code;
-  (0, eval)(appCode);
-  ReactDOM.createRoot(document.getElementById('ui')).render(React.createElement(App));
-});
-</script>
-
-<template id="__bundler_thumbnail">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" fill="#04102a"/>
-  <circle cx="50" cy="42" r="9" fill="none" stroke="#82D4FF" stroke-width="2"/>
-  <path d="M30 68 Q50 52 70 68" fill="none" stroke="#3DF5A6" stroke-width="2.5"/>
-</svg>
-</template>
 </body>
 </html>

@@ -1,456 +1,631 @@
-import { useEffect, useRef, useState } from 'react'
-import { Alert, TouchableOpacity, View } from 'react-native'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  AccessibilityInfo,
+  AppState,
+  BackHandler,
+  Pressable,
+  ScrollView,
+  Share,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from 'react-native'
 import { useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
+import { WebView, type WebViewMessageEvent } from 'react-native-webview'
 import Animated, {
   Easing,
-  runOnJS,
+  ReduceMotion,
   useAnimatedStyle,
   useSharedValue,
-  withDelay,
-  withSequence,
   withTiming,
 } from 'react-native-reanimated'
-import { ScreenWrapper } from '@/components/shared/ScreenWrapper'
-import { Silhouette } from '@/components/shared/Silhouette'
-import { Text } from '@/components/core/Text'
-import { Card } from '@/components/core/Card'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+
+import { getMeditationFigureHtml } from '@/assets/webview/meditationFigureHtml'
 import { Button } from '@/components/core/Button'
-import { Badge } from '@/components/core/Badge'
+import { Text } from '@/components/core/Text'
+import { useOnboardingStore } from '@/stores/onboarding.store'
 import { useJourneyStore } from '@/stores/journey.store'
-import { markJourneyComplete } from '@/services/journey.service'
-import { getProfile } from '@/services/profile.service'
-import { getSession } from '@/services/auth.service'
-import { colors, spacing } from '@/theme'
-import { Profile } from '@/types'
+import {
+  colors,
+  fontFamilies,
+  graduation,
+  radius,
+  spacing,
+  typography,
+} from '@/theme'
 
-// ─── Beat 1 ──────────────────────────────────────────────────────────────────
+type GraduationAct = 'transcendence' | 'handoff'
+type SceneMessage = { type: 'scene-ready' | 'scene-error' }
 
-interface AuraPulseProps {
-  color: string
-  delay: number
-}
-
-function AuraPulse({ color, delay }: AuraPulseProps) {
-  const scale = useSharedValue(0.8)
-  const opacity = useSharedValue(0.8)
-
-  useEffect(() => {
-    scale.value = withDelay(
-      delay,
-      withTiming(2.5, { duration: 1500, easing: Easing.out(Easing.cubic) }),
-    )
-    opacity.value = withDelay(
-      delay,
-      withTiming(0, { duration: 1500, easing: Easing.out(Easing.cubic) }),
-    )
-  }, [])
-
-  const style = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-    opacity: opacity.value,
-  }))
-
+function CompletedFigureFallback({ quiet = false }: { quiet?: boolean }) {
   return (
-    <Animated.View
+    <View
       pointerEvents="none"
-      style={[
-        style,
-        {
-          position: 'absolute',
-          width: 180,
-          height: 180,
-          borderRadius: 90,
-          borderWidth: 2,
-          borderColor: color,
-        },
-      ]}
-    />
-  )
-}
-
-interface AuraGlowProps {
-  color: string
-  top?: number
-  bottom?: number
-  left?: number
-  right?: number
-  startDelay: number
-}
-
-function AuraGlow({ color, top, bottom, left, right, startDelay }: AuraGlowProps) {
-  const opacity = useSharedValue(0)
-
-  useEffect(() => {
-    opacity.value = withDelay(startDelay, withTiming(0.15, { duration: 800 }))
-  }, [])
-
-  const style = useAnimatedStyle(() => ({ opacity: opacity.value }))
-
-  return (
-    <Animated.View
-      pointerEvents="none"
-      style={[
-        style,
-        {
-          position: 'absolute',
-          width: 300,
-          height: 300,
-          borderRadius: 150,
-          backgroundColor: color,
-          top,
-          bottom,
-          left,
-          right,
-        },
-      ]}
-    />
-  )
-}
-
-interface Beat1Props {
-  onAdvance: () => void
-}
-
-function Beat1({ onAdvance }: Beat1Props) {
-  const silhouetteOpacity = useSharedValue(0)
-  const tapHintOpacity = useSharedValue(0)
-  const canAdvance = useRef(false)
-
-  useEffect(() => {
-    // Phase 1: silhouette fades in over 800ms
-    silhouetteOpacity.value = withTiming(1, { duration: 800 })
-
-    // Phase 2 (1000ms): aura pulse — handled by AuraPulse components with their own delays
-
-    // Phase 3 (2500ms): aura glow — handled by AuraGlow components with startDelay
-
-    // After 3 seconds: show tap hint and allow advance
-    tapHintOpacity.value = withDelay(3000, withTiming(1, { duration: 400 }))
-
-    const timer = setTimeout(() => {
-      canAdvance.current = true
-    }, 3000)
-
-    return () => clearTimeout(timer)
-  }, [])
-
-  const silhouetteStyle = useAnimatedStyle(() => ({
-    opacity: silhouetteOpacity.value,
-  }))
-
-  function handleTap() {
-    if (!canAdvance.current) return
-    onAdvance()
-  }
-
-  return (
-    <TouchableOpacity
-      activeOpacity={1}
-      onPress={handleTap}
-      style={{ flex: 1 }}
-      accessibilityRole="button"
-      accessibilityLabel="Tap to continue"
+      accessible={false}
+      style={[styles.fallbackFigure, quiet && styles.fallbackFigureQuiet]}
     >
-      <View style={{ flex: 1, backgroundColor: colors.abyss, alignItems: 'center', justifyContent: 'center' }}>
-        {/* Super saint aura glow — behind silhouette */}
-        <AuraGlow color={colors.iris} top={-20} left={-20} startDelay={2500} />
-        <AuraGlow color={colors.volt}     top={0}   right={-20} startDelay={2600} />
-        <AuraGlow color={colors.plasma}  bottom={-20} left={0} startDelay={2700} />
-
-        {/* Aura pulse rings — centered on silhouette */}
-        <View style={{ position: 'absolute', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
-          <AuraPulse color={colors.iris} delay={1000} />
-          <AuraPulse color={colors.volt}    delay={1300} />
-          <AuraPulse color={colors.plasma}  delay={1600} />
-        </View>
-
-        {/* Silhouette */}
-        <Animated.View style={silhouetteStyle}>
-          <Silhouette
-            completedDays={21}
-            phaseColor={colors.volt}
-            animated
-            size="full"
-          />
-        </Animated.View>
-
-        {/* Tap hint */}
-        <Animated.View
-          pointerEvents="none"
+      <View style={[styles.fallbackAura, { borderColor: colors.borderIris }]} />
+      <View style={[styles.fallbackAuraInner, { borderColor: colors.borderPlasma }]} />
+      <View style={styles.fallbackSpine} />
+      {[colors.iris, colors.volt, colors.plasma, colors.arcLight].map((color, index) => (
+        <View
+          key={color}
           style={[
-            useAnimatedStyle(() => ({ opacity: tapHintOpacity.value })),
-            { position: 'absolute', bottom: spacing[10] },
+            styles.fallbackJoint,
+            { backgroundColor: color, top: spacing[8] + index * spacing[10] },
           ]}
+        />
+      ))}
+      <View style={[styles.fallbackLimb, styles.fallbackLimbLeft]} />
+      <View style={[styles.fallbackLimb, styles.fallbackLimbRight]} />
+    </View>
+  )
+}
+
+type ActionRowProps = {
+  title: string
+  description: string
+  icon: React.ComponentProps<typeof Ionicons>['name']
+  onPress?: () => void
+  disabled?: boolean
+  badge?: string
+}
+
+function ActionRow({
+  title,
+  description,
+  icon,
+  onPress,
+  disabled = false,
+  badge,
+}: ActionRowProps) {
+  const content = (
+    <>
+      <View style={styles.actionIcon}>
+        <Ionicons
+          name={icon}
+          size={spacing[5]}
+          color={disabled ? colors.textLow : colors.arcLight}
+          accessible={false}
+        />
+      </View>
+      <View style={styles.actionCopy}>
+        <Text
+          variant="base"
+          color={disabled ? colors.textMid : colors.textHi}
+          style={styles.actionTitle}
         >
-          <Text variant="caption" color={colors.textFaint}>
-            tap to continue
-          </Text>
-        </Animated.View>
+          {title}
+        </Text>
+        <Text variant="caption" color={colors.textMid} style={styles.actionDescription}>
+          {description}
+        </Text>
       </View>
-    </TouchableOpacity>
-  )
-}
-
-// ─── Beat 2 ──────────────────────────────────────────────────────────────────
-
-interface Beat2Props {
-  openAnswer: string | null
-  onAdvance: () => void
-}
-
-function Beat2({ openAnswer, onAdvance }: Beat2Props) {
-  const labelOp    = useSharedValue(0)
-  const labelTY    = useSharedValue(20)
-  const cardOp     = useSharedValue(0)
-  const cardTY     = useSharedValue(20)
-  const dividerOp  = useSharedValue(0)
-  const dividerTY  = useSharedValue(20)
-  const bodyOp     = useSharedValue(0)
-  const bodyTY     = useSharedValue(20)
-  const btnOp      = useSharedValue(0)
-  const btnTY      = useSharedValue(20)
-
-  const DUR = 500
-  const ease = Easing.out(Easing.cubic)
-
-  function animIn(op: typeof labelOp, ty: typeof labelTY, delay: number) {
-    op.value  = withDelay(delay, withTiming(1,  { duration: DUR, easing: ease }))
-    ty.value  = withDelay(delay, withTiming(0,  { duration: DUR, easing: ease }))
-  }
-
-  useEffect(() => {
-    animIn(labelOp,   labelTY,   0)
-    animIn(cardOp,    cardTY,    200)
-    animIn(dividerOp, dividerTY, 500)
-    animIn(bodyOp,    bodyTY,    700)
-    animIn(btnOp,     btnTY,     1000)
-  }, [])
-
-  const labelStyle   = useAnimatedStyle(() => ({ opacity: labelOp.value,   transform: [{ translateY: labelTY.value }] }))
-  const cardStyle    = useAnimatedStyle(() => ({ opacity: cardOp.value,    transform: [{ translateY: cardTY.value }] }))
-  const dividerStyle = useAnimatedStyle(() => ({ opacity: dividerOp.value, transform: [{ translateY: dividerTY.value }] }))
-  const bodyStyle    = useAnimatedStyle(() => ({ opacity: bodyOp.value,    transform: [{ translateY: bodyTY.value }] }))
-  const btnStyle     = useAnimatedStyle(() => ({ opacity: btnOp.value,     transform: [{ translateY: btnTY.value }] }))
-
-  return (
-    <ScreenWrapper padded>
-      <View style={{ flex: 1, justifyContent: 'center' }}>
-
-        <Animated.View style={labelStyle}>
-          <Text
-            variant="micro"
-            color={colors.textLow}
-            uppercase
-            style={{ textAlign: 'center', letterSpacing: 2 }}
-          >
-            21 DAYS AGO YOU WROTE
+      {badge ? (
+        <View style={styles.comingSoonBadge}>
+          <Text variant="label" color={colors.textMid} uppercase>
+            {badge}
           </Text>
-        </Animated.View>
-
-        <Animated.View style={[cardStyle, { marginTop: spacing[6] }]}>
-          <Card accent={colors.iris} strip="left">
-            <Text variant="quote" color={colors.textHi} style={{ fontStyle: 'italic' }}>
-              {openAnswer ?? 'Something worth starting.'}
-            </Text>
-          </Card>
-        </Animated.View>
-
-        <Animated.View style={[dividerStyle, { marginTop: spacing[8], marginBottom: spacing[8] }]}>
-          <View style={{ height: 1, backgroundColor: colors.borderSoft }} />
-          <Text variant="heading" color={colors.textHi} style={{ textAlign: 'center', marginTop: spacing[8] }}>
-            You showed up anyway.
-          </Text>
-        </Animated.View>
-
-        <Animated.View style={bodyStyle}>
-          <Text variant="body" color={colors.textMid} style={{ textAlign: 'center' }}>
-            That's not nothing. That's everything.
-          </Text>
-        </Animated.View>
-
-      </View>
-
-      <Animated.View style={[btnStyle, { paddingBottom: spacing[10] }]}>
-        <Button variant="primary" onPress={onAdvance}>
-          See what's next →
-        </Button>
-      </Animated.View>
-    </ScreenWrapper>
-  )
-}
-
-// ─── Beat 3 ──────────────────────────────────────────────────────────────────
-
-interface Beat3Props {
-  onNewCircuit: () => void
-  onGoDeeper: () => void
-  onDone: () => void
-}
-
-function Beat3({ onNewCircuit, onGoDeeper, onDone }: Beat3Props) {
-  const titleOp  = useSharedValue(0)
-  const titleTY  = useSharedValue(20)
-  const card1Op  = useSharedValue(0)
-  const card1TY  = useSharedValue(20)
-  const card2Op  = useSharedValue(0)
-  const card2TY  = useSharedValue(20)
-  const card3Op  = useSharedValue(0)
-  const card3TY  = useSharedValue(20)
-
-  const DUR = 400
-  const ease = Easing.out(Easing.cubic)
-
-  function animIn(op: typeof titleOp, ty: typeof titleTY, delay: number) {
-    op.value = withDelay(delay, withTiming(1, { duration: DUR, easing: ease }))
-    ty.value = withDelay(delay, withTiming(0, { duration: DUR, easing: ease }))
-  }
-
-  useEffect(() => {
-    animIn(titleOp, titleTY, 0)
-    animIn(card1Op, card1TY, 150)
-    animIn(card2Op, card2TY, 300)
-    animIn(card3Op, card3TY, 450)
-  }, [])
-
-  const titleStyle = useAnimatedStyle(() => ({ opacity: titleOp.value, transform: [{ translateY: titleTY.value }] }))
-  const card1Style = useAnimatedStyle(() => ({ opacity: card1Op.value, transform: [{ translateY: card1TY.value }] }))
-  const card2Style = useAnimatedStyle(() => ({ opacity: card2Op.value, transform: [{ translateY: card2TY.value }] }))
-  const card3Style = useAnimatedStyle(() => ({ opacity: card3Op.value, transform: [{ translateY: card3TY.value }] }))
-
-  return (
-    <ScreenWrapper padded>
-      <View style={{ flex: 1, justifyContent: 'center' }}>
-
-        <Animated.View style={titleStyle}>
-          <Text variant="title" color={colors.textHi} style={{ textAlign: 'center' }}>
-            {'What happens next\nis yours to decide.'}
-          </Text>
-        </Animated.View>
-
-        <View style={{ marginTop: spacing[10], gap: spacing[3] }}>
-
-          <Animated.View style={card1Style}>
-            <Card onPress={onNewCircuit} accent={colors.iris}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={{ flex: 1 }}>
-                  <Text variant="base" color={colors.textHi} style={{ fontWeight: '700' }}>
-                    Start a new circuit
-                  </Text>
-                  <Text variant="caption" color={colors.textMid} style={{ marginTop: spacing[1] }}>
-                    Pick a different Arc. Keep the momentum.
-                  </Text>
-                </View>
-                <Ionicons name="arrow-forward" color={colors.iris} size={20} />
-              </View>
-            </Card>
-          </Animated.View>
-
-          <Animated.View style={card2Style}>
-            <Card onPress={onGoDeeper} accent={colors.iris}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={{ flex: 1 }}>
-                  <Text variant="base" color={colors.textHi} style={{ fontWeight: '700' }}>
-                    Go deeper
-                  </Text>
-                  <Text variant="caption" color={colors.textMid} style={{ marginTop: spacing[1] }}>
-                    More Focuses coming soon.
-                  </Text>
-                </View>
-                <Badge variant="comingSoon">COMING SOON</Badge>
-              </View>
-            </Card>
-          </Animated.View>
-
-          <Animated.View style={card3Style}>
-            <Card onPress={onDone}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={{ flex: 1 }}>
-                  <Text variant="base" color={colors.textHi} style={{ fontWeight: '700' }}>
-                    I'm good for now
-                  </Text>
-                  <Text variant="caption" color={colors.textMid} style={{ marginTop: spacing[1] }}>
-                    The circuit is complete. Come back when you're ready.
-                  </Text>
-                </View>
-                <Ionicons name="checkmark-circle" color={colors.textLow} size={20} />
-              </View>
-            </Card>
-          </Animated.View>
-
         </View>
+      ) : (
+        <Ionicons
+          name="arrow-forward"
+          size={spacing[5]}
+          color={colors.textMid}
+          accessible={false}
+        />
+      )}
+    </>
+  )
+
+  if (disabled) {
+    return (
+      <View
+        style={styles.actionRow}
+        accessible
+        accessibilityRole="text"
+        accessibilityLabel={`${title}. ${description}. Coming soon.`}
+        accessibilityState={{ disabled: true }}
+      >
+        {content}
       </View>
-    </ScreenWrapper>
+    )
+  }
+
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [styles.actionRow, pressed && styles.actionRowPressed]}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      accessibilityHint={description}
+    >
+      {content}
+    </Pressable>
   )
 }
-
-// ─── Root ─────────────────────────────────────────────────────────────────────
 
 export default function Graduation() {
   const router = useRouter()
-  const { activeJourney, reset, hydrate } = useJourneyStore()
+  const insets = useSafeAreaInsets()
+  const { height } = useWindowDimensions()
+  const webViewRef = useRef<WebView>(null)
+  const activeJourney = useJourneyStore((state) => state.activeJourney)
+  const clearOnboarding = useOnboardingStore((state) => state.clear)
 
-  const [beat, setBeat] = useState<1 | 2 | 3>(1)
-  const [profile, setProfile] = useState<Profile | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [act, setAct] = useState<GraduationAct>('transcendence')
+  const [reducedMotion, setReducedMotion] = useState(false)
+  const [screenReaderEnabled, setScreenReaderEnabled] = useState(false)
+  const [accessibilityReady, setAccessibilityReady] = useState(false)
+  const [quoteVisible, setQuoteVisible] = useState(false)
+  const [actionVisible, setActionVisible] = useState(false)
+  const [sceneReady, setSceneReady] = useState(false)
+  const [sceneFailed, setSceneFailed] = useState(false)
+  const [shareError, setShareError] = useState(false)
+
+  const openingOpacity = useSharedValue(0)
+  const handoffOpacity = useSharedValue(0)
+  const handoffTranslateY = useSharedValue<number>(spacing[6])
+
+  const directAccess = reducedMotion || screenReaderEnabled
+  const figureHtml = useMemo(
+    () => getMeditationFigureHtml({ mode: 'graduation', reducedMotion }),
+    [reducedMotion],
+  )
 
   useEffect(() => {
-    async function init() {
-      const { session } = await getSession()
-      const userId = session?.user?.id
-      if (!userId) return
-
-      const [{ profile: p }] = await Promise.all([
-        getProfile(userId),
-        activeJourney ? markJourneyComplete(activeJourney.id) : Promise.resolve(null),
-      ])
-
-      setProfile(p)
-
-      if (userId) {
-        await hydrate(userId)
-      }
-
-      setIsLoading(false)
-    }
-    init()
+    const backSubscription = BackHandler.addEventListener('hardwareBackPress', () => true)
+    return () => backSubscription.remove()
   }, [])
 
-  function handleNewCircuit() {
-    reset()
-    router.replace('/(onboarding)/life-stage')
-  }
+  useEffect(() => {
+    let mounted = true
+    void Promise.all([
+      AccessibilityInfo.isReduceMotionEnabled(),
+      AccessibilityInfo.isScreenReaderEnabled(),
+    ]).then(([reduceMotion, screenReader]) => {
+      if (!mounted) return
+      setReducedMotion(reduceMotion)
+      setScreenReaderEnabled(screenReader)
+      setAccessibilityReady(true)
+    })
 
-  function handleGoDeeper() {
-    Alert.alert('More Focuses coming soon!')
-  }
-
-  function handleDone() {
-    router.replace('/(tabs)/')
-  }
-
-  if (isLoading && beat === 1) {
-    // Let Beat 1 render immediately — it doesn't need profile data
-  }
-
-  if (beat === 1) {
-    return <Beat1 onAdvance={() => setBeat(2)} />
-  }
-
-  if (beat === 2) {
-    return (
-      <Beat2
-        openAnswer={profile?.open_answer ?? null}
-        onAdvance={() => setBeat(3)}
-      />
+    const reduceSubscription = AccessibilityInfo.addEventListener(
+      'reduceMotionChanged',
+      setReducedMotion,
     )
+    const readerSubscription = AccessibilityInfo.addEventListener(
+      'screenReaderChanged',
+      setScreenReaderEnabled,
+    )
+
+    return () => {
+      mounted = false
+      reduceSubscription.remove()
+      readerSubscription.remove()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!accessibilityReady) return
+    if (directAccess) {
+      setQuoteVisible(true)
+      setActionVisible(true)
+      openingOpacity.value = withTiming(1, {
+        duration: graduation.openingFadeDuration,
+        reduceMotion: ReduceMotion.Always,
+      })
+      return
+    }
+
+    const quoteTimer = setTimeout(() => {
+      setQuoteVisible(true)
+      openingOpacity.value = withTiming(1, {
+        duration: graduation.openingFadeDuration,
+        easing: Easing.out(Easing.cubic),
+        reduceMotion: ReduceMotion.System,
+      })
+    }, graduation.openingQuoteDelay)
+    const actionTimer = setTimeout(() => setActionVisible(true), graduation.openingActionDelay)
+
+    return () => {
+      clearTimeout(quoteTimer)
+      clearTimeout(actionTimer)
+    }
+  }, [accessibilityReady, directAccess, openingOpacity])
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!sceneReady) setSceneFailed(true)
+    }, graduation.sceneReadyTimeout)
+    return () => clearTimeout(timeout)
+  }, [sceneReady])
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      webViewRef.current?.postMessage(
+        JSON.stringify({ type: nextState === 'active' ? 'resume' : 'pause' }),
+      )
+    })
+    return () => {
+      webViewRef.current?.postMessage(JSON.stringify({ type: 'pause' }))
+      subscription.remove()
+    }
+  }, [])
+
+  const openingStyle = useAnimatedStyle(() => ({ opacity: openingOpacity.value }))
+  const handoffStyle = useAnimatedStyle(() => ({
+    opacity: handoffOpacity.value,
+    transform: [{ translateY: handoffTranslateY.value }],
+  }))
+
+  function handleSceneMessage(event: WebViewMessageEvent) {
+    try {
+      const message = JSON.parse(event.nativeEvent.data) as SceneMessage
+      if (message.type === 'scene-ready') {
+        setSceneReady(true)
+        setSceneFailed(false)
+      }
+      if (message.type === 'scene-error') setSceneFailed(true)
+    } catch {
+      // Ignore unrelated WebView messages.
+    }
   }
+
+  function showHandoff() {
+    webViewRef.current?.postMessage(JSON.stringify({ type: 'handoff' }))
+    setAct('handoff')
+    handoffOpacity.value = withTiming(1, {
+      duration: directAccess ? 1 : graduation.handoffDuration,
+      easing: Easing.out(Easing.cubic),
+      reduceMotion: ReduceMotion.System,
+    })
+    handoffTranslateY.value = withTiming(0, {
+      duration: directAccess ? 1 : graduation.handoffDuration,
+      easing: Easing.out(Easing.cubic),
+      reduceMotion: ReduceMotion.System,
+    })
+  }
+
+  function beginAnotherCircuit() {
+    clearOnboarding()
+    router.push({ pathname: '/(onboarding)/match', params: { mode: 'new-circuit' } })
+  }
+
+  async function shareProof() {
+    setShareError(false)
+    try {
+      await Share.share({
+        message: `I completed 21 days of ${activeJourney?.focus ?? 'focused practice'} with INAT. The limit was theoretical.`,
+        title: 'INAT — 21 days complete',
+      })
+    } catch {
+      setShareError(true)
+    }
+  }
+
+  const handoffTop = Math.max(
+    graduation.handoffContentTopMin,
+    height * graduation.handoffContentTopRatio,
+  )
 
   return (
-    <Beat3
-      onNewCircuit={handleNewCircuit}
-      onGoDeeper={handleGoDeeper}
-      onDone={handleDone}
-    />
+    <View style={styles.root} accessibilityViewIsModal>
+      <CompletedFigureFallback quiet={act === 'handoff'} />
+
+      {!sceneFailed ? (
+        <WebView
+          ref={webViewRef}
+          source={{ html: figureHtml }}
+          originWhitelist={['*']}
+          onMessage={handleSceneMessage}
+          onError={() => setSceneFailed(true)}
+          onHttpError={() => setSceneFailed(true)}
+          pointerEvents="none"
+          scrollEnabled={false}
+          bounces={false}
+          javaScriptEnabled
+          allowsInlineMediaPlayback={false}
+          style={styles.webView}
+          containerStyle={styles.webViewContainer}
+          accessible={false}
+          importantForAccessibility="no-hide-descendants"
+        />
+      ) : null}
+
+      {act === 'transcendence' ? (
+        <Animated.View
+          style={[
+            styles.openingContent,
+            { paddingBottom: insets.bottom + spacing[6] },
+            openingStyle,
+          ]}
+          pointerEvents={actionVisible ? 'auto' : 'none'}
+          accessibilityElementsHidden={!quoteVisible}
+          importantForAccessibility={quoteVisible ? 'auto' : 'no-hide-descendants'}
+        >
+          {quoteVisible ? (
+            <Text
+              variant="quote"
+              color={colors.arcLight}
+              align="center"
+              style={styles.openingQuote}
+            >
+              You stopped waiting for the right time. You made it.
+            </Text>
+          ) : null}
+          {actionVisible ? (
+            <View style={styles.openingButton}>
+              <Button onPress={showHandoff}>What’s next →</Button>
+            </View>
+          ) : null}
+        </Animated.View>
+      ) : (
+        <Animated.View style={[StyleSheet.absoluteFillObject, handoffStyle]}>
+          <ScrollView
+            style={styles.handoffScroll}
+            contentContainerStyle={[
+              styles.handoffContent,
+              {
+                paddingTop: handoffTop,
+                paddingBottom: insets.bottom + spacing[8],
+              },
+            ]}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.handoffInner}>
+              <Text
+                variant="base"
+                color={colors.arcLight}
+                style={styles.handoffHeading}
+              >
+                The next move is yours.
+              </Text>
+              <Text variant="body" color={colors.textMid} style={styles.handoffIntro}>
+                The circuit did its job. Keep what you built. Choose what serves you now.
+              </Text>
+
+              <View style={styles.primaryAction}>
+                <Button onPress={beginAnotherCircuit}>Begin another circuit</Button>
+                <Text variant="caption" color={colors.textMid} style={styles.primarySupport}>
+                  Choose a new Arc, or stay with this one and change your Focus.
+                </Text>
+              </View>
+
+              <View style={styles.actionList}>
+                <ActionRow
+                  title="See my journey"
+                  description="Review the 21 days you built."
+                  icon="analytics-outline"
+                  onPress={() => router.replace('/(tabs)/ascent')}
+                />
+                <View style={styles.divider} />
+                <ActionRow
+                  title="Go deeper"
+                  description="Continue beyond the introductory circuit."
+                  icon="layers-outline"
+                  disabled
+                  badge="Coming soon"
+                />
+                <View style={styles.divider} />
+                <ActionRow
+                  title="Share the proof"
+                  description="Share your completed Focus with the native share sheet."
+                  icon="share-outline"
+                  onPress={() => void shareProof()}
+                />
+              </View>
+
+              {shareError ? (
+                <Text
+                  variant="caption"
+                  color={colors.error}
+                  align="center"
+                  style={styles.shareError}
+                >
+                  Sharing is unavailable right now. Your Graduation is still here.
+                </Text>
+              ) : null}
+
+              <Pressable
+                onPress={() => router.replace('/(tabs)/')}
+                style={({ pressed }) => [styles.homeAction, pressed && styles.homeActionPressed]}
+                accessibilityRole="button"
+                accessibilityLabel="Return home"
+                accessibilityHint="Leaves Graduation and returns to Home"
+              >
+                <Text variant="base" color={colors.textMid} style={styles.homeActionText}>
+                  Return home
+                </Text>
+              </Pressable>
+            </View>
+          </ScrollView>
+        </Animated.View>
+      )}
+    </View>
   )
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: colors.abyss,
+  },
+  webViewContainer: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.abyss,
+  },
+  webView: {
+    flex: 1,
+    backgroundColor: colors.abyss,
+  },
+  fallbackFigure: {
+    position: 'absolute',
+    top: '17%',
+    alignSelf: 'center',
+    width: graduation.fallbackFigureWidth,
+    height: graduation.fallbackFigureHeight,
+    alignItems: 'center',
+    opacity: 0.72,
+  },
+  fallbackFigureQuiet: {
+    top: '4%',
+    opacity: 0.38,
+    transform: [{ scale: 0.76 }],
+  },
+  fallbackAura: {
+    ...StyleSheet.absoluteFillObject,
+    borderWidth: 1,
+    borderRadius: radius.full,
+  },
+  fallbackAuraInner: {
+    position: 'absolute',
+    top: spacing[6],
+    bottom: spacing[6],
+    left: spacing[5],
+    right: spacing[5],
+    borderWidth: 1,
+    borderRadius: radius.full,
+  },
+  fallbackSpine: {
+    position: 'absolute',
+    top: spacing[8],
+    bottom: spacing[8],
+    width: 1,
+    backgroundColor: colors.arcLight,
+    opacity: 0.5,
+  },
+  fallbackJoint: {
+    position: 'absolute',
+    width: graduation.fallbackJointSize,
+    height: graduation.fallbackJointSize,
+    borderRadius: radius.full,
+  },
+  fallbackLimb: {
+    position: 'absolute',
+    top: '46%',
+    width: '44%',
+    height: 1,
+    backgroundColor: colors.arcLight,
+    opacity: 0.4,
+  },
+  fallbackLimbLeft: {
+    left: spacing[2],
+    transform: [{ rotate: '28deg' }],
+  },
+  fallbackLimbRight: {
+    right: spacing[2],
+    transform: [{ rotate: '-28deg' }],
+  },
+  openingContent: {
+    position: 'absolute',
+    left: spacing.pagePad,
+    right: spacing.pagePad,
+    bottom: 0,
+    alignItems: 'center',
+  },
+  openingQuote: {
+    maxWidth: graduation.maxContentWidth,
+    fontFamily: fontFamilies.medium,
+    fontSize: typography.size.quote,
+    lineHeight: typography.size.quote * typography.leading.heading,
+  },
+  openingButton: {
+    width: '100%',
+    maxWidth: graduation.maxContentWidth,
+    marginTop: spacing[6],
+  },
+  handoffScroll: {
+    flex: 1,
+  },
+  handoffContent: {
+    flexGrow: 1,
+    paddingHorizontal: spacing.pagePad,
+    backgroundColor: colors.bgScrim,
+  },
+  handoffInner: {
+    width: '100%',
+    maxWidth: graduation.maxContentWidth,
+    alignSelf: 'center',
+  },
+  handoffHeading: {
+    fontFamily: fontFamilies.black,
+    fontSize: typography.size.title,
+    lineHeight: typography.size.title * typography.leading.tight,
+    letterSpacing: typography.tracking.tight * typography.size.title,
+  },
+  handoffIntro: {
+    marginTop: spacing[3],
+    maxWidth: graduation.maxContentWidth,
+  },
+  primaryAction: {
+    marginTop: spacing[8],
+  },
+  primarySupport: {
+    marginTop: spacing[3],
+    paddingHorizontal: spacing[2],
+    lineHeight: typography.size.caption * typography.leading.step,
+  },
+  actionList: {
+    marginTop: spacing[8],
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: colors.borderStrong,
+  },
+  actionRow: {
+    minHeight: graduation.actionRowMinHeight,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[3],
+    paddingVertical: spacing[4],
+  },
+  actionRowPressed: {
+    backgroundColor: colors.bgInput,
+  },
+  actionIcon: {
+    width: spacing[8],
+    alignItems: 'center',
+  },
+  actionCopy: {
+    flex: 1,
+  },
+  actionTitle: {
+    fontFamily: fontFamilies.bold,
+  },
+  actionDescription: {
+    marginTop: spacing[1],
+    lineHeight: typography.size.caption * typography.leading.heading,
+  },
+  comingSoonBadge: {
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing[2],
+    paddingVertical: spacing[1],
+  },
+  divider: {
+    height: 1,
+    backgroundColor: colors.borderSoft,
+    marginLeft: spacing[10] + spacing[3],
+  },
+  shareError: {
+    marginTop: spacing[4],
+    lineHeight: typography.size.caption * typography.leading.heading,
+  },
+  homeAction: {
+    minHeight: spacing.touchMin + spacing[1],
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginTop: spacing[8],
+    paddingHorizontal: spacing[6],
+  },
+  homeActionPressed: {
+    opacity: 0.6,
+  },
+  homeActionText: {
+    fontFamily: fontFamilies.medium,
+  },
+})
