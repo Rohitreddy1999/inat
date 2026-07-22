@@ -5,19 +5,19 @@ colors:
   # Surfaces
   bg-abyss: "#07090D"
   bg-fathom: "#0F141A"
-  bg-raise: "#10161D"
+  bg-raise: "#141920"
   bg-input: "#FFFFFF0D"
   bg-nav: "#07090DF5"
   bg-scrim: "#07090DCC"
   # Phase accents
-  accent-electric: "#4DBBFF"
-  accent-volt: "#DAFF00"
+  accent-iris: "#8B5CF6"
+  accent-volt: "#62EE10"
   accent-plasma: "#FF4FD8"
   # Phase tints (on-surface overlays)
-  electric-tint: "#4DBBFF1F"
-  volt-tint: "#DAFF001F"
+  iris-tint: "#8B5CF614"
+  volt-tint: "#62EE1014"
   plasma-tint: "#FF4FD81F"
-  selected-bg: "#4DBBFF0F"
+  selected-bg: "#8B5CF614"
   # Text (dark-surface hierarchy)
   arc-light: "#EAFFF5"
   text-hi: "#FFFFFFF2"
@@ -25,8 +25,8 @@ colors:
   text-mid: "#FFFFFF99"
   text-low: "#FFFFFF59"
   text-faint: "#FFFFFF2E"
-  # CTA pair (forced contrast: Abyss on Electric)
-  cta-bg: "#4DBBFF"
+  # CTA pair (forced contrast: Abyss on Volt)
+  cta-bg: "#62EE10"
   cta-text: "#07090D"
   # Utility
   error: "#E24B4A"
@@ -34,7 +34,7 @@ colors:
   border-soft: "#FFFFFF0F"
   border-card: "#FFFFFF12"
   border-strong: "#FFFFFF1F"
-  border-electric: "#4DBBFF66"
+  border-iris: "#8B5CF699"
 typography:
   display:
     fontFamily: "DM Sans, system-ui, sans-serif"
@@ -247,7 +247,7 @@ INAT is where commitment becomes physical. The interface does not welcome or com
 
 The design carries the INAT philosophy structurally. The HoldButton cannot be tapped — it must be held. The graduation moment requires three beats before the user can leave. Day unlocks are calendar-gated, not timer-gated. These are not UX patterns; they are the design asserting that things worth doing require more than a tap.
 
-The palette is closed. No new colors are added. The accents are in limited supply — Electric appears on CTAs, selected states, and all interactive UI elements throughout the app. Volt appears only in the Build phase (days 8–14). Its rarity is its weight. A screen where Electric is everywhere has lost the argument. A screen where Electric appears once, on the one thing that matters, wins.
+The palette is closed. No new colors are added. Iris marks Foundation and selected states; Volt marks Build and primary actions; Plasma marks Commit. Their scarcity gives them meaning. A screen where accent color appears everywhere has lost the argument.
 
 **What this system explicitly rejects:** wellness and meditation apps (no Headspace beige, no soft pastels, no breathing-room whitespace as a substitute for meaning); corporate productivity tools (no Notion neutrals, no Linear precision-grid aesthetic, no checkbox energy); motivational poster energy (no mountain photography, no "you got this" copy, no abstract uplift that wasn't earned).
 
@@ -264,11 +264,11 @@ The palette is closed. No new colors are added. The accents are in limited suppl
 A closed four-role system: two near-black surfaces carry depth, three phase accents carry earned meaning, one near-white carries text. Every token is load-bearing. Nothing is decorative.
 
 ### Primary
-- **Electric — Ice Blue** (`#4DBBFF`): Universal UI accent — primary CTA fill, selected-state borders, active tab indicator, HoldButton glow, FOUNDATION phase color (days 1–7). The one color that marks every action the user can take throughout the app. Onboarding uses Electric exclusively.
+- **Iris — Electric Violet** (`#8B5CF6`): FOUNDATION phase color (days 1–7) and selected-state accent. Onboarding uses Iris exclusively.
 - **Arc-Light — Near-White Mint** (`#EAFFF5`): StepDots active state, text token for moments of maximum emphasis. Identical to `text-arc`. Reserved — never used for body copy.
 
 ### Secondary
-- **Volt — Electric Yellow** (`#DAFF00`): BUILD phase color exclusively (days 8–14). Phase labels, streak badges, silhouette tint for the middle seven days. High-voltage energy — the phase where momentum compounds. Never used in onboarding or UI outside the Build phase.
+- **Volt — Electric Green** (`#62EE10`): BUILD phase color (days 8–14) and primary-action color. It marks forward motion and the action available now.
 
 ### Tertiary
 - **Plasma — Hot Magenta** (`#FF4FD8`): COMMIT phase color (days 15–21). Final seven days. Charged, near-completion. Never repurposed for general UI decoration.
@@ -276,14 +276,14 @@ A closed four-role system: two near-black surfaces carry depth, three phase acce
 ### Neutral
 - **Abyss** (`#07090D`): Page background. Also the text color on Surge-fill buttons (contrast ~7.2:1 against Surge).
 - **Fathom** (`#0F141A`): Card background. Elevation above Abyss through lightness shift alone — no shadow.
-- **Raise** (`#10161D`): Pressed card state, slightly above Fathom.
+- **Raise** (`#141920`): Pressed card state, slightly above Fathom.
 - **Error Red** (`#E24B4A`): Input error borders and error text. Appears only when something went wrong.
-- **Text tokens** (RGBA on dark surfaces): `text-hi` rgba(255,255,255,0.95) for headings and primary content; `text-mid` rgba(255,255,255,0.60) for secondary content and OptionCard defaults; `text-low` rgba(255,255,255,0.35) for SectionLabels and metadata; `text-faint` rgba(255,255,255,0.18) for ghost numbers and future-day indicators.
-- **Border tokens**: `border-card` rgba(255,255,255,0.07) hairline for card edges; `border-strong` rgba(255,255,255,0.12) for secondary button outlines and focused inputs; `border-electric` rgba(77,187,255,0.40) for selected OptionCards and recommended TrackCards.
+- **Text tokens** (RGBA on dark surfaces): `text-hi` rgba(255,255,255,0.95) for headings and primary content; `text-mid` rgba(255,255,255,0.60) for secondary content; `text-low` rgba(255,255,255,0.35) for metadata; `text-faint` rgba(255,255,255,0.04) for decorative ghost layers.
+- **Border tokens**: `border-card` rgba(255,255,255,0.06) hairline for card edges; `border-strong` rgba(255,255,255,0.12) for secondary controls; `border-iris` rgba(139,92,246,0.60) for selected states.
 
-**The Closed Palette Rule.** The palette is locked. The three phase accents (Electric/Volt/Plasma) map to the three phases of the 21-day journey. Electric doubles as the universal UI accent. Adding a fourth accent dissolves that architecture. No new colors — ever.
+**The Closed Palette Rule.** The palette is locked. Iris, Volt, and Plasma map to Foundation, Build, and Commit. Volt also carries primary actions. Adding a fourth accent dissolves that architecture. No new colors without an explicit product decision.
 
-**The Accent Economy Rule.** Any given screen contains one phase accent, appearing in ≤3 places. A screen where Electric appears on five elements has failed the design. Its rarity is the argument.
+**The Accent Economy Rule.** Any given screen contains one dominant phase accent, appearing in few meaningful places. Its rarity is the argument.
 
 **The No Pure White Rule.** Pure `#FFFFFF` is prohibited. Body text uses `text-hi` (rgba(255,255,255,0.95), hex `#FFFFFFF2`). Near-white moments use `arc-light` (`#EAFFF5`). Prevents harshness on near-black and keeps the palette disciplined across the full 21-day arc.
 
@@ -316,9 +316,9 @@ A closed four-role system: two near-black surfaces carry depth, three phase acce
 INAT uses no drop shadows on any static surface. Depth is communicated through two mechanisms only: background lightness progression (Abyss → Fathom → Raise) for structural elevation, and phase-colored glow exclusively for interactive and selected states.
 
 ### Glow Vocabulary
-- **glowCta** (`shadowColor: #4DBBFF, opacity: 0.25, radius: 20dp, elevation: 8`): Primary Button and HoldButton in active/holding state. The single action available right now.
-- **glowVolt** (`shadowColor: #DAFF00, opacity: 0.18, radius: 16dp, elevation: 6`): Recommended TrackCard. "This is the one." Build-phase energy.
-- **glowElectric** (`shadowColor: #4DBBFF, opacity: 0.18, radius: 16dp, elevation: 6`): Phase-specific glow during FOUNDATION days (1–7).
+- **glowCta** (`shadowColor: #62EE10, opacity: 0.25, radius: 20dp, elevation: 8`): Primary Button and HoldButton in active/holding state. The single action available right now.
+- **glowVolt** (`shadowColor: #62EE10, opacity: 0.18, radius: 16dp, elevation: 6`): Build-phase emphasis.
+- **glowIris** (`shadowColor: #8B5CF6, opacity: 0.18, radius: 16dp, elevation: 6`): Foundation and selected-state emphasis.
 - **glowPlasma** (`shadowColor: #FF4FD8, opacity: 0.18, radius: 16dp, elevation: 6`): Phase-specific glow during COMMIT days (15–21).
 
 **The Glow-Not-Shadow Rule.** Drop shadows are prohibited. Glow — a colored radial emanation — earns its place because it carries phase meaning. The color tells you where in the journey you are. A neutral gray shadow carries no meaning and is therefore forbidden.
@@ -332,7 +332,7 @@ INAT uses no drop shadows on any static surface. Depth is communicated through t
 Character: certain and weighted — primary is a Surge-fill pill radiating CTA glow; secondary is a ghost that yields to primary.
 
 - **Shape:** Pill (28dp radius) for primary and secondary. Rounded rect (18dp) for the completed variant.
-- **Primary** (height 56dp, Electric `#4DBBFF` fill, Abyss `#07090D` text, 700 weight, 16sp): `glowCta` when enabled. Press: scale 0.97, spring return (stiffness 400, damping 20). Disabled: 20% opacity, no press scale, no glow.
+- **Primary** (height 56dp, Volt `#62EE10` fill, Abyss `#07090D` text, 700 weight, 16sp): `glowCta` when enabled. Press: scale 0.97, spring return (stiffness 400, damping 20). Disabled: 20% opacity, no press scale, no glow.
 - **Secondary** (height 52dp, transparent bg, `border-strong` border, `text-mid` text, 400 15sp): Disabled: 35% opacity.
 - **Completed** (height 58dp, no fill, phase-color border at 40% opacity, phase-color text, leading checkmark icon): Not pressable — acknowledgment only.
 
@@ -370,7 +370,7 @@ Character: dark, quiet — present without competing.
 ### Inputs / Fields
 
 - **Default:** `bg-input` fill (rgba white 0.05), `border-card` border (rgba white 0.07), 14dp radius.
-- **Focus:** `border-strong` shift (rgba white 0.12) + Electric glow overlay (rgba(77,187,255,0.10)).
+- **Focus:** `border-strong` shift (rgba white 0.12) + Iris glow overlay.
 - **Error:** `#E24B4A` border + error text below + shake animation (translateX 0→6→−6→4→−4→0, 300ms).
 - **Placeholder:** `text-low` (rgba white 0.35). Meets 4.5:1 contrast on the composite dark surface.
 - **Multiline:** Same visual treatment. Used only for Q6 open-answer field.
@@ -378,7 +378,7 @@ Character: dark, quiet — present without competing.
 ### OptionCard (Form Selection)
 
 - **Default:** Fathom bg, `border-card`, `text-mid` label, checkmark invisible (scale 0). `accessibilityRole="checkbox"`.
-- **Selected:** `selected-bg` fill (Electric 6%), `border-electric` (Electric 40%), `text-hi` label, Electric checkmark springs in (scale 0→1, stiffness 400/damping 20). Border + bg interpolate over 180ms ease. Radial Electric 6% overlay from left.
+- **Selected:** `selected-bg` fill (Iris 8%), `border-iris` (Iris 60%), `text-hi` label, Iris checkmark springs in (scale 0→1, stiffness 400/damping 20). Border + bg interpolate over 180ms ease.
 - **Disabled-unselected (max reached):** 35% opacity. Still pressable — triggers shake. `accessibilityState={{ disabled: true }}` + `accessibilityHint="Maximum selections reached"`.
 - **Max-exceeded shake:** Fires on the tapped card (translateX 0→6→−6→4→−4→0, 300ms). No state change.
 - **Deselect spring:** stiffness 500/damping 22 (slightly faster than select). `selected+disabled` is not a valid state.
@@ -387,9 +387,9 @@ Character: dark, quiet — present without competing.
 
 The primary selection card on the Match screen. Three-column row: icon container → name/tagline → optional badge.
 
-- **Icon container:** 48×48dp, `radius.md` (14dp), `bg-raise` fill when default → `volt-tint` fill when selected. Icon 28sp: `text-mid` default → `electric` selected.
+- **Icon container:** 48×48dp, `radius.md` (14dp), `bg-raise` fill when default → `iris-tint` fill when selected. Icon 28sp: `text-mid` default → Iris selected.
 - **Default:** Fathom bg, `border-card` border (1dp), `radius.card`.
-- **Selected:** `selected-bg` (Electric 6%) fill, `border-electric` (Electric 40%) border.
+- **Selected:** `selected-bg` (Iris 8%) fill, `border-iris` (Iris 60%) border.
 - **Recommended:** `glowVolt` effect applied to the card container — the only unsolicited glow in the system. A single recommended badge appears top-right.
 - **Press:** Spring scale 0.985 (stiffness 400, damping 20). `ReduceMotion.System`.
 - **Typography:** Track name in `base`/700 (`text-hi`). Tagline in `caption` (`text-mid`).
@@ -431,7 +431,7 @@ Five read-only label variants — none are pressable.
 
 - **Streak** (32dp outer container, 22×22dp diamond rotated 45°, phase-color fill, inner counter-rotated −45°, bold 9sp `text-hi` number): Day-streak counter. The rotation produces a diamond; the counter-rotation keeps the number upright. Never resized.
 - **Phase** (pill, 1dp border in phase color, transparent bg, `label` 10sp uppercase, phase-color text): Phase labels on TrackCards and day metadata.
-- **Recommended** (pill, Electric fill + Electric border, bold `label` 10sp uppercase, Abyss text): The single recommended track or subtrack. Appears at most once per screen.
+- **Recommended** (pill, Iris fill + Iris border, bold `label` 10sp uppercase, Abyss text): The single recommended option. Appears at most once per screen.
 - **Coming Soon** (pill, `border-soft` border, `text-low` uppercase `label` text): Locked future options. Communicates inaccessibility without harsh visual treatment.
 - **Pro** (smaller pill, Plasma fill + Plasma border, bold `label` 10sp uppercase, Abyss text): Feature gate marker. Plasma signals the furthest-earned phase — contextually appropriate for gated premium features.
 
@@ -458,21 +458,31 @@ Onboarding progress through Q1–Q6.
 
 A decorative, absolutely-positioned large numeral that sits behind the question heading on onboarding question screens (Q2–Q6). It carries no interactive meaning — it is pure spatial rhythm.
 
-- **Typography:** 120sp, `HankenGrotesk-Black` (900), white at 4% opacity.
+- **Typography:** 120sp, `DMSans-Black` (900), white at 4% opacity.
 - **Position:** `position: absolute, zIndex: 0`, fills the heading container (`StyleSheet.absoluteFillObject` or equivalent). The heading text sits above it at `zIndex: 1`.
 - **Content:** Zero-padded two-digit string (`01`, `02`, `03`, `04`, `05`) matching the question index, not the StepDots step.
 - **Entrance animation:** Opacity fades from 0 → 0.04 over 600ms (`withTiming`). translateY slides from 8dp → 0 over 800ms. Both use `ReduceMotion.System` — on reduced-motion devices they snap to final values instantly.
 - **Non-interactive:** `pointerEvents="none"`, `accessibilityElementsHidden`, hidden from all screen reader traversal.
 - **The One Per Screen Rule.** One GhostNumber per question screen — never stacked, never on non-question screens.
 
+### Profile and Settings
+
+Profile is an identity-and-circuit hub, not an account-control list. The visual hierarchy is: compact screen title and settings gear; editable avatar, name, and email; Active Circuit; then membership. Onboarding answers and life-stage copy never appear here.
+
+The Active Circuit card uses one phase color derived from the user's actual position. Arc and Focus are stacked as distinct facts, the current phase is named, seven numbered nodes show position within that phase, and the Foundation/Build/Commit legend makes the system understandable without decoration. Completed state reads “Circuit complete.”
+
+Settings uses native-feeling inset groups with 64dp minimum rows. Every row remains horizontal: 20sp outline icon, DM Sans primary label, optional right-aligned value, and chevron only for actionable rows. Membership reads “Not active” without implying a purchase flow. Delete account is isolated, Error-colored, and confirmation-gated. Accent color is reserved for actual state and interaction; inactive information does not glow.
+
+Profile-specific executable dimensions live in `theme/index.ts` under `profile`: avatar, edit badge, icon button, circuit icon, progress node/line, row height, and maximum content width.
+
 ## 6. Do's and Don'ts
 
 ### Do:
 - **Do** use `text-hi` (rgba(255,255,255,0.95) / `#FFFFFFF2`) or `arc-light` (`#EAFFF5`) for all primary text. Pure `#FFFFFF` is prohibited.
-- **Do** apply only the current phase accent on any given screen — Electric for days 1–7, Volt for 8–14, Plasma for 15–21.
+- **Do** apply only the current phase accent on any given screen — Iris for days 1–7, Volt for 8–14, Plasma for 15–21.
 - **Do** anchor HoldButton in a fixed-position View at screen bottom, outside any ScrollView, always.
 - **Do** convey elevation through background lightness (Abyss → Fathom → Raise) and phase-colored glow for interactive states only.
-- **Do** use Reanimated 3 for all animations. React Native's `Animated` API is prohibited.
+- **Do** use Reanimated for all animations. React Native's `Animated` API is prohibited.
 - **Do** keep the current phase accent to ≤3 appearances per screen.
 - **Do** respect safe-area insets on iOS (Dynamic Island, notch, home indicator) and Android (status bar, nav bar, display cutout, IME).
 - **Do** maintain 44pt minimum touch targets on iOS, 48dp on Android.
@@ -484,7 +494,7 @@ A decorative, absolutely-positioned large numeral that sits behind the question 
 - **Don't** use motivational poster copy or imagery. No mountains, no "you got this," no abstract uplift. "The circuit doesn't judge. It waits." — not "Believe in yourself."
 - **Don't** use glassmorphism on card surfaces. Blur is permitted only behind BottomNav on iOS.
 - **Don't** use drop shadows. Phase-colored glow or nothing.
-- **Don't** add a second typeface. Hanken Grotesk at 900 and 400 is a complete system.
+- **Don't** add a third typeface. DM Sans carries application UI; Syne is restricted to its documented brand roles.
 - **Don't** render pure `#FFFFFF` anywhere.
 - **Don't** show BottomNav on the Day screen or Graduation screen.
 - **Don't** put HoldButton inside a ScrollView.

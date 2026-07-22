@@ -1,192 +1,264 @@
-import { useEffect, useState } from 'react'
-import { View, Alert, Pressable } from 'react-native'
-import { useRouter } from 'expo-router'
+import { useCallback, useState } from 'react'
+import { Alert, Pressable, StyleSheet, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import { router, useFocusEffect } from 'expo-router'
+import * as ImagePicker from 'expo-image-picker'
 import { ScreenWrapper } from '@/components/shared/ScreenWrapper'
-import { SectionLabel } from '@/components/shared/SectionLabel'
+import { SkeletonCard } from '@/components/core/SkeletonCard'
 import { Text } from '@/components/core/Text'
-import { Card } from '@/components/core/Card'
-import { PhaseProgressRing } from '@/components/shared/PhaseProgressRing'
+import { ProfileAvatar } from '@/components/profile/ProfileAvatar'
+import { ActiveCircuitCard } from '@/components/profile/ActiveCircuitCard'
+import { SettingsGroup, SettingsRow } from '@/components/profile/SettingsGroup'
+import { getProfile, uploadAvatar } from '@/services/profile.service'
+import { getSession } from '@/services/auth.service'
 import { useJourneyStore } from '@/stores/journey.store'
-import { getProfile } from '@/services/profile.service'
-import { getSession, signOut } from '@/services/auth.service'
-import { colors, getPhaseColor, spacing, radius } from '@/theme'
-import { Profile } from '@/types'
+import { colors, fontFamilies, profile as profileTokens, radius, spacing, typography } from '@/theme'
+import type { Profile } from '@/types'
 
-const LIFE_STAGE_LABELS: Record<string, string> = {
-  still_studying:   'Still studying',
-  building_career:  'Building my career',
-  juggling_family:  'Juggling family life',
-  reinventing:      'Reinventing myself',
+type ProfileState = {
+  profile: Profile | null
+  userId: string | null
+  email: string
+  authFullName: string
 }
 
-function SettingRow({
-  icon,
-  label,
-  onPress,
-  destructive = false,
-}: {
-  icon: keyof typeof Ionicons.glyphMap
-  label: string
-  onPress: () => void
-  destructive?: boolean
-}) {
-  return (
-    <Card onPress={onPress} style={{ borderRadius: 0, borderWidth: 0, borderBottomWidth: 1, borderBottomColor: colors.borderSoft }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing[3] }}>
-        <Ionicons
-          name={icon}
-          size={20}
-          color={destructive ? colors.error : colors.textMid}
-        />
-        <Text
-          variant="base"
-          color={destructive ? colors.error : colors.textHi}
-          style={{ flex: 1 }}
-        >
-          {label}
-        </Text>
-        {!destructive && (
-          <Ionicons name="chevron-forward" size={16} color={colors.textLow} />
-        )}
-      </View>
-    </Card>
-  )
+const EMPTY_PROFILE: ProfileState = {
+  profile: null,
+  userId: null,
+  email: '',
+  authFullName: '',
 }
 
 export default function ProfileScreen() {
-  const router = useRouter()
-  const { activeJourney, currentDay, reset } = useJourneyStore()
+  const { activeJourney, currentDay } = useJourneyStore()
+  const [data, setData] = useState<ProfileState>(EMPTY_PROFILE)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [avatarLoading, setAvatarLoading] = useState(false)
 
-  const [profile, setProfile] = useState<Profile | null>(null)
+  const loadProfile = useCallback(async () => {
+    setLoading(true)
+    setLoadError(null)
+    const { session, error: sessionError } = await getSession()
+    if (sessionError || !session?.user.id) {
+      setLoadError('We could not load your account. Check your connection and try again.')
+      setLoading(false)
+      return
+    }
 
-  const phaseColor  = currentDay > 0 ? getPhaseColor(currentDay) : getPhaseColor(1)
-  const dayInPhase  = currentDay > 0 ? ((currentDay - 1) % 7) + 1 : 1
+    const { profile, error } = await getProfile(session.user.id)
+    if (error) {
+      setLoadError('We could not load your profile. Check your connection and try again.')
+      setLoading(false)
+      return
+    }
 
-  useEffect(() => {
-    getSession().then(({ session }) => {
-      if (!session?.user?.id) return
-      getProfile(session.user.id).then(({ profile: p }) => setProfile(p))
+    setData({
+      profile,
+      userId: session.user.id,
+      email: session.user.email ?? '',
+      authFullName: typeof session.user.user_metadata.full_name === 'string'
+        ? session.user.user_metadata.full_name
+        : '',
     })
+    setLoading(false)
+  }, [])
 
-  }, [activeJourney])
+  useFocusEffect(useCallback(() => {
+    void loadProfile()
+  }, [loadProfile]))
 
-  async function handleSignOut() {
-    await signOut()
-    reset()
-    router.replace('/(auth)/welcome')
-  }
+  const handleAvatarPress = useCallback(async () => {
+    if (!data.userId) return
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
+    if (!permission.granted) {
+      Alert.alert(
+        'Photo access is off',
+        'Allow photo access in your device settings to choose a profile picture.',
+      )
+      return
+    }
 
-  function handleDeleteAccount() {
-    Alert.alert(
-      'Delete account',
-      'This permanently deletes all your data. This cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: handleSignOut,
-        },
-      ],
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    })
+    if (result.canceled) return
+
+    setAvatarLoading(true)
+    const asset = result.assets[0]
+    const { avatarUrl, error } = await uploadAvatar(
+      data.userId,
+      asset.uri,
+      asset.mimeType ?? 'image/jpeg',
     )
-  }
+    setAvatarLoading(false)
 
-  const initials = profile?.full_name
-    ? profile.full_name.trim().charAt(0).toUpperCase()
-    : '?'
+    if (error || !avatarUrl) {
+      Alert.alert(
+        'Profile picture not saved',
+        'We could not save that picture. Your current profile picture is unchanged.',
+      )
+      return
+    }
+
+    setData((current) => ({
+      ...current,
+      profile: current.profile ? { ...current.profile, avatar_url: avatarUrl } : current.profile,
+    }))
+  }, [data.userId])
+
+  const displayName = data.profile?.full_name?.trim() || data.authFullName.trim() || 'Your name'
 
   return (
-    <ScreenWrapper padded scrollable style={{ paddingTop: spacing[6], paddingBottom: spacing.pageBottom }}>
-      {/* Profile header */}
-      <View style={{ marginTop: spacing[6], alignItems: 'flex-start' }}>
-        {/* Avatar circle */}
-        <View
-          style={{
-            width:           60,
-            height:          60,
-            borderRadius:    30,
-            backgroundColor: colors.voltTint,
-            borderWidth:     2,
-            borderColor:     colors.borderIris,
-            alignItems:      'center',
-            justifyContent:  'center',
-          }}
+    <ScreenWrapper
+      padded
+      scrollable
+      style={styles.content}
+    >
+      <View style={styles.titleRow}>
+        <Text variant="heading" color={colors.textHi} style={styles.title}>Profile</Text>
+        <Pressable
+          onPress={() => router.push('/settings')}
+          accessibilityRole="button"
+          accessibilityLabel="Open settings"
+          style={styles.settingsButton}
+          android_ripple={{ color: colors.irisTint, borderless: true }}
         >
-          <Text variant="heading" color={colors.iris}>
-            {initials}
-          </Text>
-        </View>
-
-        <Text variant="title" color={colors.textHi} style={{ marginTop: spacing[3] }}>
-          {profile?.full_name ?? ''}
-        </Text>
-
-        {profile?.life_stage ? (
-          <Text variant="body" color={colors.textMid} style={{ marginTop: spacing[1] }}>
-            {LIFE_STAGE_LABELS[profile.life_stage] ?? profile.life_stage}
-          </Text>
-        ) : null}
+          <Ionicons name="settings-outline" size={typography.size.heading} color={colors.textMid} />
+        </Pressable>
       </View>
 
-      {/* Active journey card */}
-      {activeJourney ? (
-        <View style={{ marginTop: spacing[8] }}>
-          <SectionLabel>ACTIVE CIRCUIT</SectionLabel>
-          <Card accent={phaseColor} style={{ marginTop: spacing[3] }}>
-            <Text variant="base" color={colors.textHi} style={{ fontWeight: '700' }}>
-              {activeJourney.focus}
-            </Text>
-            <Text variant="body" color={colors.textMid} style={{ marginTop: spacing[1] }}>
-              Day {currentDay} of 21
-            </Text>
-            <View style={{ marginTop: spacing[3] }}>
-              <PhaseProgressRing dayInPhase={dayInPhase} phaseColor={phaseColor} />
-            </View>
-          </Card>
+      {loading ? (
+        <View style={styles.loadingStack} accessibilityLabel="Loading profile">
+          <SkeletonCard height={116} />
+          <SkeletonCard height={252} />
         </View>
-      ) : null}
-
-      {/* Settings */}
-      <View style={{ marginTop: spacing[8] }}>
-        <SectionLabel>SETTINGS</SectionLabel>
-        <Card style={{ marginTop: spacing[3], padding: 0, overflow: 'hidden' }}>
-          <SettingRow
-            icon="notifications-outline"
-            label="Notifications"
-            onPress={() => {}}
-          />
-          <SettingRow
-            icon="lock-closed-outline"
-            label="Change Password"
-            onPress={() => {}}
-          />
-          <SettingRow
-            icon="mail-outline"
-            label="Change Email"
-            onPress={() => {}}
-          />
-        </Card>
-
-        <Card
-          onPress={handleSignOut}
-          style={{ marginTop: spacing[4] }}
-        >
-          <Text variant="base" color={colors.error}>Sign out</Text>
-        </Card>
-
-        <View style={{ marginTop: spacing[2], alignItems: 'center' }}>
-          <Pressable onPress={handleDeleteAccount} accessibilityRole="button">
-            <Text
-              variant="caption"
-              color={colors.textLow}
-              style={{ textDecorationLine: 'underline' }}
-            >
-              Delete account
-            </Text>
+      ) : loadError ? (
+        <View style={styles.errorState}>
+          <Text variant="heading" color={colors.textHi}>Profile unavailable</Text>
+          <Text variant="body" color={colors.textMid}>{loadError}</Text>
+          <Pressable onPress={() => void loadProfile()} accessibilityRole="button" style={styles.retryButton}>
+            <Text variant="base" color={colors.iris} style={styles.retryLabel}>Try again</Text>
           </Pressable>
         </View>
-      </View>
+      ) : (
+        <>
+          <View style={styles.identity}>
+            <ProfileAvatar
+              name={displayName}
+              avatarUrl={data.profile?.avatar_url ?? null}
+              loading={avatarLoading}
+              onPress={() => void handleAvatarPress()}
+            />
+            <View style={styles.identityCopy}>
+              <Text variant="quote" color={colors.textHi} style={styles.identityName} numberOfLines={2}>{displayName}</Text>
+              <Text variant="body" color={colors.textMid} numberOfLines={2}>{data.email}</Text>
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <Text variant="micro" color={colors.textLow} uppercase>Active circuit</Text>
+            <View style={styles.sectionBody}>
+              {activeJourney ? (
+                <ActiveCircuitCard journey={activeJourney} currentDay={currentDay} />
+              ) : (
+                <View style={styles.emptyCircuit}>
+                  <Text variant="quote" color={colors.textHi}>No active circuit</Text>
+                  <Text variant="body" color={colors.textMid}>
+                    Your next circuit will appear here when you choose a direction.
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <SettingsGroup title="Membership">
+              <SettingsRow
+                icon="diamond-outline"
+                label="INAT Membership"
+                value="Not active"
+                last
+              />
+            </SettingsGroup>
+          </View>
+        </>
+      )}
     </ScreenWrapper>
   )
 }
+
+const styles = StyleSheet.create({
+  content: {
+    paddingTop: spacing[6],
+    paddingBottom: spacing.pageBottom + spacing[8],
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  title: {
+    fontFamily: fontFamilies.bold,
+  },
+  settingsButton: {
+    width: profileTokens.iconButtonSize,
+    height: profileTokens.iconButtonSize,
+    borderRadius: profileTokens.iconButtonSize / 2,
+    borderWidth: 1,
+    borderColor: colors.borderCard,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingStack: {
+    marginTop: spacing[6],
+    gap: spacing[5],
+  },
+  identity: {
+    marginTop: spacing[6],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[4],
+  },
+  identityCopy: {
+    flex: 1,
+    gap: spacing[1],
+  },
+  identityName: {
+    fontFamily: fontFamilies.bold,
+  },
+  section: {
+    marginTop: spacing[6],
+  },
+  sectionBody: {
+    marginTop: spacing[3],
+  },
+  emptyCircuit: {
+    borderWidth: 1,
+    borderColor: colors.borderCard,
+    borderRadius: radius.card,
+    backgroundColor: colors.fathom,
+    padding: spacing[5],
+    gap: spacing[2],
+  },
+  errorState: {
+    marginTop: spacing[8],
+    borderWidth: 1,
+    borderColor: colors.borderCard,
+    backgroundColor: colors.fathom,
+    borderRadius: radius.card,
+    padding: spacing[5],
+    gap: spacing[3],
+  },
+  retryButton: {
+    alignSelf: 'flex-start',
+    minHeight: profileTokens.iconButtonSize,
+    justifyContent: 'center',
+  },
+  retryLabel: {
+    fontFamily: fontFamilies.semibold,
+  },
+})

@@ -15,6 +15,55 @@ export async function getProfile(
   return { profile: data as Profile | null, error }
 }
 
+export async function updateProfile(
+  userId: string,
+  patch: Partial<Pick<Profile, 'full_name' | 'avatar_url' | 'timezone'>>,
+): Promise<{ profile: Profile | null; error: PostgrestError | null }> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update(patch)
+    .eq('id', userId)
+    .select('*')
+    .single()
+
+  return { profile: data as Profile | null, error }
+}
+
+export async function uploadAvatar(
+  userId: string,
+  imageUri: string,
+  mimeType = 'image/jpeg',
+): Promise<{ avatarUrl: string | null; error: Error | null }> {
+  try {
+    const response = await fetch(imageUri)
+    if (!response.ok) {
+      return { avatarUrl: null, error: new Error('The selected image could not be read.') }
+    }
+
+    const body = await response.arrayBuffer()
+    const extension = mimeType === 'image/png' ? 'png' : 'jpg'
+    const path = `${userId}/profile.${extension}`
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(path, body, { contentType: mimeType, upsert: true })
+
+    if (uploadError) return { avatarUrl: null, error: uploadError }
+
+    const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+    const avatarUrl = `${data.publicUrl}?v=${Date.now()}`
+    const { error: profileError } = await updateProfile(userId, { avatar_url: avatarUrl })
+
+    return profileError
+      ? { avatarUrl: null, error: profileError }
+      : { avatarUrl, error: null }
+  } catch (error) {
+    return {
+      avatarUrl: null,
+      error: error instanceof Error ? error : new Error('The profile picture could not be saved.'),
+    }
+  }
+}
+
 export async function saveOnboardingAnswers(
   userId: string,
   lifeStage: string,

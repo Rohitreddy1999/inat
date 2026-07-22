@@ -237,14 +237,15 @@ Phase 2 — Onboarding: COMPLETE
 Phase 3 — Core experience: COMPLETE (Day screen + completion flow)
 Phase 4 — Re-entry card: COMPLETE (ReentryCard + dayUnlock util)
 Phase 5 — Progress and Graduation: COMPLETE (Ascent complete, Graduation 3-beat screen complete)
-Phase 6 — Profile and subscription: IN PROGRESS (Profile screen complete, no subscription yet)
+Phase 6 — Profile and settings: UI COMPLETE. Membership remains an honest Not active state until billing exists. Avatar storage policies and the delete-account Edge Function still require backend verification.
 
 Current work: Architecture Phase 1 verification, then Phase 2 onboarding polish.
 
 ## SESSION DECISIONS (Level 5)
 - react-native-svg v15.12.1 installed for PhaseProgressRing and Silhouette
-- metro.config.js: added resolveRequest override — forces react-native-svg to resolve
-  to lib/commonjs/index.js instead of TypeScript src/ (Windows Metro path-resolution bug)
+- Superseded July 22, 2026: the custom `react-native-svg` CommonJS resolver was removed.
+  It bypassed codegen transforms and produced `RNSVG*` warnings; the supported SDK 54
+  source entry now bundles successfully on Windows through Expo's default resolver.
 - typography.size.ghost (120) added to theme for GhostNumber
 - colors.textGhost ('rgba(255,255,255,0.04)') added to theme for Silhouette base layer
 - micro-spacing tokens added: inputPadV, badgePadH, badgePadV, badgeSmH, badgeSmV, inputHint

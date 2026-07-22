@@ -1,6 +1,6 @@
 # INAT — Components Document
 Version 1.0 | Written before first line of code
-React Native + NativeWind + Reanimated 3
+React Native + NativeWind + Reanimated
 This document is locked. Every component is
 listed here before it gets built. No new
 components without updating this document first.
@@ -43,8 +43,8 @@ first, then reference it here.
 export const colors = {
   abyss:    '#07090D',
   fathom:   '#0F141A',
-  volt:     '#DAFF00',
-  electric: '#4DBBFF',
+  iris:     '#8B5CF6',
+  volt:     '#62EE10',
   plasma:   '#FF4FD8',
   arcLight: '#EAFFF5',
   error:    '#E24B4A',
@@ -53,38 +53,38 @@ export const colors = {
   textArc:   '#EAFFF5',
   textMid:   'rgba(255,255,255,0.60)',
   textLow:   'rgba(255,255,255,0.35)',
-  textFaint: 'rgba(255,255,255,0.18)',
+  textFaint: 'rgba(255,255,255,0.04)',
 
   bgPage:  '#07090D',
   bgCard:  '#0F141A',
-  bgRaise: '#10161D',
+  bgRaise: '#141920',
   bgInput: 'rgba(255,255,255,0.05)',
   bgNav:   'rgba(7,9,13,0.96)',
   bgScrim: 'rgba(7,9,13,0.80)',
 
   border:         'rgba(255,255,255,0.08)',
   borderSoft:     'rgba(255,255,255,0.06)',
-  borderCard:     'rgba(255,255,255,0.07)',
+  borderCard:     'rgba(255,255,255,0.06)',
   borderStrong:   'rgba(255,255,255,0.12)',
-  borderElectric: 'rgba(77,187,255,0.40)',
+  borderIris:     'rgba(139,92,246,0.60)',
 
-  voltTint:     'rgba(218,255,0,0.12)',
-  electricTint: 'rgba(77,187,255,0.12)',
-  plasmaTint:   'rgba(255,79,216,0.12)',
-  selectedBg:   'rgba(77,187,255,0.06)',
+  irisTint:   'rgba(139,92,246,0.08)',
+  voltTint:   'rgba(98,238,16,0.08)',
+  plasmaTint: 'rgba(255,79,216,0.08)',
+  selectedBg: 'rgba(139,92,246,0.08)',
 
-  ctaBg:   '#4DBBFF',
+  ctaBg:   '#62EE10',
   ctaText: '#07090D',
 
   phase: {
-    foundation: '#4DBBFF',
-    build:      '#DAFF00',
+    foundation: '#8B5CF6',
+    build:      '#62EE10',
     commit:     '#FF4FD8',
   },
 } as const
 
 export const typography = {
-  font: 'HankenGrotesk',
+  font: 'DMSans',
   size: {
     label:   10,
     micro:   11,
@@ -137,21 +137,21 @@ export const radius = {
 
 export const effects = {
   glowCta: {
-    shadowColor: '#4DBBFF',
+    shadowColor: '#62EE10',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.25,
     shadowRadius: 20,
     elevation: 8,
   },
   glowVolt: {
-    shadowColor: '#DAFF00',
+    shadowColor: '#62EE10',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.18,
     shadowRadius: 16,
     elevation: 6,
   },
-  glowElectric: {
-    shadowColor: '#4DBBFF',
+  glowIris: {
+    shadowColor: '#8B5CF6',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.18,
     shadowRadius: 16,
@@ -184,7 +184,7 @@ export function getPhaseName(day: number): string {
 
 ## ANIMATION CONSTANTS
 
-All animations use Reanimated 3 only.
+All application animations use Reanimated and honor the system reduced-motion preference.
 Never use React Native's Animated API.
 
 ```typescript
@@ -448,7 +448,7 @@ States:
   active (isActive=true):
     Full opacity (1.0). Spring entrance: translateY 18→0 + opacity 0.4→1.
     Shows: "STEP X OF Y" muted label, instruction text, optional video link card,
-    Done button (60% width / 44px / 22px radius / Hanken medium / phaseColor bg).
+    Done button (60% width / 44px / 22px radius / DM Sans medium / phaseColor bg).
     Video link: Fathom bg, phaseColor play icon, title + "Tap to open".
 
   pending (isActive=false):
@@ -762,6 +762,26 @@ SVG spec:
 
 ---
 
+## PROFILE COMPONENTS (components/profile/)
+
+### ProfileAvatar
+
+Displays the stored avatar or a two-letter initials fallback. The entire control opens the photo-library flow. A phase-neutral Iris camera badge communicates editability; upload progress is visible and interaction is disabled while saving. The avatar uses the shared profile size/radius tokens and exposes “Add profile picture” or “Change profile picture” to accessibility services.
+
+### ActiveCircuitCard
+
+Presents Arc and Focus as separate rows, followed by the user's phase and circuit position. The seven numbered nodes represent position within the current phase, not all 21 days. Foundation, Build, and Commit labels explain the phase system. Completed journeys render “Circuit complete” and never expose the persisted sentinel as “Day 22 of 21.” Arc symbols are decorative; the card exposes one concise summary label to screen readers.
+
+### SettingsGroup and SettingsRow
+
+Reusable inset-list primitives for Profile and Settings. Rows use a stable horizontal structure: icon, primary label, optional trailing value, and chevron only when the row navigates or performs an action. Minimum row height is 64dp. Destructive state uses Error; unavailable membership remains legible and non-interactive rather than appearing broken. Groups may omit a heading for isolated actions such as Delete account.
+
+### SettingsHeader
+
+Inline pushed-screen header with BackButton, centered DM Sans title, and a width-matched trailing spacer. Settings routes remain in the root stack so BottomNav is not mounted.
+
+---
+
 ## SCREEN-LEVEL LAYOUT PATTERNS
 
 These are not components. They are patterns
@@ -801,7 +821,7 @@ ScreenWrapper (scrollable=false, padded=false)
       ├── Phase color pulse (scale+opacity Reanimated)
       ├── "DAY X COMPLETE" anchor + thin rule
       ├── Quote (Syne-ExtraBold 28/24px, lineHeight 1.3, arcLight, centered)
-      ├── Attribution (14px Hanken, arcLight 50%)
+      ├── Attribution (14px DM Sans, arcLight 50%)
       └── 4× FeelingPill (scale tap animation, 600ms delay → completeDay → navigate)
       (BottomNav NOT rendered on this screen)
 ```
@@ -852,7 +872,7 @@ describe('calculateScores', () => {
   it('returns Move as top score for restless + move_body')
   it('returns Mindful for anxious + lost_touch')
   it('handles tie — returns first alphabetically')
-  it('returns all five tracks with scores >= 0')
+  it('returns all five arcs with scores >= 0')
   it('scores sum correctly across all questions')
 })
 
@@ -891,7 +911,7 @@ describe('HoldButton', () => {
 - Blur on card surfaces (blur only on BottomNav/overlays)
 - Pure #FFFFFF text (use textHi or arcLight)
 - New colors (palette is closed)
-- React Native Animated API (Reanimated 3 only)
+- React Native Animated API (use Reanimated only)
 - StyleSheet.create in screen files (NativeWind only)
 - Inline hex values in any component
 - HoldButton inside a ScrollView (ever)

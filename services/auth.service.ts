@@ -41,3 +41,18 @@ export async function resetPassword(
   const { error } = await supabase.auth.resetPasswordForEmail(email)
   return { error }
 }
+
+export async function updateEmail(
+  email: string,
+): Promise<{ error: AuthError | null }> {
+  const { error } = await supabase.auth.updateUser({ email })
+  return { error }
+}
+
+export async function deleteAccount(): Promise<{ error: Error | null }> {
+  const { error } = await supabase.functions.invoke('delete-account', {
+    method: 'POST',
+  })
+
+  return { error: error ?? null }
+}

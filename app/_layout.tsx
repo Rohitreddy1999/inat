@@ -3,9 +3,19 @@ import { Stack } from 'expo-router'
 import { useEffect } from 'react'
 import { useFonts } from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
+import * as Notifications from 'expo-notifications'
 import { colors } from '@/theme'
 
 SplashScreen.preventAutoHideAsync()
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+})
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -55,6 +65,11 @@ export default function RootLayout() {
 
       {/* Main tabs — no back gesture */}
       <Stack.Screen name="(tabs)" options={{ gestureEnabled: false }} />
+
+      {/* Account settings — pushed from Profile */}
+      <Stack.Screen name="settings/index" />
+      <Stack.Screen name="settings/notifications" />
+      <Stack.Screen name="settings/email" />
 
       {/* Graduation — no back gesture */}
       <Stack.Screen name="graduation" options={{ gestureEnabled: false }} />

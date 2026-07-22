@@ -20,10 +20,10 @@ Five paths: Move · Rhythm · Express · Calm · Mindful
 ---
 
 ## TECH STACK
-- Framework: React Native + Expo SDK 51+
+- Framework: React Native + Expo SDK 54
 - Router: Expo Router (file-based)
 - Styling: NativeWind + theme/index.ts tokens
-- Animation: React Native Reanimated 3
+- Animation: React Native Reanimated
 - State: Zustand (session) + Supabase (persisted)
 - Backend: Supabase (auth + DB + RLS)
 - Language: TypeScript strict mode, no any
@@ -44,7 +44,7 @@ inat/
 │   │   └── signup.tsx       # Signup
 │   ├── (onboarding)/
 │   │   ├── life-stage.tsx   # Q1 — life stage
-│   │   ├── bridge.tsx       # How to find track
+│   │   ├── bridge.tsx       # How to choose an arc
 │   │   ├── energy.tsx       # Q — energy state (step 2/7)
 │   │   ├── barrier.tsx      # Q — barrier (step 3/7)
 │   │   ├── channel.tsx      # Q — channel / single select (step 4/7)
@@ -52,12 +52,16 @@ inat/
 │   │   ├── presence.tsx     # Q — presence / single select (step 6/7)
 │   │   ├── q6.tsx           # Free text (step 7/7)
 │   │   ├── match.tsx        # Track recommendation
-│   │   └── focus.tsx        # Subtrack selection
+│   │   └── focus.tsx        # Focus selection
 │   ├── (tabs)/
 │   │   ├── index.tsx        # Home
 │   │   ├── ascent.tsx       # Progress
 │   │   ├── community.tsx    # Community (placeholder)
-│   │   └── profile.tsx      # Profile + Settings
+│   │   └── profile.tsx      # Profile hub
+│   ├── settings/
+│   │   ├── index.tsx        # Account and app settings
+│   │   ├── email.tsx        # Change-email flow
+│   │   └── notifications.tsx # Daily practice reminder
 │   ├── day.tsx              # Day screen (pushed)
 │   └── graduation.tsx       # Graduation (pushed)
 ├── components/
@@ -67,6 +71,7 @@ inat/
 │   ├── navigation/          # BottomNav, BackButton
 │   └── shared/              # ReentryCard, Silhouette, DayCard, TrackCard...
 ├── services/
+│   ├── notification.service.ts
 │   ├── auth.service.ts
 │   ├── journey.service.ts
 │   ├── curriculum.service.ts
@@ -122,13 +127,16 @@ energy=2, barrier=3, channel=4, identity=5, presence=6, q6=7.
 Tab 1: Home     → Day screen (pushed on tap)
 Tab 2: Ascent   → Progress screen
 Tab 3: Community → Placeholder
-Tab 4: Profile  → Profile + Settings
+Tab 4: Profile  → Identity, active circuit, membership, Settings entry
 ```
 
 ### Pushed screens (no tab bar)
 ```
 Day screen    — pushed from Home
 Graduation    — pushed after Day 21 hold-complete
+Settings      — pushed from the Profile gear
+Notifications — pushed from Settings
+Change email  — pushed from Settings
 ```
 
 ---
@@ -177,7 +185,7 @@ CTA: "Continue" (enabled after selection).
 Writes life_stage to Supabase profiles on continue.
 
 **Bridge**
-"How would you like to find your track?"
+"How would you like to find your arc?"
 Option 1 (RECOMMENDED badge): "Answer a few questions"
 Option 2: "I know what I want"
 Note below: "You can always retake questions later"
@@ -224,23 +232,22 @@ Writes open_answer to Supabase profiles.
 **Match / Recommendation**
 Label: "YOUR MATCH"
 Headline: "Here's what we think — but you know yourself best."
-All 5 tracks shown as TrackCard components.
-Highest scoring track: glowVolt + RECOMMENDED badge.
-User can select any track regardless of recommendation.
-Track one-liners shown on each card.
-CTA: "Start this track →"
-If came from direct path: no recommendation, all tracks equal.
+All five arcs are shown as selection cards.
+Highest scoring arc: recommended treatment.
+User can select any arc regardless of recommendation.
+Arc one-liners are shown on each card.
+CTA: "Choose this arc →"
+If the user came from the direct path, no recommendation is imposed.
 
-**Focus — Subtrack Selection**
-Track name pill header (Electric bg, track icon).
+**Focus — Discipline Selection**
+Selected arc header using the current Iris selection treatment.
 "Pick your focus"
 "Choose what you want to work on for the next 21 days."
-Live subtracks: real SubtrackCard, selectable.
-Future subtracks: "Coming Soon" card, not selectable.
-Coming Soon cards appear automatically when subtrack exists
-in DB with is_live = false. No code change needed to add them.
+Active focuses for the selected arc are selectable.
+Inactive focuses may be shown as Coming Soon and are not selectable.
+Focus availability is driven by `focuses.is_active`.
 CTA: "Begin my 21 days →" (disabled until selection made).
-Creates user_journeys row in Supabase on confirm.
+Creates a `user_journeys` row with the selected arc/focus on confirm.
 Clears onboarding.store after journey created.
 
 ---
@@ -277,7 +284,7 @@ BottomNav fixed at bottom.
 Guided sequential session model. No free-toggle steps.
 Fixed header: back arrow (left) + phase badge (right). No decorative bloom.
 Title: day title in Syne-ExtraBold, dynamic font size (40/32/26px by char count,
-  max 3 lines). Subtitle: focus name · duration in Hanken Grotesk caption.
+  max 3 lines). Subtitle: focus name · duration in DM Sans caption.
 Scrollable body sections (in order):
   Before You Start — only if day data includes equipment[]. Phase-color ▸ list.
   Why does this matter? — collapsible. maxHeight Reanimated animation. Collapsed by default.
@@ -285,7 +292,7 @@ Scrollable body sections (in order):
     Each pill is tappable to re-expand that step for re-reading.
   Step cards — one active card (full opacity, spring entrance). Steps below at 40% opacity.
     Active card: STEP X OF Y label, instruction text, optional inline video link,
-    Done button (60% width / 44px / 22px radius / Hanken medium / phaseColor).
+    Done button (60% width / 44px / 22px radius / DM Sans medium / phaseColor).
     Tapping Done collapses current step to pill, next step rises up as active.
 Fixed bottom (NEVER scrolls):
   LinearGradient fade (transparent → abyss).
@@ -297,7 +304,7 @@ CompletionMoment overlay (absolute fill, zIndex 100):
   "DAY X COMPLETE" anchor header (12px spaced caps, phaseColor).
   Thin phase-color rule (40% width, 20% opacity).
   Day quote — large Syne-ExtraBold, centered, Arc-Light. 28px / 24px by length.
-  Attribution — 14px Hanken, arcLight 50%.
+  Attribution — 14px DM Sans, arcLight 50%.
   "HOW DID TODAY FEEL?" — 4 feeling pills in 2×2 grid.
     Default border: 1.5px phaseColor 60% opacity. Selected: 2px full + 15% bg tint.
     Scale tap animation. 600ms delay then calls completeDay() + navigates.
@@ -323,17 +330,35 @@ Styled placeholder screen.
 BottomNav fixed.
 
 **Profile**
-Avatar (initials fallback if no image).
-Full name, life stage.
-Active journey summary card.
-Completed journeys list.
-Settings section:
-  Notifications toggle
-  Change email
-  Change password
-  Delete account (confirmation required)
-  Sign out
+Editable avatar with initials fallback, full name, and authenticated email.
+Never shows life-stage or discovery answers.
+Settings gear pushes a dedicated Settings screen.
+Active Circuit shows canonical arc, focus, phase, and Day N of 21.
+Completed journeys show Complete; the UI never renders Day 22 of 21.
+Membership status is visible and honest; until billing exists it reads Not active
+and does not present a fake purchase flow.
 BottomNav fixed.
+
+**Settings**
+Pushed from Profile with back navigation and no BottomNav.
+Uses reusable grouped rows so future preferences can be added without a
+screen redesign.
+Preferences: Notifications with current reminder summary.
+Account: Change email and Reset password.
+Membership: INAT Membership with Not active status.
+Session: Sign out.
+Delete account is visually separated and requires explicit confirmation.
+Success is shown only after the configured backend actually deletes the user.
+
+**Notifications**
+Focused daily-practice reminder settings. The user may enable or disable the
+reminder and select a supported local time. Permission denied, loading, save,
+and scheduling errors are explicit. Uses native notification permissions and
+local scheduling; notification state is read from scheduled requests.
+
+**Change email**
+Focused authenticated email-update form. Displays the current address, validates
+the replacement address, and explains that verification may be required.
 
 ---
 
@@ -421,7 +446,7 @@ On app open after auth confirmed, always fetch fresh from Supabase:
 
 ```
 today = current calendar date in user's timezone
-last_completion_date = MAX(completed_date) from daily_completions
+last_completion_date = MAX(completed_at) from user_day_logs
                        WHERE journey_id = active_journey.id
 
 if no active journey:
@@ -454,7 +479,7 @@ Phase-based messages for State A:
 
 - Call Supabase directly from a component — use services/ only
 - Hardcode any color, font size, or spacing value — use theme/index.ts
-- Use React Native's Animated API — use Reanimated 3 only
+- Use React Native's Animated API — use Reanimated only
 - Use 'any' in TypeScript — fix the type properly
 - Put HoldButton inside a ScrollView
 - Show BottomNav on Day screen or Graduation
@@ -491,7 +516,7 @@ Phase-based messages for State A:
 - [ ] life_stage written to Supabase profiles
 - [ ] open_answer written to Supabase profiles
 - [ ] discovery_answer scores written to Supabase profiles
-- [ ] Correct track highlighted on match screen
+- [ ] Correct arc highlighted on match screen
 - [ ] Direct path shows no recommendation
 - [ ] user_journeys row created on focus confirm
 - [ ] onboarding.store cleared after journey created
@@ -505,7 +530,7 @@ Phase-based messages for State A:
 - [ ] HoldButton fixed to bottom, never scrolls
 - [ ] Hold completes after 1 second on real device
 - [ ] Haptic feedback fires on completion (Expo Haptics)
-- [ ] Completion writes to daily_completions in Supabase
+- [ ] Completion writes to user_day_logs in Supabase
 - [ ] current_day advances in user_journeys
 - [ ] Day 21 completion triggers Graduation push
 

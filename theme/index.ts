@@ -188,6 +188,17 @@ export const graduation = {
   fallbackJointSize: 10,
 } as const
 
+export const profile = {
+  avatarSize: 72,
+  avatarEditSize: 28,
+  iconButtonSize: 48,
+  settingRowMinHeight: 64,
+  circuitIconSize: 40,
+  progressDotSize: 30,
+  progressLineHeight: 2,
+  maxContentWidth: 620,
+} as const
+
 export function getPhaseColor(day: number): string {
   if (day <= 7)  return colors.phase.foundation
   if (day <= 14) return colors.phase.build

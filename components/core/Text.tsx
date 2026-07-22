@@ -11,6 +11,7 @@ type Props = {
   color?: string
   align?: 'left' | 'center' | 'right'
   uppercase?: boolean
+  numberOfLines?: number
   style?: StyleProp<TextStyle>
   children: React.ReactNode
 }
@@ -73,11 +74,13 @@ export function Text({
   color = colors.textHi,
   align,
   uppercase,
+  numberOfLines,
   style,
   children,
 }: Props) {
   return (
     <RNText
+      numberOfLines={numberOfLines}
       style={[
         variantStyles[variant],
         { color },

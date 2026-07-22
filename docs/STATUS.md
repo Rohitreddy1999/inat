@@ -43,6 +43,14 @@ The rebuild is implemented. Its opening now uses a slow cinematic materializatio
 
 The current schema has no `graduation_seen` field, and none is inferred. Returning Home after Graduation is an explicit clean exit; Home may continue to offer a route back to the completed Graduation experience. A future product decision and schema migration are required if Graduation must be auto-presented exactly once across app launches.
 
+## Profile and settings direction
+
+Profile is a calm identity-and-circuit hub rather than a second settings list. It shows the user's editable avatar, full name, email, active arc/focus, current phase/day, and membership state. It deliberately excludes onboarding answers and the former life-stage line. A single gear opens pushed settings screens outside the tab navigator.
+
+Settings currently includes local practice reminders, password reset, email change, membership status, sign out, and account deletion. Avatar upload requires a public Supabase Storage bucket named `avatars` with user-scoped write policies. Account deletion requires the authenticated `delete-account` Edge Function; the client must never report deletion when that server operation is unavailable. Notification reminders are local device schedules and require real-device permission testing.
+
+The former Metro override that forced `react-native-svg` through its CommonJS entry has been removed. It bypassed React Native codegen transforms and produced `RNSVG*` codegen warnings. SDK 54's supported package source entry now bundles successfully on Windows with the default Expo Metro resolver.
+
 ## Canonical database model
 
 The Supabase curriculum migration is complete. Current code must use:
@@ -56,7 +64,7 @@ The Supabase curriculum migration is complete. Current code must use:
 
 The former `tracks`, `subtracks`, `curriculum_days`, `daily_completions`, and `subtrack_id` architecture is gone.
 
-Older references remain in `docs/ARCHITECTURE.md`, `docs/DATA.md`, and `docs/COMPONENTS.md`. Those references are known documentation debt and must not guide implementation.
+The current architecture, data, component, and design documents now use this canonical model. Legacy component filenames such as `TrackCard` and `SubtrackCard` may remain until a deliberate code migration; they are presentation components, not permission to restore the retired database model.
 
 ## Current palette and typography migrations
 
@@ -76,7 +84,6 @@ The intended product behavior remains calendar-based unlocking at the user's nex
 
 ## Known issues and gaps
 
-- `docs/ARCHITECTURE.md`, `docs/DATA.md`, and `docs/COMPONENTS.md` still contain retired schema terminology and historical design details.
 - Current date handling extracts UTC dates with `toISOString()` even though the intended unlock behavior is based on the user's stored timezone.
 - Graduation cannot be auto-presented exactly once across app launches without a persisted acknowledgement field or an equivalent product-level decision.
 - `app.json` declares a light interface and white native splash background despite the dark visual foundation.
@@ -88,12 +95,6 @@ The intended product behavior remains calendar-based unlocking at the user's nex
 
 At the time this guide was introduced, the repository contained user-owned untracked development/configuration files and visual assets. Inspect `git status` before every change and do not modify or remove unrelated files.
 
-## Next documentation cleanup
+## Documentation state
 
-After the current polish priorities—or sooner if a relevant conflict blocks work—rewrite the affected portions of:
-
-- `docs/ARCHITECTURE.md`
-- `docs/DATA.md`
-- `docs/COMPONENTS.md`
-
-The cleanup should describe the current arc/focus/day/day-step/user-log model rather than preserving both generations side by side.
+The Profile/Settings contracts, canonical arc/focus/day data model, current palette, and SVG resolver decision are synchronized across `DESIGN.md`, `docs/ARCHITECTURE.md`, `docs/COMPONENTS.md`, `docs/DATA.md`, and this status file. `docs/CLAUDE.md` remains historical context and explicitly marks superseded decisions.
