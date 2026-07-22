@@ -12,7 +12,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { colors, spacing, typography, fontFamilies } from '@/theme'
+import { colors } from '@/theme'
 
 type TabKey = 'home' | 'ascent' | 'community' | 'profile'
 
@@ -60,6 +60,8 @@ const TABS: TabDef[] = [
   },
 ]
 
+const INACTIVE_COLOR = colors.arcLight + '40'  // 25% opacity
+
 const SELECTION_SPRING = {
   stiffness:    400,
   damping:      20,
@@ -91,9 +93,8 @@ function Tab({
     onPress()
   }
 
-  const iconColor  = isActive ? phaseColor : colors.textLow
-  const labelColor = isActive ? phaseColor : colors.textLow
-  const iconName   = isActive ? def.iconActive : def.iconInactive
+  const iconColor = isActive ? phaseColor : INACTIVE_COLOR
+  const iconName  = isActive ? def.iconActive : def.iconInactive
 
   return (
     <Pressable
@@ -105,8 +106,8 @@ function Tab({
       style={styles.tab}
     >
       <Animated.View style={[styles.tabInner, animStyle]}>
-        <Ionicons name={iconName} size={24} color={iconColor} />
-        <Text style={[styles.label, { color: labelColor }]}>
+        <Ionicons name={iconName} size={22} color={iconColor} />
+        <Text style={[styles.label, { color: iconColor }]}>
           {def.label}
         </Text>
       </Animated.View>
@@ -115,18 +116,20 @@ function Tab({
 }
 
 export function BottomNav({ active, phaseColor = colors.iris }: Props) {
-  const router    = useRouter()
-  const insets    = useSafeAreaInsets()
-  const navHeight = spacing.navHeight + insets.bottom
+  const router = useRouter()
+  const insets = useSafeAreaInsets()
+
+  // Position pill above safe area, minimum 24px from bottom
+  const bottomPos = Math.max(24, insets.bottom + 8)
 
   function handlePress(tab: TabDef) {
     router.replace(tab.route as Parameters<typeof router.replace>[0])
   }
 
-  const content = (
+  const row = (
     <View
       accessibilityRole="tablist"
-      style={[styles.row, { paddingBottom: insets.bottom }]}
+      style={styles.row}
     >
       {TABS.map((tab) => (
         <Tab
@@ -143,57 +146,64 @@ export function BottomNav({ active, phaseColor = colors.iris }: Props) {
   if (Platform.OS === 'ios') {
     return (
       <BlurView
-        intensity={20}
+        intensity={24}
         tint="dark"
-        style={[styles.container, { height: navHeight }]}
+        style={[styles.pill, { bottom: bottomPos }]}
       >
-        <View style={styles.border} />
-        {content}
+        <View style={styles.pillBorder}>
+          {row}
+        </View>
       </BlurView>
     )
   }
 
   return (
-    <View style={[styles.container, styles.androidBg, { height: navHeight }]}>
-      <View style={styles.border} />
-      {content}
+    <View style={[styles.pill, styles.pillAndroid, { bottom: bottomPos }]}>
+      <View style={styles.pillBorder}>
+        {row}
+      </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    bottom:   0,
-    left:     0,
-    right:    0,
-    overflow: 'hidden',
+  pill: {
+    position:     'absolute',
+    left:         20,
+    right:        20,
+    height:       64,
+    borderRadius: 32,
+    overflow:     'hidden',
   },
-  androidBg: {
-    backgroundColor: colors.bgNav,
+  pillAndroid: {
+    backgroundColor: 'rgba(15,20,26,0.60)',
   },
-  border: {
-    height:          1,
-    backgroundColor: colors.borderSoft,
+  // Inner view carries the visible border (BlurView can't have borderWidth reliably)
+  pillBorder: {
+    flex:            1,
+    borderRadius:    32,
+    borderWidth:     1,
+    borderColor:     'rgba(255,255,255,0.07)',
   },
   row: {
     flex:          1,
     flexDirection: 'row',
-    alignItems:    'flex-start',
-    paddingTop:    spacing[3],
+    alignItems:    'center',
+    paddingTop:    4,
   },
   tab: {
     flex:           1,
     alignItems:     'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
+    paddingVertical: 6,
   },
   tabInner: {
     alignItems: 'center',
-    gap:        spacing[1],
+    gap:        3,
   },
   label: {
-    fontSize:      typography.size.label,
-    fontFamily:    fontFamilies.medium,
-    letterSpacing: typography.tracking.label,
+    fontFamily:    'DMSans-Medium',
+    fontSize:      10,
+    letterSpacing: 0.5,
   },
 })
