@@ -578,6 +578,36 @@ Always provides:
 
 ---
 
+### AnimatedWordmark — components/brand/AnimatedWordmark.tsx
+First-launch brand sequence and reusable completed INAT wordmark.
+
+Props:
+  animated?: boolean
+  onComplete?: () => void
+  showDeclaration?: boolean
+
+Sequence:
+  1. Dotless lowercase i writes itself in Arc-Light.
+  2. N, A, and T write themselves one at a time in Arc-Light.
+  3. The single dot forms at the base of the i as a charged atomic orb.
+  4. The orb travels beneath the wordmark left-to-right, climbs the right edge,
+     returns across the top, and settles above the i while it ignites:
+     N → Iris, A → Volt, T → Plasma.
+  5. The same orb settles above the i; its rings and particles collapse.
+  6. A fine separator draws beneath the wordmark and retains a subtle endpoint
+     glow.
+  7. `INITIATE · NURTURE · ADAPT · TRANSCEND` appears all at once and remains
+     attached to the static Welcome lockup.
+
+The orb is never duplicated. Before landing, the i has no dot. After landing,
+the final circle is the orb itself in its quiet state.
+
+Animation uses Reanimated and react-native-svg only. It adds no playback or
+animation package. Reduced motion presents the completed colored wordmark and
+declaration immediately, then calls onComplete without decorative delay.
+
+---
+
 ### SectionLabel — components/shared/SectionLabel.tsx
 Uppercase section labels. "WHAT TO DO" etc.
 

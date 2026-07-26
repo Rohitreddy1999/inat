@@ -146,9 +146,35 @@ Change email  — pushed from Settings
 ### (auth) group
 
 **Splash**
-Checks Supabase auth session on mount.
-Shows INAT wordmark animation (2-3 seconds).
-Routes based on session + journey state.
+The native launch screen is static and disappears as soon as fonts and the
+React tree are ready. Session and journey hydration begin immediately in
+parallel with the in-app brand sequence.
+
+First launch after installation:
+  The dotless Arc-Light `i`, `N`, `A`, and `T` write themselves one at a time
+  from particle-like energy using one disciplined Syne construction. A single
+  charged Arc-Light orb forms from the base of the lowercase i, travels beneath
+  the wordmark from left to right, climbs the right edge, returns across the
+  top, and settles as the dot above the i. It ignites N to Iris, A to Volt, and
+  T to Plasma along the route. Its atomic energy collapses into the clean final
+  dot. A separator draws beneath the mark and leaves a restrained glow at its
+  endpoint. The complete
+  `INITIATE · NURTURE · ADAPT · TRANSCEND` line appears at once.
+  The finished logo remains spatially anchored as Welcome content replaces the
+  surrounding launch state. The separator and declaration remain part of the
+  Welcome lockup; the former phase rings and `21 days. One decision.` line do
+  not return.
+
+Later cold launches:
+  Use the static native mark and a restrained transition only; never replay the
+  full sequence. Returning from the background restores the previous screen
+  without splash choreography.
+
+The first-launch decision is per installation, not per account or sign-in.
+Reduced motion skips particle writing and orbit motion and presents the
+completed mark and route-ready content immediately.
+
+Routes based on session + journey state after the required launch treatment.
 No back navigation. Internet required.
 Shows offline state if no connection.
 
@@ -310,19 +336,44 @@ CompletionMoment overlay (absolute fill, zIndex 100):
     Scale tap animation. 600ms delay then calls completeDay() + navigates.
 BottomNav NOT shown on this screen.
 
-**Ascent — Progress**
-Silhouette system:
-  Human silhouette SVG in background.
-  Lights bottom-to-top as days complete.
-  Color = current phase color.
-  Slow float animation.
-Day grid: all 21 days shown.
-  Completed: phase color fill.
-  Current: pulsing phase border.
-  Future: faint empty.
-Three truths section (from daily_completions data).
-Stats: streak, phase name, days remaining.
-BottomNav fixed.
+**Ascent — Practice Report**
+Ascent is a fact-based report derived from canonical `user_day_logs` records.
+It is not a streak screen or a repeated completion dashboard.
+
+Header:
+  Compact `ASCENT` label, active focus name, and one position statement:
+  `Day N · Phase`. No other completion fraction or remaining-days counter.
+
+Ascent graph:
+  One selectable node per valid, unique completed curriculum day.
+  Horizontal position uses local calendar intervals between completions;
+  longer gaps create proportionally more distance. Individual visual intervals
+  are capped at 21 days so extreme gaps remain legible without changing data.
+  Vertical position maps curriculum days 1–21 and never descends.
+  Segments retain the earned phase color of their destination day:
+  Iris for Foundation, Volt for Build, Plasma for Commit.
+  Horizontal Foundation, Build, and Commit guides explain the vertical scale.
+  Feeling is encoded by node shape as well as selected-node text:
+  solid = Felt right; ring + center = Pushed through;
+  half-filled = Just okay; outline = Struggled.
+  Nodes expose platform-minimum touch targets and ordered screen-reader labels.
+
+Practice Signal:
+  Shows distinct local completion dates in the rolling eligible window.
+  The denominator is seven, or journey age in local calendar days when younger.
+  Ratio labels are deterministic: Forming (0–25%), Gathering (>25–50%),
+  Steady (>50–75%), Established (>75%). This is descriptive, not punitive.
+  Until stored-profile timezone utilities reach this screen, local calendar
+  means the device calendar. UTC date slicing is not used.
+
+Observation and record:
+  Exactly one factual observation appears, prioritized as: recent return,
+  supported phase feeling comparison (minimum three records per phase),
+  recent feeling pattern (minimum three records), then insufficient evidence.
+  Recent practices lists at most the latest three exact records.
+  Empty, one-practice, loading, error, partial, and completed states are explicit.
+  Duplicate or malformed logs cannot produce progress outside days 1–21.
+BottomNav fixed and content clears its safe area.
 
 **Community** (MVP placeholder)
 Styled placeholder screen.

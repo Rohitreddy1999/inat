@@ -199,6 +199,14 @@ export const profile = {
   maxContentWidth: 620,
 } as const
 
+export const brandMotion = {
+  firstLaunchDuration: 3100,
+  wordmarkAspectRatio: 760 / 300,
+  wordmarkMaxWidth: 420,
+  orbSize: 16,
+  declarationTracking: 0.22,
+} as const
+
 export function getPhaseColor(day: number): string {
   if (day <= 7)  return colors.phase.foundation
   if (day <= 14) return colors.phase.build

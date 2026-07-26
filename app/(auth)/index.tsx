@@ -1,14 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
-import { View, StyleSheet, TouchableOpacity } from 'react-native'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { View, StyleSheet } from 'react-native'
 import { router } from 'expo-router'
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-  runOnJS,
-} from 'react-native-reanimated'
-import { colors, typography, spacing, fontFamilies } from '@/theme'
+import { colors, spacing } from '@/theme'
+import { AnimatedWordmark } from '@/components/brand/AnimatedWordmark'
 import { ScreenWrapper } from '@/components/shared/ScreenWrapper'
 import { Text } from '@/components/core/Text'
 import { Button } from '@/components/core/Button'
@@ -16,10 +10,16 @@ import { getSession } from '@/services/auth.service'
 import { getProfile } from '@/services/profile.service'
 import { useJourneyStore } from '@/stores/journey.store'
 
+type RouteTarget =
+  | '/(auth)/welcome'
+  | '/(onboarding)/life-stage'
+  | '/(onboarding)/orientation'
+  | '/(tabs)/'
+
 export default function Splash() {
-  const wordmarkOpacity = useSharedValue(0)
-  const taglineOpacity  = useSharedValue(0)
   const [offlineError, setOfflineError] = useState(false)
+  const [animationComplete, setAnimationComplete] = useState(false)
+  const [routeTarget, setRouteTarget] = useState<RouteTarget | null>(null)
   const hasRouted = useRef(false)
   const userIdRef = useRef<string | null>(null)
 
@@ -27,10 +27,7 @@ export default function Splash() {
   const activeJourney = useJourneyStore((s) => s.activeJourney)
   const isHydrated    = useJourneyStore((s) => s.isHydrated)
 
-  const wordmarkStyle = useAnimatedStyle(() => ({ opacity: wordmarkOpacity.value }))
-  const taglineStyle  = useAnimatedStyle(() => ({ opacity: taglineOpacity.value }))
-
-  const runAuthCheck = async () => {
+  const runAuthCheck = useCallback(async () => {
     const { session, error } = await getSession()
 
     if (error) {
@@ -39,36 +36,28 @@ export default function Splash() {
     }
 
     if (!session) {
-      router.replace('/(auth)/welcome')
+      setRouteTarget('/(auth)/welcome')
       return
     }
 
     userIdRef.current = session.user.id
     await hydrate(session.user.id)
-  }
+  }, [hydrate])
 
-  const afterAnimation = () => {
-    setTimeout(() => {
-      void runAuthCheck()
-    }, 2000)
-  }
+  const handleAnimationComplete = useCallback(() => {
+    setAnimationComplete(true)
+  }, [])
 
   useEffect(() => {
-    wordmarkOpacity.value = withTiming(1, { duration: 600 }, () => {
-      taglineOpacity.value = withDelay(400, withTiming(1, { duration: 400 }, () => {
-        runOnJS(afterAnimation)()
-      }))
-    })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    void runAuthCheck()
+  }, [runAuthCheck])
 
   // Route once hydration completes (triggered by hydrate() resolving)
   useEffect(() => {
     if (!isHydrated || hasRouted.current) return
 
     if (activeJourney) {
-      hasRouted.current = true
-      router.replace('/(tabs)/')
+      setRouteTarget('/(tabs)/')
       return
     }
 
@@ -79,37 +68,23 @@ export default function Splash() {
     void (async () => {
       const { profile } = await getProfile(userId)
       if (profile?.life_stage) {
-        router.replace('/(onboarding)/life-stage')
+        setRouteTarget('/(onboarding)/life-stage')
       } else {
-        router.replace('/(onboarding)/orientation')
+        setRouteTarget('/(onboarding)/orientation')
       }
     })()
   }, [isHydrated, activeJourney])
 
+  useEffect(() => {
+    if (!animationComplete || !routeTarget || hasRouted.current) return
+    hasRouted.current = true
+    router.replace(routeTarget)
+  }, [animationComplete, routeTarget])
+
   return (
     <ScreenWrapper padded={false} scrollable={false}>
       <View style={styles.container}>
-        <Animated.View style={wordmarkStyle}>
-          <Text
-            variant="display"
-            color={colors.iris}
-            style={styles.wordmark}
-          >
-            INAT
-          </Text>
-        </Animated.View>
-
-        <Animated.View style={[styles.taglineWrap, taglineStyle]}>
-          <Text
-            variant="caption"
-            color={colors.textMid}
-            align="center"
-            uppercase
-            style={styles.tagline}
-          >
-            I Never Accept Theoretical Limits
-          </Text>
-        </Animated.View>
+        <AnimatedWordmark onComplete={handleAnimationComplete} />
 
         {offlineError && (
           <View style={styles.errorWrap}>
@@ -122,6 +97,7 @@ export default function Splash() {
                 fullWidth={false}
                 onPress={() => {
                   setOfflineError(false)
+                  setRouteTarget(null)
                   void runAuthCheck()
                 }}
               >
@@ -141,15 +117,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: spacing.pagePad,
-  },
-  wordmark: {
-    letterSpacing: typography.tracking.wide * typography.size.display,
-  },
-  taglineWrap: {
-    marginTop: spacing[2],
-  },
-  tagline: {
-    letterSpacing: typography.tracking.label * typography.size.caption,
   },
   errorWrap: {
     position: 'absolute',

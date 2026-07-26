@@ -2,7 +2,7 @@
 
 This document records changing project state, temporary behavior, known issues, and intentional differences between the current implementation and older documentation. Update it when priorities or temporary decisions change. Durable product and engineering rules belong in `AGENTS.md`.
 
-Last reviewed: July 22, 2026
+Last reviewed: July 23, 2026
 
 ## Current product stage
 
@@ -12,12 +12,34 @@ Home screen polish, including the human meditation silhouette and phase-aware pr
 
 ## Current work order
 
-1. Polish the Ascent screen.
-2. Polish the Graduation screen.
-3. Polish the Profile/Settings screen.
-4. Revisit and deliberately redesign the Day instruction experience.
+The user explicitly narrowed current work to one concern: logo and splash.
+
+1. Prototype and approve the first-launch INAT wordmark animation.
+2. Integrate the static native splash and first-install/everyday launch split.
+3. Return to authentication presentation only after logo/splash approval.
+4. Revisit Ascent and the Day instruction experience in dedicated sessions.
 
 Do not jump into unrelated feature development unless the user changes this order.
+
+## Logo and splash direction
+
+The approved first-launch sequence is a reverse-disintegration construction:
+the dotless i, N, A, and T write themselves sequentially from Arc-Light
+particle energy in one coherent Syne construction. A single charged orb—the
+actual dot of the lowercase i—forms from the base of the i, travels beneath the
+wordmark from left to right, climbs the right edge, returns across the top, and
+settles above the i. It ignites N to Iris, A to Volt, and T to Plasma during
+that route. Its atomic rings collapse into the clean final dot. A thin separator
+draws beneath the mark with a restrained endpoint glow.
+`INITIATE · NURTURE · ADAPT · TRANSCEND` appears as one complete line and remains
+part of the Welcome lockup. The former three phase rings and
+`21 days. One decision.` line are removed from Welcome.
+
+During the visual prototype, the full sequence may replay on each cold launch
+for review. Production must gate it once per installation. The project
+currently has no approved local-persistence dependency for that gate; do not add
+one without explicit approval. Everyday cold launches remain brief, and
+foreground resume never replays the sequence.
 
 ## Day experience direction
 
